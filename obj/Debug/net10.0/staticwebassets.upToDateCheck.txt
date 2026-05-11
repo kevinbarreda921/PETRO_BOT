@@ -1,8 +1,14 @@
-wwwroot\app.css
+wwwroot\css\app.css
+wwwroot\css\style_menu.css
+wwwroot\js\menu\menu.js
+wwwroot\app\app.css
 Components\Layout\ReconnectModal.razor.js
 C:\Users\kbarreda\.nuget\packages\microsoft.aspnetcore.app.internal.assets\10.0.5\build\..\_framework\blazor.web.js
 C:\Users\kbarreda\.nuget\packages\microsoft.aspnetcore.app.internal.assets\10.0.5\build\..\_framework\blazor.server.js
-C:\Users\kbarreda\Documents\Curso\PETRO_BOT\wwwroot\app.css
+C:\Users\kbarreda\Documents\Curso\PETRO_BOT\wwwroot\css\app.css
+C:\Users\kbarreda\Documents\Curso\PETRO_BOT\wwwroot\css\style_menu.css
+C:\Users\kbarreda\Documents\Curso\PETRO_BOT\wwwroot\js\menu\menu.js
 C:\Users\kbarreda\Documents\Curso\PETRO_BOT\Components\Layout\ReconnectModal.razor.js
 C:\Users\kbarreda\.nuget\packages\microsoft.aspnetcore.app.internal.assets\10.0.5\_framework\blazor.web.js
 C:\Users\kbarreda\.nuget\packages\microsoft.aspnetcore.app.internal.assets\10.0.5\_framework\blazor.server.js
+C:\Users\kbarreda\Documents\Curso\PETRO_BOT\wwwroot\app\app.css

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PETRO_BOT")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+13fb62c6e3eeba2f17564460aadce8baef5a30cf")]
 [assembly: System.Reflection.AssemblyProductAttribute("PETRO_BOT")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PETRO_BOT")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

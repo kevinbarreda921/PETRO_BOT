@@ -8,14 +8,17 @@
     <ResourcePreloader />
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["PETRO_BOT.styles.css"]" />
+    <link href="app/app.css" rel="stylesheet" />
     <ImportMap />
     <HeadOutlet />
 </head>
 
-<body>
+<body class="text-slate-800 antialiased overflow-x-hidden">
+
     <Routes />
     <ReconnectModal />
     <script src="@Assets["_framework/blazor.web.js"]"></script>
+    <script src="/js/menu/menu.js"></script>
 </body>
 
 </html>

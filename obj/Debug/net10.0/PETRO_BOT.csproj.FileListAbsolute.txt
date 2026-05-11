@@ -22,7 +22,6 @@ C:\Users\kbarreda\Documents\Curso\PETRO_BOT\obj\Debug\net10.0\scopedcss\Componen
 C:\Users\kbarreda\Documents\Curso\PETRO_BOT\obj\Debug\net10.0\scopedcss\Components\Layout\ReconnectModal.razor.rz.scp.css
 C:\Users\kbarreda\Documents\Curso\PETRO_BOT\obj\Debug\net10.0\scopedcss\bundle\PETRO_BOT.styles.css
 C:\Users\kbarreda\Documents\Curso\PETRO_BOT\obj\Debug\net10.0\scopedcss\projectbundle\PETRO_BOT.bundle.scp.css
-C:\Users\kbarreda\Documents\Curso\PETRO_BOT\obj\Debug\net10.0\compressed\ifudmtns4o-{0}-4kywy7iv6g-4kywy7iv6g.gz
 C:\Users\kbarreda\Documents\Curso\PETRO_BOT\obj\Debug\net10.0\compressed\caoj6zvb5s-{0}-abdmv1u4y3-abdmv1u4y3.gz
 C:\Users\kbarreda\Documents\Curso\PETRO_BOT\obj\Debug\net10.0\compressed\kgk25snqbd-{0}-b9228eflpl-b9228eflpl.gz
 C:\Users\kbarreda\Documents\Curso\PETRO_BOT\obj\Debug\net10.0\compressed\46y40pfrve-{0}-2tj1sjhksk-2tj1sjhksk.gz
@@ -39,3 +38,10 @@ C:\Users\kbarreda\Documents\Curso\PETRO_BOT\obj\Debug\net10.0\refint\PETRO_BOT.d
 C:\Users\kbarreda\Documents\Curso\PETRO_BOT\obj\Debug\net10.0\PETRO_BOT.pdb
 C:\Users\kbarreda\Documents\Curso\PETRO_BOT\obj\Debug\net10.0\PETRO_BOT.genruntimeconfig.cache
 C:\Users\kbarreda\Documents\Curso\PETRO_BOT\obj\Debug\net10.0\ref\PETRO_BOT.dll
+C:\Users\kbarreda\Documents\Curso\PETRO_BOT\bin\Debug\net10.0\package-lock.json
+C:\Users\kbarreda\Documents\Curso\PETRO_BOT\bin\Debug\net10.0\package.json
+C:\Users\kbarreda\Documents\Curso\PETRO_BOT\obj\Debug\net10.0\PETRO_BOT.sourcelink.json
+C:\Users\kbarreda\Documents\Curso\PETRO_BOT\obj\Debug\net10.0\compressed\9wah1qx2vs-{0}-qzwgfi0vd2-qzwgfi0vd2.gz
+C:\Users\kbarreda\Documents\Curso\PETRO_BOT\obj\Debug\net10.0\compressed\5a2wpx5741-{0}-3jldyz1axr-3jldyz1axr.gz
+C:\Users\kbarreda\Documents\Curso\PETRO_BOT\obj\Debug\net10.0\compressed\cbbawc69ty-{0}-0dyn1qlbf6-0dyn1qlbf6.gz
+C:\Users\kbarreda\Documents\Curso\PETRO_BOT\obj\Debug\net10.0\compressed\quwyk2ry7c-{0}-idg2j1pmgt-idg2j1pmgt.gz

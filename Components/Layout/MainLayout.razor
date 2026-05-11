@@ -1,6 +1,13 @@
 ﻿@inherits LayoutComponentBase
 
-@Body
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 hidden transition-opacity duration-300"></div>
+<div class="flex min-h-screen p-4 lg:p-6 gap-6">
+    <Menu/>
+    <main class="flex-1 mx-auto w-full">
+        <Header/>
+        @Body
+    </main>
+</div>
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
