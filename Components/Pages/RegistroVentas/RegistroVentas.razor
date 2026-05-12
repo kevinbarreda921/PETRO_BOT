@@ -15,48 +15,53 @@
             <span class="h-2 w-2 bg-emerald-400 rounded-full animate-pulse"></span>
         </div>
 
+        @if (EstadoAdjuntadoRegistroVentas==false)
+        {
+            <div class="space-y-2">
 
-        <div class="space-y-2">
-
-            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">
-                Adjuntar
-            </label>
-
-            <div class="group relative w-full">
-
-                <label for="file-upload"
-                       class="w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl px-4 py-2 flex items-center justify-between hover:border-emerald-400 hover:bg-emerald-50/30 transition-all cursor-pointer">
-
-                    <span class="text-[11px] font-bold text-slate-600">
-                        Adjuntar registro ventas
-                    </span>
-
-                    <span class="p-1.5 bg-white rounded-lg shadow-sm group-hover:scale-105 transition-transform">
-                        <svg class="w-4 h-4 text-emerald-500"
-                             fill="none"
-                             stroke="currentColor"
-                             viewBox="0 0 24 24">
-                            <path stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  stroke-width="2"
-                                  d="M12 4v16m8-8H4">
-                            </path>
-                        </svg>
-                    </span>
-
+                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                    Adjuntar
                 </label>
 
-                <InputFile id="file-upload"
-                           OnChange="SubirArchivo"
-                           class="hidden" />
+                <div class="group relative w-full">
+
+                    <label for="file-upload"
+                           class="w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl px-4 py-2 flex items-center justify-between hover:border-emerald-400 hover:bg-emerald-50/30 transition-all cursor-pointer">
+
+                        <span class="text-[11px] font-bold text-slate-600">
+                            Adjuntar registro ventas
+                        </span>
+
+                        <span class="p-1.5 bg-white rounded-lg shadow-sm group-hover:scale-105 transition-transform">
+                            <svg class="w-4 h-4 text-emerald-500"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 viewBox="0 0 24 24">
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M12 4v16m8-8H4">
+                                </path>
+                            </svg>
+                        </span>
+
+                    </label>
+
+                    <InputFile id="file-upload"
+                               OnChange="SubirArchivo"
+                               accept=".xlsx"
+                               class="hidden" />
+
+                </div>
 
             </div>
 
-        </div>
-
-        <SuccessCargaFile File="registro_ventaas.xlsx"/>
-
-  
+        }
+        else
+        {
+               <SuccessCargaFile File="registro_ventaas.xlsx"/>
+        }
+     
 
         <div class="grid grid-cols-1 md:grid-cols-1 gap-5">
 
@@ -167,43 +172,50 @@
             }
 
         </div>
-        <div class="space-y-2">
 
-            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">
-                Adjuntar
-            </label>
+        @if (EstadoAdjuntadoReportediario == false)
+        {
+            <div class="space-y-2">
 
-            <div class="group relative w-full">
-
-                <label for="file-upload"
-                       class="w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl px-4 py-2 flex items-center justify-between hover:border-emerald-400 hover:bg-emerald-50/30 transition-all cursor-pointer">
-
-                    <span class="text-[11px] font-bold text-slate-600">
-                        Adjuntar reporte diario
-                    </span>
-
-                    <span class="p-1.5 bg-white rounded-lg shadow-sm group-hover:scale-105 transition-transform">
-                        <svg class="w-4 h-4 text-emerald-500"
-                             fill="none"
-                             stroke="currentColor"
-                             viewBox="0 0 24 24">
-                            <path stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  stroke-width="2"
-                                  d="M12 4v16m8-8H4">
-                            </path>
-                        </svg>
-                    </span>
-
+                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                    Adjuntar
                 </label>
 
-                <InputFile class="hidden" />
+                <div class="group relative w-full">
+
+                    <label for="file-upload_multi"
+                    class="w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl px-4 py-2 flex items-center justify-between hover:border-emerald-400 hover:bg-emerald-50/30 transition-all cursor-pointer">
+
+                        <span class="text-[11px] font-bold text-slate-600">
+                            Adjuntar reporte diario
+                        </span>
+
+                        <span class="p-1.5 bg-white rounded-lg shadow-sm group-hover:scale-105 transition-transform">
+                            <svg class="w-4 h-4 text-emerald-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24">
+                                <path stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 4v16m8-8H4">
+                                </path>
+                            </svg>
+                        </span>
+
+                    </label>
+
+                    <InputFile id="file-upload_multi" OnChange="SubirArchivoMulti" multiple accept=".xlsx" />
+
+                </div>
 
             </div>
+        }
+        else
+        {
+            <SuccessCargaFile File="registro_ventaas.xlsx" />
+        }
 
-        </div>
-
-        <SuccessCargaFile File="registro_ventaas.xlsx" />
 
 
 
@@ -227,7 +239,7 @@
                 }
             </button>
           
-            <button disabled="@isLoading"  class="w-full bg-white text-slate-500 border border-slate-200 rounded-xl py-3.5 text-sm font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-500 disabled:hover:border-slate-200">
+            <button disabled="@isLoading" @onclick="CancelarRegistroVentas" class="w-full bg-white text-slate-500 border border-slate-200 rounded-xl py-3.5 text-sm font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-500 disabled:hover:border-slate-200">
                 Cancelar Operación
             </button>
 
@@ -397,7 +409,13 @@
                 break;
         };
 
- 
+
+    }
+
+    void CancelarRegistroVentas()
+    {
+        EstadoAdjuntadoRegistroVentas = false;
+        EstadoAdjuntadoReportediario = false;
     }
 
     bool isLoading = false;
@@ -409,9 +427,9 @@
         isLoading = false;
     }
 
-    
+
     private string mensaje = "";
-    // private IWebHostEnvironment env { get; set; }
+    private bool EstadoAdjuntadoRegistroVentas;
 
     private async Task SubirArchivo(InputFileChangeEventArgs e)
     {
@@ -419,35 +437,76 @@
         {
             var archivo = e.File;
 
-            // Ruta física
-            var ruta = Path.Combine(env.WebRootPath, "uploads/RegistroVentas");
+            var extension = Path.GetExtension(archivo.Name).ToLower();
+            if (extension != ".xlsx")
+            {
+                ToastService.Error("Solo se permiten archivos .xlsx");
+                return; 
+            }
 
-            // Crear carpeta si no existe
+            if (archivo.ContentType != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            {
+                ToastService.Error("El contenido del archivo no es un Excel válido");
+                return;
+            }
+
+            var ruta = Path.Combine(env.WebRootPath, "uploads/RegistroVentas");
+            if (!Directory.Exists(ruta)) Directory.CreateDirectory(ruta);
+
+            var nombreArchivo = $"{Guid.NewGuid()}_{archivo.Name}";
+            var rutaCompleta = Path.Combine(ruta, nombreArchivo);
+
+            using FileStream fs = new(rutaCompleta, FileMode.Create);
+            await archivo.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024).CopyToAsync(fs);
+
+            mensaje = "Archivo adjuntado correctamente";
+            ToastService.Success(mensaje);
+            EstadoAdjuntadoRegistroVentas = true;
+        }
+        catch (Exception ex)
+        {
+            EstadoAdjuntadoRegistroVentas = false;
+            mensaje = ex.Message;
+            ToastService.Error("Error: " + mensaje);
+        }
+    }
+
+    private List<string> listaArchivossubir = new();
+    private bool EstadoAdjuntadoReportediario;
+
+    private async Task SubirArchivoMulti(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var ruta = Path.Combine(env.WebRootPath, "uploads/ReporteDiario");
+
             if (!Directory.Exists(ruta))
             {
                 Directory.CreateDirectory(ruta);
             }
 
-            // Nombre único
-            var nombreArchivo = $"{Guid.NewGuid()}_{archivo.Name}";
+            foreach (var archivo in e.GetMultipleFiles())
+            {
+                var nombre = $"{Guid.NewGuid()}_{archivo.Name}";
 
-            var rutaCompleta = Path.Combine(ruta, nombreArchivo);
+                var rutaCompleta = Path.Combine(ruta, nombre);
 
-            // Guardar archivo
-            using FileStream fs = new(rutaCompleta, FileMode.Create);
+                using FileStream fs = new(rutaCompleta, FileMode.Create);
 
-            await archivo.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024)
-                .CopyToAsync(fs);
+                await archivo.OpenReadStream(20 * 1024 * 1024)
+                    .CopyToAsync(fs);
 
-            mensaje = "Archivo adjuntado correctamente";
-            ToastService.Success("Archivo adjuntado correctamente");
+                listaArchivossubir.Add(archivo.Name);
+            }
+            EstadoAdjuntadoReportediario = true;
         }
         catch (Exception ex)
         {
-            mensaje = ex.Message;
-            ToastService.Error("Ocurrió un error inesperado: " + mensaje);
+            EstadoAdjuntadoReportediario = false;
+            Console.WriteLine(ex.Message);
         }
     }
+
 
 
     
