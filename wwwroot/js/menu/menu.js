@@ -1,52 +1,62 @@
-﻿
-// Lógica de Dropdowns
-const dropdownContainers = document.querySelectorAll('.relative');
-dropdownContainers.forEach(container => {
-    const trigger = container.querySelector('.dropdown-trigger');
-    const menu = container.querySelector('.dropdown-menu');
-    const selectedText = container.querySelector('.selected-text');
-    const arrow = container.querySelector('svg');
+﻿// Función para inicializar o refrescar los eventos del menú
+window.initMenu = () => {
+    // Delegación de eventos para Dropdowns (funciona aunque Blazor recree el HTML)
+    document.addEventListener('click', (e) => {
+        // Lógica para Triggers de Dropdown
+        const trigger = e.target.closest('.dropdown-trigger');
+        if (trigger) {
+            e.stopPropagation();
+            const container = trigger.closest('.relative');
+            const menu = container.querySelector('.dropdown-menu');
+            const arrow = trigger.querySelector('svg');
 
-    if (!trigger) return;
+            const wasOpen = menu.classList.contains('show');
 
-    trigger.onclick = (e) => {
-        e.stopPropagation();
-        const wasOpen = menu.classList.contains('show');
+            // Cerrar otros
+            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+            document.querySelectorAll('.dropdown-trigger svg').forEach(s => s.style.transform = 'rotate(0deg)');
+
+            if (!wasOpen) {
+                menu.classList.add('show');
+                if (arrow) arrow.style.transform = 'rotate(180deg)';
+            }
+            return;
+        }
+
+        // Lógica para Opciones del Dropdown
+        const option = e.target.closest('.option');
+        if (option) {
+            const container = option.closest('.relative');
+            const selectedText = container.querySelector('.selected-text');
+            const menu = container.querySelector('.dropdown-menu');
+            const arrow = container.querySelector('.dropdown-trigger svg');
+
+            if (selectedText) selectedText.innerText = option.innerText;
+            menu.classList.remove('show');
+            if (arrow) arrow.style.transform = 'rotate(0deg)';
+            return;
+        }
+
+        // Lógica para Sidebar Toggle
+        const menuToggle = e.target.closest('#menu-toggle');
+        if (menuToggle) {
+            document.getElementById('sidebar')?.classList.add('open');
+            document.getElementById('sidebar-overlay')?.classList.remove('hidden');
+            return;
+        }
+
+        // Lógica para Overlay
+        if (e.target.id === 'sidebar-overlay') {
+            document.getElementById('sidebar')?.classList.remove('open');
+            e.target.classList.add('hidden');
+            return;
+        }
+
+        // Cerrar todo al hacer click fuera
         document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
         document.querySelectorAll('.dropdown-trigger svg').forEach(s => s.style.transform = 'rotate(0deg)');
-        if (!wasOpen) {
-            menu.classList.add('show');
-            arrow.style.transform = 'rotate(180deg)';
-        }
-    };
-
-    const options = container.querySelectorAll('.option');
-    options.forEach(opt => {
-        opt.onclick = () => {
-            selectedText.innerText = opt.innerText;
-            menu.classList.remove('show');
-            arrow.style.transform = 'rotate(0deg)';
-        };
     });
-});
-
-// Cerrar dropdowns al clickear fuera
-window.onclick = () => {
-    document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
-    document.querySelectorAll('.dropdown-trigger svg').forEach(s => s.style.transform = 'rotate(0deg)');
 };
 
-// Sidebar Toggle Mobile
-const menuToggle = document.getElementById('menu-toggle');
-const sidebar = document.getElementById('sidebar');
-const overlay = document.getElementById('sidebar-overlay');
-
-menuToggle.onclick = () => {
-    sidebar.classList.add('open');
-    overlay.classList.remove('hidden');
-};
-
-overlay.onclick = () => {
-    sidebar.classList.remove('open');
-    overlay.classList.add('hidden');
-};
+// Ejecutar al cargar
+window.initMenu();

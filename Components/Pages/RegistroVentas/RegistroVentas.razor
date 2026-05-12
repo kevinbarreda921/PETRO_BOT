@@ -231,33 +231,6 @@
                 Cancelar Operación
             </button>
 
-            
-            <div class="flex gap-3 p-10">
-
-                <button @onclick="ShowSuccess"
-                        class="px-4 py-2 rounded-xl bg-emerald-500 text-white font-medium">
-                    Success
-                </button>
-
-                <button @onclick="ShowError"
-                        class="px-4 py-2 rounded-xl bg-red-500 text-white font-medium">
-                    Error
-                </button>
-
-                <button @onclick="ShowWarning"
-                        class="px-4 py-2 rounded-xl bg-amber-500 text-white font-medium">
-                    Warning
-                </button>
-
-                <button @onclick="ShowInfo"
-                        class="px-4 py-2 rounded-xl bg-sky-500 text-white font-medium">
-                    Info
-                </button>
-
-            </div>
-
-
-    
         </div>
 
     </div>
@@ -447,7 +420,7 @@
             var archivo = e.File;
 
             // Ruta física
-            var ruta = Path.Combine(env.WebRootPath, "uploads");
+            var ruta = Path.Combine(env.WebRootPath, "uploads/RegistroVentas");
 
             // Crear carpeta si no existe
             if (!Directory.Exists(ruta))
@@ -466,11 +439,13 @@
             await archivo.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024)
                 .CopyToAsync(fs);
 
-            mensaje = "Archivo subido correctamente";
+            mensaje = "Archivo adjuntado correctamente";
+            ToastService.Success("Archivo adjuntado correctamente");
         }
         catch (Exception ex)
         {
             mensaje = ex.Message;
+            ToastService.Error("Ocurrió un error inesperado: " + mensaje);
         }
     }
 
