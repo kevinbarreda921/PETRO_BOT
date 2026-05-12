@@ -123,8 +123,8 @@ body {
         }
 }
 
-
-@keyframes slideIn {
+/*param que amimacion imprimir data en la tabla*/
+/*@keyframes slideIn {
     from {
         opacity: 0;
         transform: translateY(8px);
@@ -138,4 +138,4 @@ body {
 
 .animate-new-row {
     animation: slideIn 0.4s ease-out forwards;
-}
+}*/

@@ -523,20 +523,32 @@
                 Directory.CreateDirectory(ruta);
             }
 
-            foreach (var archivo in e.GetMultipleFiles())
-            {
-                var nombre = $"{Guid.NewGuid()}_{archivo.Name}";
+            string extensionPermitida = ".xlsx";
 
+            foreach (var archivo in e.GetMultipleFiles(20))
+            {
+                var extension = Path.GetExtension(archivo.Name).ToLower();
+
+                if (extension != extensionPermitida)
+                {
+                    continue; 
+                }
+
+                var nombre = $"{Guid.NewGuid()}_{archivo.Name}";
                 var rutaCompleta = Path.Combine(ruta, nombre);
 
                 using FileStream fs = new(rutaCompleta, FileMode.Create);
 
-                await archivo.OpenReadStream(20 * 1024 * 1024)
-                    .CopyToAsync(fs);
+                // Tamaño máximo de 20MB
+                await archivo.OpenReadStream(20 * 1024 * 1024).CopyToAsync(fs);
 
                 listaArchivossubir.Add(archivo.Name);
             }
-            EstadoAdjuntadoReportediario = true;
+
+            if (listaArchivossubir.Any())
+            {
+                EstadoAdjuntadoReportediario = true;
+            }
         }
         catch (Exception ex)
         {
