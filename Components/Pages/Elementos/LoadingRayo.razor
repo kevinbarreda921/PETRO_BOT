@@ -1,0 +1,50 @@
+﻿ <style>
+                .lightning-draw {
+                    stroke-dasharray: 100;
+                    stroke-dashoffset: 100;
+                    animation: drawBolt 1.8s ease-in-out infinite;
+                }
+                
+                @@keyframes drawBolt {
+                    0% { stroke-dashoffset: 100; fill: transparent; }
+                    35% { stroke-dashoffset: 0; fill: transparent; }
+                    50% { fill: #0186B5; filter: drop-shadow(0 0 8px rgba(1, 134, 181, 0.4)); stroke-dashoffset: 0; }
+                    75% { fill: transparent; stroke-dashoffset: 0; }
+                    100% { stroke-dashoffset: 100; fill: transparent; }
+                }
+            </style>
+
+            <!-- ESCUDO PRINCIPAL (Atrapa los clics) -->
+            <div class="absolute top-0 left-0 w-full h-full bg-white/75 backdrop-blur-[3px] z-[100] flex flex-col items-center justify-center rounded-[35px] cursor-wait outline-none"
+                 @onclick:stopPropagation="true"
+                 @onclick:preventDefault="true"
+                 @onmousedown:stopPropagation="true"
+                 @onmousedown:preventDefault="true">
+                
+                <!-- CONTENEDOR INTOCABLE (pointer-events-none) -->
+                <div class="pointer-events-none flex flex-col items-center select-none">
+                    
+                    <!-- Animación del Rayo (con focusable="false") -->
+                    <div class="mb-5 relative flex items-center justify-center">
+                        <svg focusable="false" class="w-10 h-10 text-[#0186B5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path class="lightning-draw" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" pathLength="100" 
+                                  d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+
+                    <!-- Animación de puntos elegantes y texto -->
+                    <div class="flex items-center gap-1.5 mb-2">
+                        <div class="w-1.5 h-1.5 rounded-full bg-[#0186B5] animate-bounce" style="animation-delay: -0.3s"></div>
+                        <div class="w-1.5 h-1.5 rounded-full bg-[#0186B5] animate-bounce" style="animation-delay: -0.15s"></div>
+                        <div class="w-1.5 h-1.5 rounded-full bg-[#0186B5] animate-bounce"></div>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
+                        Procesando
+                    </span>
+                    
+                </div>
+                
+            </div>
+@code {
+
+}
