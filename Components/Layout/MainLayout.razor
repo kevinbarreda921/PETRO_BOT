@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using PETRO_BOT.Components.Pages.Elementos
+@inherits LayoutComponentBase
 
 <div id="sidebar-overlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 hidden transition-opacity duration-300"></div>
 <div class="flex min-h-screen p-4 lg:p-6 gap-6">
@@ -9,8 +10,12 @@
     </main>
 </div>
 
-<div id="blazor-error-ui" data-nosnippet>
+ <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+<Toast />
+
+  

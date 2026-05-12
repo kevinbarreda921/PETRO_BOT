@@ -1,0 +1,118 @@
+﻿@using PETRO_BOT.Services
+@inject ToastService ToastService
+@implements IDisposable
+
+<div class="fixed top-5 right-5 z-[9999] flex flex-col gap-3">
+    @if (Visible)
+    {
+        <div class="
+            flex items-center gap-4
+            min-w-[320px] max-w-[380px]
+            @GetBgColor()
+            shadow-2xl shadow-black/20
+            rounded-2xl
+            px-5 py-4
+            animate-toast-in">
+
+            @* Icono con fondo ligeramente más oscuro para dar profundidad *@
+            <div class="w-10 h-10 rounded-xl bg-black/10 flex items-center justify-center shrink-0">
+                @if (Type?.ToLower() == "success")
+                {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                }
+                else if (Type?.ToLower() == "error")
+                {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                }
+                else if (Type?.ToLower() == "warning")
+                {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                }
+                else
+                {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                }
+            </div>
+
+            <div class="flex-1 min-w-0">
+                <p class="font-bold text-white text-[15px] leading-none">
+                    @Title
+                </p>
+                <p class="text-white/90 text-sm mt-1.5 leading-tight font-medium">
+                    @Message
+                </p>
+            </div>
+
+            <button @onclick="Close"
+                    class="text-white/60 hover:text-white transition-colors p-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    }
+</div>
+
+<style>
+    @@keyframes toast-pop {
+        0% {
+            opacity: 0;
+            transform: scale(0.8) translateY(-20px);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .animate-toast-in {
+        animation: toast-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+</style>
+
+@code {
+    private bool Visible;
+    private string Message = "";
+    private string Title = "";
+    private string Type = "success";
+
+    protected override void OnInitialized()
+    {
+        ToastService.OnShow += ShowToast;
+    }
+
+    private string GetBgColor() => Type?.ToLower() switch
+    {
+        "success" => "bg-emerald-500", // Verde vivo
+        "error" => "bg-rose-500",      // Rojo vivo
+        "warning" => "bg-amber-500",   // Amarillo/Naranja vivo
+        "info" => "bg-blue-500",       // Azul vivo
+        _ => "bg-slate-700"
+    };
+
+    private async void ShowToast(string message, string type)
+    {
+        Message = message;
+        Type = type;
+        Title = type.ToUpper();
+
+        Visible = true;
+        await InvokeAsync(StateHasChanged);
+
+        await Task.Delay(3000);
+
+        if (Visible) await Close();
+    }
+
+    private async Task Close()
+    {
+        Visible = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ToastService.OnShow -= ShowToast;
+    }
+}

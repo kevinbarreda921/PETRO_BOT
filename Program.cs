@@ -1,10 +1,12 @@
 using PETRO_BOT.Components;
+using PETRO_BOT.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddSingleton<ToastService>();
 
 var app = builder.Build();
 

@@ -1,6 +1,9 @@
 ﻿@page "/RegistroVentas"
+@using PETRO_BOT.Services
 @using PETRO_BOT.Components.Pages.Elementos
 @rendermode InteractiveServer
+@inject IWebHostEnvironment env
+@inject ToastService ToastService
 
 <div class="flex flex-col lg:flex-row gap-6 items-start">
 
@@ -14,19 +17,44 @@
 
 
         <div class="space-y-2">
-            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Adjuntar</label>
-            <label for="file-upload" class="group relative w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl px-4 py-2 flex items-center justify-between hover:border-emerald-400 hover:bg-emerald-50/30 transition-all cursor-pointer">
-                <span class="text-[11px] font-bold text-slate-600">Adjuntar registro ventas</span>
-                <div class="p-1.5 bg-white rounded-lg shadow-sm group-hover:scale-105 transition-transform">
-                    <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                </div>
-                <input id="file-upload" type="file" class="hidden">
+
+            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                Adjuntar
             </label>
+
+            <div class="group relative w-full">
+
+                <label for="file-upload"
+                       class="w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl px-4 py-2 flex items-center justify-between hover:border-emerald-400 hover:bg-emerald-50/30 transition-all cursor-pointer">
+
+                    <span class="text-[11px] font-bold text-slate-600">
+                        Adjuntar registro ventas
+                    </span>
+
+                    <span class="p-1.5 bg-white rounded-lg shadow-sm group-hover:scale-105 transition-transform">
+                        <svg class="w-4 h-4 text-emerald-500"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M12 4v16m8-8H4">
+                            </path>
+                        </svg>
+                    </span>
+
+                </label>
+
+                <InputFile id="file-upload"
+                           OnChange="SubirArchivo"
+                           class="hidden" />
+
+            </div>
+
         </div>
 
-        <SuccessCargaFile File="registro_ventaas.xlsx" />
+        <SuccessCargaFile File="registro_ventaas.xlsx"/>
 
   
 
@@ -140,16 +168,39 @@
 
         </div>
         <div class="space-y-2">
-            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Adjuntar</label>
-            <label for="file-upload" class="group relative w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl px-4 py-2 flex items-center justify-between hover:border-emerald-400 hover:bg-emerald-50/30 transition-all cursor-pointer">
-                <span class="text-[11px] font-bold text-slate-600">Adjuntar Registro Excel</span>
-                <div class="p-1.5 bg-white rounded-lg shadow-sm group-hover:scale-105 transition-transform">
-                    <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                </div>
-                <input id="file-upload" type="file" class="hidden">
+
+            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                Adjuntar
             </label>
+
+            <div class="group relative w-full">
+
+                <label for="file-upload"
+                       class="w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl px-4 py-2 flex items-center justify-between hover:border-emerald-400 hover:bg-emerald-50/30 transition-all cursor-pointer">
+
+                    <span class="text-[11px] font-bold text-slate-600">
+                        Adjuntar reporte diario
+                    </span>
+
+                    <span class="p-1.5 bg-white rounded-lg shadow-sm group-hover:scale-105 transition-transform">
+                        <svg class="w-4 h-4 text-emerald-500"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M12 4v16m8-8H4">
+                            </path>
+                        </svg>
+                    </span>
+
+                </label>
+
+                <InputFile class="hidden" />
+
+            </div>
+
         </div>
 
         <SuccessCargaFile File="registro_ventaas.xlsx" />
@@ -176,9 +227,36 @@
                 }
             </button>
           
-            <button disabled="@isLoading" class="w-full bg-white text-slate-500 border border-slate-200 rounded-xl py-3.5 text-sm font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-500 disabled:hover:border-slate-200">
+            <button disabled="@isLoading"  class="w-full bg-white text-slate-500 border border-slate-200 rounded-xl py-3.5 text-sm font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-500 disabled:hover:border-slate-200">
                 Cancelar Operación
             </button>
+
+            
+            <div class="flex gap-3 p-10">
+
+                <button @onclick="ShowSuccess"
+                        class="px-4 py-2 rounded-xl bg-emerald-500 text-white font-medium">
+                    Success
+                </button>
+
+                <button @onclick="ShowError"
+                        class="px-4 py-2 rounded-xl bg-red-500 text-white font-medium">
+                    Error
+                </button>
+
+                <button @onclick="ShowWarning"
+                        class="px-4 py-2 rounded-xl bg-amber-500 text-white font-medium">
+                    Warning
+                </button>
+
+                <button @onclick="ShowInfo"
+                        class="px-4 py-2 rounded-xl bg-sky-500 text-white font-medium">
+                    Info
+                </button>
+
+            </div>
+
+
     
         </div>
 
@@ -351,19 +429,71 @@
 
     bool isLoading = false;
 
-    // =========================
-    // ACCIONES
-    // =========================
     async Task EjecutarProceso()
     {
-        // 1. Activar el loading
         isLoading = true;
-        
-        // 2. Aquí va la lógica real de tu proceso (llamadas a BD, etc.)
-        // Simulamos una demora de 3 segundos para que veas la animación
         await Task.Delay(3000);
-        
-        // 3. Desactivar el loading al terminar
         isLoading = false;
     }
+
+    
+    private string mensaje = "";
+    // private IWebHostEnvironment env { get; set; }
+
+    private async Task SubirArchivo(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var archivo = e.File;
+
+            // Ruta física
+            var ruta = Path.Combine(env.WebRootPath, "uploads");
+
+            // Crear carpeta si no existe
+            if (!Directory.Exists(ruta))
+            {
+                Directory.CreateDirectory(ruta);
+            }
+
+            // Nombre único
+            var nombreArchivo = $"{Guid.NewGuid()}_{archivo.Name}";
+
+            var rutaCompleta = Path.Combine(ruta, nombreArchivo);
+
+            // Guardar archivo
+            using FileStream fs = new(rutaCompleta, FileMode.Create);
+
+            await archivo.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024)
+                .CopyToAsync(fs);
+
+            mensaje = "Archivo subido correctamente";
+        }
+        catch (Exception ex)
+        {
+            mensaje = ex.Message;
+        }
+    }
+
+
+    
+    private void ShowSuccess()
+    {
+        ToastService.Success("Registro guardado correctamente.");
+    }
+
+    private void ShowError()
+    {
+        ToastService.Error("Ocurrió un error inesperado.");
+    }
+
+    private void ShowWarning()
+    {
+        ToastService.Warning("Debes completar los campos.");
+    }
+
+    private void ShowInfo()
+    {
+        ToastService.Info("Nueva actualización disponible.");
+    }
+
 }
