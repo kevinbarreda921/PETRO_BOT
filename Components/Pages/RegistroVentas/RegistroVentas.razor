@@ -267,6 +267,7 @@
                     </tr>
                 </thead>
                 <tbody class="text-sm">
+
                     <!-- Reducido de py-5 a py-3 -->
                     <tr class="border-b border-slate-50 group hover:bg-slate-50/50 transition-colors">
                         <td class="py-3 text-slate-400 font-bold whitespace-nowrap">01</td>
@@ -307,6 +308,41 @@
                         </td>
                     </tr>
 
+                    @foreach (var archivo in archivosProcesados)
+                    {
+                        @* Agregamos @key para eficiencia y la clase animate-new-row para el efecto *@
+                        <tr @key="archivo.Id" class="border-b border-slate-50 group hover:bg-slate-50/50 transition-colors animate-new-row">
+
+                            @* Número de registro con un toque más tenue *@
+                            <td class="py-3 text-[11px] text-slate-300 font-bold whitespace-nowrap">
+                                #@(archivosProcesados.IndexOf(archivo) + 1)
+                            </td>
+
+                            <td class="py-3 pr-8 whitespace-nowrap">
+                                <span class="font-bold text-slate-700 text-sm">@archivo.Grifo</span>
+                            </td>
+
+                            <td class="py-3">
+                                @* Un gris un poco más suave para el nombre del archivo mejora el minimalismo *@
+                                <span class="text-slate-500 font-medium text-sm">@archivo.File</span>
+                            </td>
+
+                            <td class="py-3 px-4 whitespace-nowrap">
+                                <span class="inline-flex items-center gap-2 px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-wider">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Success
+                                </span>
+                            </td>
+
+                            <td class="py-3 text-right whitespace-nowrap">
+                                @* Botón un poco más compacto para mantener la línea limpia *@
+                                <button class="bg-[#017099] text-white px-4 py-1.5 rounded-lg text-[11px] font-bold hover:shadow-md active:scale-95 transition-all outline-none">
+                                    Ver detalles
+                                </button>
+                            </td>
+                        </tr>
+                    }
+
+
                     <!-- Repite py-3 en el resto de los <tr> -->
                 </tbody>
             </table>
@@ -316,6 +352,7 @@
 
 
 </div>
+
 
 @code {
 
@@ -423,7 +460,8 @@
     async Task EjecutarProceso()
     {
         isLoading = true;
-        await Task.Delay(3000);
+        // await Task.Delay(3000);
+        await ProcesarArchivos();
         isLoading = false;
     }
 
@@ -508,8 +546,50 @@
     }
 
 
+    private bool estaProcesando = false;
+    private List<ArchivoInfo> archivosProcesados = new();
 
-    
+    private async Task ProcesarArchivos()
+    {
+        estaProcesando = true;
+        archivosProcesados.Clear();
+
+        // Simulación de tu listado de archivos XLSX
+        var listaDeRutas = new List<string> { "archivo1.xlsx", "archivo2.xlsx", "archivo3.xlsx" };
+
+        foreach (var ruta in listaDeRutas)
+        {
+            // 1. Aquí va tu lógica de lectura (NPOI, ClosedXML, etc.)
+            await Task.Delay(1000); // Simulando tiempo de lectura
+
+            // 2. Creamos el objeto con la info del archivo terminado
+            var nuevoArchivo = new ArchivoInfo
+            {
+                Id = Guid.NewGuid(),
+                Grifo = "PRUEBA",
+                File = ruta,
+                Estado = 1
+            };
+
+            // 3. Insertamos directamente en la lista
+            archivosProcesados.Add(nuevoArchivo);
+
+            // 4. Notificamos a Blazor que debe renderizar el nuevo <tr>
+            StateHasChanged();
+        }
+
+        estaProcesando = false;
+    }
+
+    public class ArchivoInfo
+    {
+        public Guid Id { get; set; }
+        public string Grifo { get; set; }
+        public string File { get; set; }
+        public int Estado { get; set; }
+    }
+
+  
     private void ShowSuccess()
     {
         ToastService.Success("Registro guardado correctamente.");

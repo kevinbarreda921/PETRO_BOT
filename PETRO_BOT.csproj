@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\uploads\" />
+    <Folder Include="wwwroot\uploads\RegistroVentas\" />
+    <Folder Include="wwwroot\uploads\ReporteDiario\" />
   </ItemGroup>
 
 </Project>
