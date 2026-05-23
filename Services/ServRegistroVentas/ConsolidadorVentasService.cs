@@ -18,11 +18,19 @@ namespace PETRO_BOT.Services.Services
             _escritor = new EscritorExcelService();
         }
 
-        public void Procesar()
+        public void Procesar(string tarea, string dia)
         {
             //var CONTADOR_dES = 1;
             Console.WriteLine("Iniciando lectura de archivos...");
-            var listaGrifosProcesar = _lector.LeerPartesDiarios();
+            System.Collections.Concurrent.ConcurrentBag<ArchivoGrifo> listaGrifosProcesar;
+            if (tarea == "Procesar Día" || tarea == "Procesar Hoy")
+            {
+                listaGrifosProcesar = _lector.LeerPartesDiarios_PorDia(dia);
+            }
+            else
+            {
+                listaGrifosProcesar = _lector.LeerPartesDiarios();
+            }
 
 
             string rutaProyecto = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\"));

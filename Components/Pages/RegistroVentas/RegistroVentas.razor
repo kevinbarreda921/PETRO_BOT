@@ -860,24 +860,36 @@
                 {
                     if (trabajoSeleccionado == "Procesar Hoy")
                     {
-                        ToastService.Info("MetodoParaProcesarHoy");
+                        string fechaFormateada = DateTime.Today.ToString("d/MM/yyyy");
+                        ToastService.Info($"Procesando el día de hoy: {fechaFormateada}");
+                        isLoading = true;
+                        LimpiarArchivoReporteProceso();
+                        archivosProcesados.Clear();
+                        StateHasChanged();
+                        await ProcesarArchivos(trabajoSeleccionado, fechaFormateada);
+                        await CargarReporteProceso();
+                        isLoading = false;
                     }
                     else if (trabajoSeleccionado == "Procesar Día")
                     {
-                        if (diaSeleccionado == 0)
-                        {
-                            ToastService.Error("Seleccionar día");
-                        }
-                        else 
-                        {
-                            ToastService.Info("MetodoParaProcesarHoy");
-                        }
-                    } else
-                    {
-                        ToastService.Info("MetodoParaProcesarMes");
+                        string fechaFormateada = fechaSeleccionada.ToString("d/MM/yyyy");
+                        ToastService.Info($"Procesando fecha seleccionada: {fechaFormateada}");
                         isLoading = true;
                         LimpiarArchivoReporteProceso();
-                        await ProcesarArchivos();
+                        archivosProcesados.Clear();
+                        StateHasChanged();
+                        await ProcesarArchivos(trabajoSeleccionado, fechaFormateada);
+                        await CargarReporteProceso();
+                        isLoading = false;
+                    } 
+                    else
+                    {
+                        ToastService.Info("Procesando el mes completo...");
+                        isLoading = true;
+                        LimpiarArchivoReporteProceso();
+                        archivosProcesados.Clear();
+                        StateHasChanged();
+                        await ProcesarArchivos(trabajoSeleccionado, "");
                         await CargarReporteProceso();
                         isLoading = false;
                     }
@@ -885,12 +897,12 @@
                 }
                 else
                 {
-                    ToastService.Error("Adjuntar reporte díario");
+                    ToastService.Error("Adjuntar reporte diario");
                 }
             }
             else
             {
-                ToastService.Error("Adjuntar reporte díario");
+                ToastService.Error("Adjuntar registro de ventas");
             }
         } else
         {
@@ -1039,14 +1051,14 @@
     private bool estaProcesando = false;
     private List<ArchivoInfo> archivosProcesados = new();
 
-    private async Task ProcesarArchivos()
+    private async Task ProcesarArchivos(string tarea, string dia)
     {
         archivosProcesados.Clear();
         Stopwatch timerGlobal = Stopwatch.StartNew();
         try
         {
             var consolidador = new ConsolidadorVentasService();
-            await Task.Run(() => consolidador.Procesar());
+            await Task.Run(() => consolidador.Procesar(tarea, dia));
         }
         catch (Exception ex)
         {
