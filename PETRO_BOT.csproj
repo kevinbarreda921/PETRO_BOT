@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -8,9 +8,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Json\JsonRegistroVentas\" />
     <Folder Include="wwwroot\uploads\" />
     <Folder Include="wwwroot\uploads\RegistroVentas\" />
     <Folder Include="wwwroot\uploads\ReporteDiario\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="DocumentFormat.OpenXml" Version="3.5.1" />
+    <PackageReference Include="EPPlus" Version="8.5.4" />
+    <PackageReference Include="ExcelDataReader" Version="3.8.0" />
+    <PackageReference Include="ExcelDataReader.DataSet" Version="3.8.0" />
   </ItemGroup>
 
 </Project>

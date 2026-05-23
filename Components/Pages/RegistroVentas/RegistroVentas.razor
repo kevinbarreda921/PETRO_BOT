@@ -1,9 +1,11 @@
 ﻿@page "/RegistroVentas"
-@using PETRO_BOT.Services
+@using PETRO_BOT.Services.Toast
 @using PETRO_BOT.Components.Pages.Elementos
 @rendermode InteractiveServer
 @inject IWebHostEnvironment env
 @inject ToastService ToastService
+@using PETRO_BOT.Services.Services
+@using System.Diagnostics
 
 <div class="flex flex-col lg:flex-row gap-6 items-start">
 
@@ -224,7 +226,7 @@
             <!-- Botón Ejecutar con estado Loading -->
             <button @onclick="EjecutarProceso"
                     disabled="@isLoading"
-                    class="w-full bg-[#0186B5] text-white rounded-xl py-3.5 flex items-center justify-center gap-2.5 shadow-sm hover:bg-[#017099] transition-all active:scale-[0.98] font-medium disabled:opacity-75 disabled:cursor-not-allowed disabled:hover:bg-[#0186B5] disabled:active:scale-100">
+                    class="w-full bg-[#0186B5] text-white rounded-xl py-3.5 flex items-center justify-center gap-2.5 shadow-sm hover:bg-[#017099] transition-all active:scale-[0.98] font-medium disabled:opacity-75 disabled:cursor-not-allowed disabled:hover:bg-[#0186B5] disabled:active:scale-100 cursor-pointer">
                 @if (isLoading)
                 {
                    <LoadingRayo/>
@@ -239,7 +241,7 @@
                 }
             </button>
           
-            <button disabled="@isLoading" @onclick="CancelarRegistroVentas" class="w-full bg-white text-slate-500 border border-slate-200 rounded-xl py-3.5 text-sm font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-500 disabled:hover:border-slate-200">
+            <button disabled="@isLoading" @onclick="CancelarRegistroVentas" class="w-full bg-white text-slate-500 border border-slate-200 rounded-xl py-3.5 text-sm font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-500 disabled:hover:border-slate-200  cursor-pointer">
                 Cancelar Operación
             </button>
 
@@ -563,34 +565,32 @@
 
     private async Task ProcesarArchivos()
     {
-        estaProcesando = true;
-        archivosProcesados.Clear();
 
-        // Simulación de tu listado de archivos XLSX
-        var listaDeRutas = new List<string> { "archivo1.xlsx", "archivo2.xlsx", "archivo3.xlsx" };
+            // await Task.Delay(1000); // Simulando tiempo de lectura
 
-        foreach (var ruta in listaDeRutas)
+        try
         {
-            // 1. Aquí va tu lógica de lectura (NPOI, ClosedXML, etc.)
-            await Task.Delay(1000); // Simulando tiempo de lectura
+            var consolidador = new ConsolidadorVentasService();
+            consolidador.Procesar();
+        }
+        catch (Exception ex)
+        {
+            LoggerService.Error("SISTEMA", "Main", $"Ocurrió un error fatal: {ex.Message}");
+            Console.WriteLine($"[x] Ocurrió un error fatal:\n{ex.ToString()}");
+        }
+        finally
+        {
 
-            // 2. Creamos el objeto con la info del archivo terminado
-            var nuevoArchivo = new ArchivoInfo
-            {
-                Id = Guid.NewGuid(),
-                Grifo = "PRUEBA",
-                File = ruta,
-                Estado = 1
-            };
-
-            // 3. Insertamos directamente en la lista
-            archivosProcesados.Add(nuevoArchivo);
-
-            // 4. Notificamos a Blazor que debe renderizar el nuevo <tr>
-            StateHasChanged();
+            string rutaLog = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\", "reporte_proceso.json"));
+            LoggerService.GuardarJson(rutaLog);
         }
 
-        estaProcesando = false;
+        // timerGlobal.Stop();
+        Console.WriteLine("\n" + new string('=', 30));
+        Console.WriteLine($"PROCESO FINALIZADO");
+        // Console.WriteLine($"Tiempo total: {timerGlobal.Elapsed.TotalSeconds:F2} segundos");
+        Console.WriteLine(new string('=', 30));
+
     }
 
     public class ArchivoInfo

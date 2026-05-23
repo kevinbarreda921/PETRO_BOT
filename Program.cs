@@ -1,5 +1,5 @@
 using PETRO_BOT.Components;
-using PETRO_BOT.Services;
+using PETRO_BOT.Services.Toast;
 
 var builder = WebApplication.CreateBuilder(args);
 
