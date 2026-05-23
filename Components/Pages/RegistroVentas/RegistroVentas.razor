@@ -6,6 +6,7 @@
 @inject ToastService ToastService
 @using PETRO_BOT.Services.Services
 @using System.Diagnostics
+@using PETRO_BOT.Models.Log
 
 <div class="flex flex-col lg:flex-row gap-6 items-start">
 
@@ -241,7 +242,7 @@
                 }
             </button>
           
-            <button disabled="@isLoading" @onclick="CancelarRegistroVentas" class="w-full bg-white text-slate-500 border border-slate-200 rounded-xl py-3.5 text-sm font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-500 disabled:hover:border-slate-200  cursor-pointer">
+            <button disabled="@isLoading" @onclick="CancelarRegistroVentas" class="w-full bg-white text-slate-500 border border-slate-200 rounded-xl py-3.5 text-sm font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-500 disabled:hover:border-slate-200 cursor-pointer">
                 Cancelar Operación
             </button>
 
@@ -269,47 +270,11 @@
                     </tr>
                 </thead>
                 <tbody class="text-sm">
-
-                    <!-- Reducido de py-5 a py-3 -->
-                    <tr class="border-b border-slate-50 group hover:bg-slate-50/50 transition-colors">
-                        <td class="py-3 text-slate-400 font-bold whitespace-nowrap">01</td>
-                        <td class="py-3 whitespace-nowrap pr-8">
-                            <span class="font-bold text-slate-700">BRASIL</span>
-                        </td>
-                        <td class="py-3">
-                            <span class="font-bold text-slate-700">reporte_anuaSSSSSSSSSSSSSSSSSSSSSSSSSSSSl_2024.pdf</span>
-                        </td>
-                        <td class="py-3 whitespace-nowrap px-4">
-                            <span class="inline-flex items-center gap-2 px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-md text-[10px] font-black uppercase tracking-wider">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Success
-                            </span>
-                        </td>
-                        <td class="py-3 text-right whitespace-nowrap">
-                            <button class="bg-[#017099] text-white px-5 py-2 rounded-xl text-xs font-bold hover:brightness-110 transition-all shadow-sm">
-                                Ver detalles
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="border-b border-slate-50 group hover:bg-slate-50/50 transition-colors">
-                        <td class="py-3 text-slate-400 font-bold whitespace-nowrap">01</td>
-                        <td class="py-3 whitespace-nowrap pr-8">
-                            <span class="font-bold text-slate-700">BRASIL</span>
-                        </td>
-                        <td class="py-3">
-                            <span class="font-bold text-slate-700">reporte_anuaSSSSSSSSSSSSSSSSSSSSSSSSSSl_2024.pdf</span>
-                        </td>
-                        <td class="py-3 whitespace-nowrap px-4">
-                            <span class="inline-flex items-center gap-2 px-2.5 py-1 bg-rose-50 text-rose-600 rounded-md text-[10px] font-black uppercase tracking-wider">
-                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Error
-                            </span>
-                        </td>
-                        <td class="py-3 text-right whitespace-nowrap">
-                            <button class="bg-[#017099] text-white px-5 py-2 rounded-xl text-xs font-bold hover:brightness-110 transition-all shadow-sm">
-                                Ver detalles
-                            </button>
-                        </td>
-                    </tr>
-
+                    @if (isLoading)
+                    {
+                       <LoadingRayo/>
+                     }
+              
                     @foreach (var archivo in archivosProcesados)
                     {
                         @* Agregamos @key para eficiencia y la clase animate-new-row para el efecto *@
@@ -329,15 +294,28 @@
                                 <span class="text-slate-500 font-medium text-sm">@archivo.File</span>
                             </td>
 
-                            <td class="py-3 px-4 whitespace-nowrap">
-                                <span class="inline-flex items-center gap-2 px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-wider">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Success
-                                </span>
-                            </td>
+                            @if (archivo.Estado == 1)
+                            {
+                                <td class="py-3 px-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-2 px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-wider">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Success
+                                    </span>
+                                </td>
+                            }
+                            else
+                            {
+                                <td class="py-3 whitespace-nowrap px-4">
+                                    <span class="inline-flex items-center gap-2 px-2.5 py-1 bg-rose-50 text-rose-600 rounded-md text-[10px] font-black uppercase tracking-wider">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Error
+                                    </span>
+                                </td>
+                            }
 
                             <td class="py-3 text-right whitespace-nowrap">
                                 @* Botón un poco más compacto para mantener la línea limpia *@
-                                <button class="bg-[#017099] text-white px-4 py-1.5 rounded-lg text-[11px] font-bold hover:shadow-md active:scale-95 transition-all outline-none">
+                                <button id="@archivo.File"
+                                        @onclick="() => AbrirModal(archivo)"
+                                        class="bg-[#017099] text-white px-4 py-1.5 rounded-lg text-[11px] font-bold hover:shadow-md active:scale-95 transition-all outline-none cursor-pointer">
                                     Ver detalles
                                 </button>
                             </td>
@@ -355,6 +333,92 @@
 
 </div>
 
+@if (mostrarModal && archivoSeleccionado != null)
+{
+    <!-- MODAL OVERLAY (FONDO CON OPACIDAD MÍNIMA QUE PERMITE CERRAR AL HACER CLICK AFUERA) -->
+    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px;" 
+         @onclick="CerrarModal">
+        
+        <!-- CONTENEDOR DEL MODAL (TAMAÑO AUTO-AJUSTABLE A LA TABLA, DETIENE LA PROPAGACIÓN DE CLIC) -->
+        <div style="background-color: #ffffff; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid #f1f5f9; width: auto; min-width: 0px; max-width: 750px; max-height: 80vh; display: flex; flex-direction: column; overflow: hidden;"
+             @onclick:stopPropagation="true">
+            
+            <!-- HEADER (CON EL NOMBRE DEL ARCHIVO COMO TÍTULO) -->
+            <div style="padding: 16px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; background-color: #f8fafc; gap: 20px;">
+                <div style="flex: 1; min-width: 0;">
+                    <span style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 2px;">Archivo de Proceso</span>
+                    <h3 style="font-size: 13px; font-weight: 800; color: #1e293b; margin: 0; word-break: break-all; font-family: monospace; line-height: 1.4;">@archivoSeleccionado.File</h3>
+                </div>
+                <button @onclick="CerrarModal" 
+                        style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; color: #94a3b8; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" 
+                        onmouseover="this.style.backgroundColor='#e2e8f0'; this.style.color='#475569';" 
+                        onmouseout="this.style.backgroundColor='transparent'; this.style.color='#94a3b8';">
+                    <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- CONTENIDO DE LA TABLA MINIMALISTA -->
+            <div style="padding: 20px; overflow-y: auto; flex: 1;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12px;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #f1f5f9; color: #94a3b8; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em;">
+                            <th style="padding-bottom: 8px; font-weight: 700; width: 85px;">Estado</th>
+                            <th style="padding-bottom: 8px; font-weight: 700;">Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (archivoSeleccionado.Mensajes == null || !archivoSeleccionado.Mensajes.Any())
+                        {
+                            <tr>
+                                <td colspan="2" style="padding: 24px 0; text-align: center; color: #94a3b8; font-style: italic;">
+                                    No hay mensajes registrados.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var msg in archivoSeleccionado.Mensajes)
+                            {
+                                <tr style="border-bottom: 1px solid #f8fafc;">
+                                    <td style="padding: 10px 0; vertical-align: top; white-space: nowrap; padding-right: 15px;">
+                                        @if (msg.Estado.Equals("INFO", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span style="display: inline-flex; align-items: center; gap: 5px; background-color: #eff6ff; color: #2563eb; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 8px;">
+                                                <span style="width: 5px; height: 5px; border-radius: 50%; background-color: #3b82f6;"></span> @msg.Estado
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span style="display: inline-flex; align-items: center; gap: 5px; background-color: #fef2f2; color: #dc2626; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 8px;">
+                                                <span style="width: 5px; height: 5px; border-radius: 50%; background-color: #ef4444;"></span> @msg.Estado
+                                            </span>
+                                        }
+                                    </td>
+                                    <td style="padding: 10px 0; color: #475569; font-weight: 500; font-size: 11px; line-height: 1.4; word-break: break-word;">
+                                        @msg.Descripcion
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PIE DE PAGINA -->
+            <div style="padding: 12px 20px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; background-color: #f8fafc;">
+                <button @onclick="CerrarModal" 
+                        style="background-color: #f1f5f9; border: none; cursor: pointer; padding: 8px 16px; border-radius: 10px; color: #475569; font-weight: 700; font-size: 11px; transition: background-color 0.2s;"
+                        onmouseover="this.style.backgroundColor='#e2e8f0';"
+                        onmouseout="this.style.backgroundColor='#f1f5f9';">
+                    Cerrar
+                </button>
+            </div>
+
+        </div>
+    </div>
+}
 
 @code {
 
@@ -462,9 +526,49 @@
     async Task EjecutarProceso()
     {
         isLoading = true;
-        // await Task.Delay(3000);
         await ProcesarArchivos();
+        await CargarReporteProceso();
         isLoading = false;
+    }
+
+    private async Task CargarReporteProceso()
+    {
+        try
+        {
+            string rutaLog = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Json\JsonRegistroVentas\", "reporte_proceso.json"));
+            if (System.IO.File.Exists(rutaLog))
+            {
+                string jsonContent = await System.IO.File.ReadAllTextAsync(rutaLog);
+                var logsProcesados = System.Text.Json.JsonSerializer.Deserialize<List<LogProcesoGrifo>>(jsonContent);
+                
+                if (logsProcesados != null)
+                {
+                    archivosProcesados.Clear();
+                    foreach (var log in logsProcesados)
+                    {
+                        int estado = log.Mensajes.All(m => m.Estado.Equals("INFO", StringComparison.OrdinalIgnoreCase)) ? 1 : 2;
+                        
+                        var nuevoArchivo = new ArchivoInfo
+                        {
+                            Id = Guid.NewGuid(),
+                            Grifo = log.Grifo,
+                            File = log.Archivo,
+                            Estado = estado,
+                            Mensajes = log.Mensajes
+                        };
+                        archivosProcesados.Add(nuevoArchivo);
+                        StateHasChanged();
+                        await Task.Delay(1000);
+
+                    }
+                   
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al cargar el reporte: " + ex.Message);
+        }
     }
 
 
@@ -588,12 +692,28 @@
         Console.WriteLine(new string('=', 30));
     }
 
+    private bool mostrarModal = false;
+    private ArchivoInfo? archivoSeleccionado;
+
+    private void AbrirModal(ArchivoInfo archivo)
+    {
+        archivoSeleccionado = archivo;
+        mostrarModal = true;
+    }
+
+    private void CerrarModal()
+    {
+        mostrarModal = false;
+        archivoSeleccionado = null;
+    }
+
     public class ArchivoInfo
     {
         public Guid Id { get; set; }
         public string Grifo { get; set; }
         public string File { get; set; }
         public int Estado { get; set; }
+        public List<LogDetalle> Mensajes { get; set; } = new();
     }
 
   
