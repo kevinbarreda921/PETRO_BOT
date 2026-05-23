@@ -18,6 +18,81 @@
             <span class="h-2 w-2 bg-emerald-400 rounded-full animate-pulse"></span>
         </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-5">
+
+            <!-- ===================== -->
+            <!-- TRABAJO -->
+            <!-- ===================== -->
+            <div class="relative">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">
+                    Trabajo
+                </label>
+                
+                <div class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 flex items-center justify-between cursor-pointer hover:border-slate-300 hover:bg-slate-50 transition-all"
+                     @onclick="ToggleTrabajo">
+                    <span>@trabajoSeleccionado</span>
+                    <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 @(showTrabajo ? "rotate-180" : "")"
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+
+                @if (showTrabajo)
+                {
+                    <div class="absolute top-[calc(100%+4px)] left-0 w-full bg-white rounded-xl shadow-lg border border-slate-100 py-1.5 z-50 overflow-hidden">
+                        @foreach (var trabajo in trabajos)
+                        {
+                            <div class="px-4 py-2.5 hover:bg-slate-50 text-slate-600 hover:text-slate-900 cursor-pointer text-sm transition-colors"
+                                 @onclick:stopPropagation="true"
+                                 @onclick="() => SeleccionarTrabajo(trabajo)">
+                                @trabajo
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+            <!-- ===================== -->
+            <!-- DÍA -->
+            <!-- ===================== -->
+            @if (showDiaActivar)
+            {
+                <div class="relative">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">
+                        Día
+                    </label>
+
+                    <div class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 flex items-center justify-between cursor-pointer hover:border-slate-300 hover:bg-slate-50 transition-all"
+                         @onclick="ToggleDia">
+                        <span>@(diaSeleccionado == 0 ? "Seleccionar" : diaSeleccionado.ToString())</span>
+                        <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 @(showDia ? "rotate-180" : "")"
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+
+                    @if (showDia)
+                    {
+                        <div class="absolute top-[calc(100%+4px)] left-0 w-full bg-white rounded-xl shadow-lg border border-slate-100 py-1.5 z-50 max-h-48 overflow-y-auto custom-scrollbar">
+                            <div class="px-4 py-2.5 hover:bg-slate-50 text-slate-600 hover:text-slate-900 cursor-pointer text-sm transition-colors"
+                                 @onclick:stopPropagation="true"
+                                 @onclick="() => SeleccionarDia(0)">
+                                Seleccionar
+                            </div>
+                            @foreach (var dia in Enumerable.Range(1, 31))
+                            {
+                                <div class="px-4 py-2.5 hover:bg-slate-50 text-slate-600 hover:text-slate-900 cursor-pointer text-sm transition-colors"
+                                     @onclick:stopPropagation="true"
+                                     @onclick="() => SeleccionarDia(dia)">
+                                    @dia
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
+        </div>
+
         @if (EstadoAdjuntadoRegistroVentas==false)
         {
             <div class="space-y-2">
@@ -64,117 +139,6 @@
         {
                <SuccessCargaFile File="registro_ventaas.xlsx"/>
         }
-     
-
-        <div class="grid grid-cols-1 md:grid-cols-1 gap-5">
-
-            <!-- ===================== -->
-            <!-- TRABAJO -->
-            <!-- ===================== -->
-            <div class="relative">
-                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">
-                    Trabajo
-                </label>
-                
-                <div class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 flex items-center justify-between cursor-pointer hover:border-slate-300 hover:bg-slate-50 transition-all"
-                     @onclick="ToggleTrabajo">
-                    <span>@trabajoSeleccionado</span>
-                    <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 @(showTrabajo ? "rotate-180" : "")"
-                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </div>
-
-                @if (showTrabajo)
-                {
-                    <div class="absolute top-[calc(100%+4px)] left-0 w-full bg-white rounded-xl shadow-lg border border-slate-100 py-1.5 z-50 overflow-hidden">
-                        @foreach (var trabajo in trabajos)
-                        {
-                            <div class="px-4 py-2.5 hover:bg-slate-50 text-slate-600 hover:text-slate-900 cursor-pointer text-sm transition-colors"
-                                 @onclick:stopPropagation="true"
-                                 @onclick="() => SeleccionarTrabajo(trabajo)">
-                                @trabajo
-                            </div>
-                        }
-                    </div>
-                }
-            </div>
-
-            <!-- ===================== -->
-            <!-- MES -->
-            <!-- ===================== -->
-            @if (showMesActivar){
-            <div class="relative">
-                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">
-                    Mes
-                </label>
-                
-                <div class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 flex items-center justify-between cursor-pointer hover:border-slate-300 hover:bg-slate-50 transition-all"
-                     @onclick="ToggleMes">
-                    <span>@mesSeleccionado</span>
-                    <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 @(showMes ? "rotate-180" : "")"
-                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </div>
-
-                @if (showMes)
-                {
-                    <div class="absolute top-[calc(100%+4px)] left-0 w-full bg-white rounded-xl shadow-lg border border-slate-100 py-1.5 z-50 max-h-48 overflow-y-auto custom-scrollbar">
-                        @foreach (var mes in meses)
-                        {
-                            <div class="px-4 py-2.5 hover:bg-slate-50 text-slate-600 hover:text-slate-900 cursor-pointer text-sm transition-colors"
-                                 @onclick:stopPropagation="true"
-                                 @onclick="() => SeleccionarMes(mes)">
-                                @mes
-                            </div>
-                        }
-                    </div>
-                }
-            </div>
-            }
-
-            <!-- ===================== -->
-            <!-- DÍA -->
-            <!-- ===================== -->
-            @if (showDiaActivar)
-            {
-                <div class="relative">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">
-                        Día
-                    </label>
-
-                    <div class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 flex items-center justify-between cursor-pointer hover:border-slate-300 hover:bg-slate-50 transition-all"
-                    @onclick="ToggleDia">
-                        <span>@(diaSeleccionado == 0 ? "Seleccionar" : diaSeleccionado.ToString())</span>
-                        <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 @(showDia ? "rotate-180" : "")"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </div>
-
-                    @if (showDia)
-                    {
-                        <div class="absolute top-[calc(100%+4px)] left-0 w-full bg-white rounded-xl shadow-lg border border-slate-100 py-1.5 z-50 max-h-48 overflow-y-auto custom-scrollbar">
-                            <div class="px-4 py-2.5 hover:bg-slate-50 text-slate-600 hover:text-slate-900 cursor-pointer text-sm transition-colors"
-                            @onclick:stopPropagation="true"
-                            @onclick="() => SeleccionarDia(0)">
-                                Seleccionar
-                            </div>
-                            @foreach (var dia in Enumerable.Range(1, 31))
-                            {
-                                <div class="px-4 py-2.5 hover:bg-slate-50 text-slate-600 hover:text-slate-900 cursor-pointer text-sm transition-colors"
-                                @onclick:stopPropagation="true"
-                                @onclick="() => SeleccionarDia(dia)">
-                                    @dia
-                                </div>
-                            }
-                        </div>
-                }
-            </div>
-            }
-
-        </div>
 
         @if (EstadoAdjuntadoReportediario == false)
         {
@@ -187,7 +151,7 @@
                 <div class="group relative w-full">
 
                     <label for="file-upload_multi"
-                    class="w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl px-4 py-2 flex items-center justify-between hover:border-emerald-400 hover:bg-emerald-50/30 transition-all cursor-pointer">
+                           class="w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl px-4 py-2 flex items-center justify-between hover:border-emerald-400 hover:bg-emerald-50/30 transition-all cursor-pointer">
 
                         <span class="text-[11px] font-bold text-slate-600">
                             Adjuntar reporte diario
@@ -195,20 +159,24 @@
 
                         <span class="p-1.5 bg-white rounded-lg shadow-sm group-hover:scale-105 transition-transform">
                             <svg class="w-4 h-4 text-emerald-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24">
+                                 fill="none"
+                                 stroke="currentColor"
+                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M12 4v16m8-8H4">
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M12 4v16m8-8H4">
                                 </path>
                             </svg>
                         </span>
 
                     </label>
 
-                    <InputFile id="file-upload_multi" OnChange="SubirArchivoMulti" multiple accept=".xlsx" />
+                    <InputFile id="file-upload_multi"
+                               class="hidden"
+                               OnChange="SubirArchivoMulti"
+                               multiple
+                               accept=".xlsx" />
 
                 </div>
 
@@ -216,7 +184,7 @@
         }
         else
         {
-            <SuccessCargaFile File="registro_ventaas.xlsx" />
+            <SuccessCargaFile File="reporte_diario.xlsx" />
         }
 
 
@@ -224,6 +192,13 @@
 
         <div class="flex flex-col gap-3 mt-auto pt-4 border-t border-slate-100">
     
+            <!-- Botón Ver Adjuntos (Con el mismo diseño del de Cancelar Operación, habilitado si hay archivos) -->
+            <button disabled="@(isLoading || !(EstadoAdjuntadoRegistroVentas || EstadoAdjuntadoReportediario))" 
+                    @onclick="AbrirModalAdjuntos" 
+                    class="w-full bg-white text-slate-500 border border-slate-200 rounded-xl py-3.5 text-sm font-medium hover:bg-[#eff6ff] hover:text-[#2563eb] hover:border-[#bfdbfe] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-500 disabled:hover:border-slate-200 cursor-pointer">
+                Ver adjuntos
+            </button>
+
             <!-- Botón Ejecutar con estado Loading -->
             <button @onclick="EjecutarProceso"
                     disabled="@isLoading"
@@ -251,13 +226,12 @@
     </div>
 
     <!-- PANEL DE TABLA -->
-    <div class="flex-1 bg-white w-full rounded-[30px] p-6 shadow-sm border border-slate-50 overflow-hidden">
+    <div class="flex-1 bg-white w-full rounded-[30px] p-6 shadow-sm border border-slate-50 overflow-hidden" style="position: relative; min-height: 250px;">
         <div class="flex items-center justify-between mb-6">
             <h2 class="text-xl font-bold text-slate-800">Archivos procesados</h2>
             <button class="text-[#017099] text-sm font-bold hover:underline decoration-2 underline-offset-4">Download CSV</button>
         </div>
-
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto custom-scrollbar" style="max-height: calc(100vh - 260px); overflow-y: auto; padding-right: 4px;">
             <table class="w-full text-left">
                 <thead>
                     <tr class="text-slate-400 text-[11px] uppercase tracking-[0.2em] border-b border-slate-50">
@@ -270,63 +244,76 @@
                     </tr>
                 </thead>
                 <tbody class="text-sm">
-                    @if (isLoading)
+                    @if (archivosProcesados == null || !archivosProcesados.Any())
                     {
-                       <LoadingRayo/>
-                     }
-              
-                    @foreach (var archivo in archivosProcesados)
-                    {
-                        @* Agregamos @key para eficiencia y la clase animate-new-row para el efecto *@
-                        <tr @key="archivo.Id" class="border-b border-slate-50 group hover:bg-slate-50/50 transition-colors animate-new-row">
-
-                            @* Número de registro con un toque más tenue *@
-                            <td class="py-3 text-[11px] text-slate-300 font-bold whitespace-nowrap">
-                                #@(archivosProcesados.IndexOf(archivo) + 1)
-                            </td>
-
-                            <td class="py-3 pr-8 whitespace-nowrap">
-                                <span class="font-bold text-slate-700 text-sm">@archivo.Grifo</span>
-                            </td>
-
-                            <td class="py-3">
-                                @* Un gris un poco más suave para el nombre del archivo mejora el minimalismo *@
-                                <span class="text-slate-500 font-medium text-sm">@archivo.File</span>
-                            </td>
-
-                            @if (archivo.Estado == 1)
-                            {
-                                <td class="py-3 px-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center gap-2 px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-wider">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Success
-                                    </span>
-                                </td>
-                            }
-                            else
-                            {
-                                <td class="py-3 whitespace-nowrap px-4">
-                                    <span class="inline-flex items-center gap-2 px-2.5 py-1 bg-rose-50 text-rose-600 rounded-md text-[10px] font-black uppercase tracking-wider">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Error
-                                    </span>
-                                </td>
-                            }
-
-                            <td class="py-3 text-right whitespace-nowrap">
-                                @* Botón un poco más compacto para mantener la línea limpia *@
-                                <button id="@archivo.File"
-                                        @onclick="() => AbrirModal(archivo)"
-                                        class="bg-[#017099] text-white px-4 py-1.5 rounded-lg text-[11px] font-bold hover:shadow-md active:scale-95 transition-all outline-none cursor-pointer">
-                                    Ver detalles
-                                </button>
+                        <tr>
+                            <td colspan="5" style="padding: 48px 0; text-align: center; border: none;">
+                                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                                    <svg style="width: 32px; height: 32px; color: #94a3b8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    <span style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.15em;">Sin archivos procesados</span>
+                                </div>
                             </td>
                         </tr>
                     }
+                    else
+                    {
+                        @foreach (var archivo in archivosProcesados)
+                        {
+                            @* Agregamos @key para eficiencia y la clase animate-new-row para el efecto *@
+                            <tr @key="archivo.Id" class="border-b border-slate-50 group hover:bg-slate-50/50 transition-colors animate-new-row">
 
+                                @* Número de registro con un toque más tenue *@
+                                <td class="py-3 text-[11px] text-slate-300 font-bold whitespace-nowrap">
+                                    #@(archivosProcesados.IndexOf(archivo) + 1)
+                                </td>
 
-                    <!-- Repite py-3 en el resto de los <tr> -->
+                                <td class="py-3 pr-8 whitespace-nowrap">
+                                    <span class="font-bold text-slate-700 text-sm">@archivo.Grifo</span>
+                                </td>
+
+                                <td class="py-3">
+                                    @* Un gris un poco más suave para el nombre del archivo mejora el minimalismo *@
+                                    <span class="text-slate-500 font-medium text-sm">@archivo.File</span>
+                                </td>
+
+                                @if (archivo.Estado == 1)
+                                {
+                                    <td class="py-3 px-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center gap-2 px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-wider">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Success
+                                        </span>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td class="py-3 whitespace-nowrap px-4">
+                                        <span class="inline-flex items-center gap-2 px-2.5 py-1 bg-rose-50 text-rose-600 rounded-md text-[10px] font-black uppercase tracking-wider">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Error
+                                        </span>
+                                    </td>
+                                }
+
+                                <td class="py-3 text-right whitespace-nowrap">
+                                    @* Botón un poco más compacto para mantener la línea limpia *@
+                                    <button id="@archivo.File"
+                                            @onclick="() => AbrirModal(archivo)"
+                                            class="bg-[#017099] text-white px-4 py-1.5 rounded-lg text-[11px] font-bold hover:shadow-md active:scale-95 transition-all outline-none cursor-pointer">
+                                        Ver detalles
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
                 </tbody>
             </table>
         </div>
+
+        @if (isLoading)
+        {
+            <LoadingRayo/>
+        }
     </div>
 
 
@@ -359,13 +346,46 @@
                 </button>
             </div>
 
+            <!-- DASHBOARD DE CONTADORES MINIMALISTA -->
+            <div style="display: flex; gap: 16px; padding: 16px 20px 0 20px;">
+                <!-- CARD INFO -->
+                <div style="flex: 1; background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
+                    <div>
+                        <span style="font-size: 9px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px;">Mensajes Info</span>
+                        <span style="font-size: 20px; font-weight: 900; color: #1e3a8a; line-height: 1;">
+                            @archivoSeleccionado.Mensajes.Count(m => m.Estado.Equals("INFO", StringComparison.OrdinalIgnoreCase))
+                        </span>
+                    </div>
+                    <div style="background-color: #dbeafe; border-radius: 12px; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                        <svg style="width: 18px; height: 18px; color: #2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- CARD ERROR -->
+                <div style="flex: 1; background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
+                    <div>
+                        <span style="font-size: 9px; font-weight: 700; color: #b91c1c; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px;">Mensajes Error</span>
+                        <span style="font-size: 20px; font-weight: 900; color: #7f1d1d; line-height: 1;">
+                            @archivoSeleccionado.Mensajes.Count(m => !m.Estado.Equals("INFO", StringComparison.OrdinalIgnoreCase))
+                        </span>
+                    </div>
+                    <div style="background-color: #fee2e2; border-radius: 12px; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                        <svg style="width: 18px; height: 18px; color: #dc2626;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
             <!-- CONTENIDO DE LA TABLA MINIMALISTA -->
-            <div style="padding: 20px; overflow-y: auto; flex: 1;">
+            <div style="padding: 0 20px 20px 20px; overflow-y: auto; flex: 1;">
                 <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12px;">
                     <thead>
-                        <tr style="border-bottom: 2px solid #f1f5f9; color: #94a3b8; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em;">
-                            <th style="padding-bottom: 8px; font-weight: 700; width: 85px;">Estado</th>
-                            <th style="padding-bottom: 8px; font-weight: 700;">Descripción</th>
+                        <tr style="color: #94a3b8; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em;">
+                            <th style="padding-top: 16px; padding-bottom: 8px; font-weight: 700; width: 85px; background-color: #ffffff; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #f1f5f9;">Estado</th>
+                            <th style="padding-top: 16px; padding-bottom: 8px; font-weight: 700; background-color: #ffffff; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #f1f5f9;">Descripción</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -420,55 +440,171 @@
     </div>
 }
 
+@if (mostrarModalAdjuntos)
+{
+    <!-- MODAL OVERLAY (FONDO CON OPACIDAD MÍNIMA QUE PERMITE CERRAR AL HACER CLICK AFUERA) -->
+    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9998; padding: 20px;" 
+         @onclick="CerrarModalAdjuntos">
+        
+        <!-- CONTENEDOR MODAL -->
+        <div style="background-color: #ffffff; border-radius: 28px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid #f1f5f9; width: 100%; max-width: 680px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden;"
+             @onclick:stopPropagation="true">
+            
+            <!-- CABECERA -->
+            <div style="padding: 18px 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; background-color: #f8fafc;">
+                <div>
+                    <span style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 2px;">Archivos Temporales</span>
+                    <h3 style="font-size: 16px; font-weight: 800; color: #1e293b; margin: 0;">Documentos Adjuntados</h3>
+                </div>
+                <button @onclick="CerrarModalAdjuntos" 
+                        style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; color: #94a3b8; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" 
+                        onmouseover="this.style.backgroundColor='#e2e8f0'; this.style.color='#475569';" 
+                        onmouseout="this.style.backgroundColor='transparent'; this.style.color='#94a3b8';">
+                    <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- DASHBOARD DE ADJUNTOS ESPECTACULAR (JUSTO DEBAJO DEL HEADER) -->
+            <div style="display: flex; gap: 16px; padding: 16px 24px 0 24px;">
+                <!-- CARD REGISTRO VENTAS (AZUL) -->
+                <div style="flex: 1; background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
+                    <div>
+                        <span style="font-size: 9px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px;">Cant. Registro de Ventas</span>
+                        <span style="font-size: 20px; font-weight: 900; color: #1e3a8a; line-height: 1;">
+                            @archivosRegistroVentas.Count
+                        </span>
+                    </div>
+                    <div style="background-color: #dbeafe; border-radius: 12px; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                        <svg style="width: 18px; height: 18px; color: #2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- CARD REPORTES DIARIOS (VERDE) -->
+                <div style="flex: 1; background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
+                    <div>
+                        <span style="font-size: 9px; font-weight: 700; color: #16a34a; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px;">Cant. Reportes Diarios</span>
+                        <span style="font-size: 20px; font-weight: 900; color: #14532d; line-height: 1;">
+                            @archivosReporteDiario.Count
+                        </span>
+                    </div>
+                    <div style="background-color: #dcfce7; border-radius: 12px; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                        <svg style="width: 18px; height: 18px; color: #16a34a;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENIDO DE LOS DOS CUADROS REDONDEADOS -->
+            <div style="padding: 20px 24px 24px 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 20px;">
+                
+                <!-- CUADRO 1: REGISTRO DE VENTA -->
+                <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 18px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02);">
+                    <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1.5px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 12px;">
+                        <div style="background-color: #eff6ff; padding: 6px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                            <svg style="width: 16px; height: 16px; color: #2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <h4 style="font-size: 13px; font-weight: 800; color: #1e293b; margin: 0; text-transform: uppercase; letter-spacing: 0.05em;">Registro de Venta</h4>
+                    </div>
+                    
+                    <div style="max-height: 180px; overflow-y: auto; padding-right: 4px;" class="custom-scrollbar">
+                        @if (!archivosRegistroVentas.Any())
+                        {
+                            <span style="font-size: 11px; color: #94a3b8; font-style: italic; display: block; padding: 4px 0;">Ningún archivo adjuntado.</span>
+                        }
+                        else
+                        {
+                            <ul style="margin: 0; padding: 0; list-style: none;">
+                                @foreach (var archivo in archivosRegistroVentas)
+                                {
+                                    <li style="font-size: 11px; color: #475569; padding: 6px 8px; background-color: #f8fafc; border-radius: 8px; margin-bottom: 6px; font-family: monospace; display: flex; align-items: center; justify-content: space-between; border: 1px solid #f1f5f9;">
+                                        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 90%;">@archivo</span>
+                                        <svg style="width: 14px; height: 14px; color: #10b981; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                </div>
+
+                <!-- CUADRO 2: REPORTES DIARIOS -->
+                <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 18px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02);">
+                    <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1.5px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 12px;">
+                        <div style="background-color: #f0fdf4; padding: 6px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                            <svg style="width: 16px; height: 16px; color: #16a34a;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v12m0 0l-4-4m4 4l4-4m0 6V7m0 0l-4 4m4-4l4 4"></path>
+                            </svg>
+                        </div>
+                        <h4 style="font-size: 13px; font-weight: 800; color: #1e293b; margin: 0; text-transform: uppercase; letter-spacing: 0.05em;">Reportes Diarios</h4>
+                    </div>
+                    
+                    <div style="max-height: 280px; overflow-y: auto; padding-right: 4px;" class="custom-scrollbar">
+                        @if (!archivosReporteDiario.Any())
+                        {
+                            <span style="font-size: 11px; color: #94a3b8; font-style: italic; display: block; padding: 4px 0;">Ningún archivo adjuntado.</span>
+                        }
+                        else
+                        {
+                            <ul style="margin: 0; padding: 0; list-style: none;">
+                                @foreach (var archivo in archivosReporteDiario)
+                                {
+                                    <li style="font-size: 11px; color: #475569; padding: 6px 8px; background-color: #f8fafc; border-radius: 8px; margin-bottom: 6px; font-family: monospace; display: flex; align-items: center; justify-content: space-between; border: 1px solid #f1f5f9;">
+                                        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 90%;">@archivo</span>
+                                        <svg style="width: 14px; height: 14px; color: #10b981; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- PIE DE PAGINA -->
+            <div style="padding: 14px 24px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; background-color: #f8fafc;">
+                <button @onclick="CerrarModalAdjuntos" 
+                        style="background-color: #f1f5f9; border: none; cursor: pointer; padding: 8px 18px; border-radius: 10px; color: #475569; font-weight: 700; font-size: 11px; transition: background-color 0.2s;"
+                        onmouseover="this.style.backgroundColor='#e2e8f0';"
+                        onmouseout="this.style.backgroundColor='#f1f5f9';">
+                    Cerrar
+                </button>
+            </div>
+
+        </div>
+    </div>
+}
+
 @code {
 
     string[] trabajos =
-    {
+        {
         "Seleccionar",
         "Procesar Hoy",
         "Procesar Día",
         "Procesar Mes"
     };
 
-    string[] meses =
-    {
-        "Seleccionar",
-        "Enero",
-        "Febrero",
-        "Marzo",
-        "Abril",
-        "Mayo",
-        "Junio",
-        "Julio",
-        "Agosto",
-        "Septiembre",
-        "Octubre",
-        "Noviembre",
-        "Diciembre"
-    };
-
     string trabajoSeleccionado = "Seleccionar";
-    string mesSeleccionado = "Seleccionar";
     int diaSeleccionado = 0;
 
     bool showTrabajo;
-    bool showMes;
     bool showDia;
-    bool showMesActivar;
     bool showDiaActivar;
 
 
     void ToggleTrabajo()
     {
         showTrabajo = !showTrabajo;
-        showMes = false; 
-        showDia = false;
-    }
-
-    void ToggleMes()
-    {
-        showMes = !showMes;
-        showTrabajo = false;
         showDia = false;
     }
 
@@ -476,12 +612,6 @@
     {
         showDia = !showDia;
         showTrabajo = false;
-        showMes = false;
-    }
-    void SeleccionarMes(string mes)
-    {
-        mesSeleccionado = mes;
-        showMes = false;
     }
 
     void SeleccionarDia(int dia)
@@ -497,15 +627,12 @@
         switch (trabajo)
         {
             case "Procesar Hoy":
-                showMesActivar = false;
                 showDiaActivar = false;
                 break;
             case "Procesar Día":
-                showMesActivar = true;
                 showDiaActivar = true;
                 break;
             case "Procesar Mes":
-                showMesActivar = true;
                 showDiaActivar = false;
                 break;
             default:
@@ -515,20 +642,110 @@
 
     }
 
+    private void LimpiarArchivoReporteProceso()
+    {
+        try
+        {
+            // Limpiar la memoria de logs estáticos acumulada en RAM
+            LoggerService.LimpiarLogs();
+
+            string rutaLog = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Json\JsonRegistroVentas\", "reporte_proceso.json"));
+            System.IO.File.WriteAllText(rutaLog, "[]");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error al limpiar reporte_proceso.json: " + ex.Message);
+        }
+    }
+
     void CancelarRegistroVentas()
     {
         EstadoAdjuntadoRegistroVentas = false;
         EstadoAdjuntadoReportediario = false;
+        archivosProcesados.Clear();
+        listaArchivossubir.Clear();
+        trabajoSeleccionado = "Seleccionar";
+        showDiaActivar = false;
+        StateHasChanged();
+        // Limpiar reporte_proceso.json
+        LimpiarArchivoReporteProceso();
+
+        // Eliminar físicamente los archivos del disco
+        try
+        {
+            var rutaVentas = Path.Combine(env.WebRootPath, "uploads/RegistroVentas");
+            if (Directory.Exists(rutaVentas))
+            {
+                foreach (var archivo in Directory.GetFiles(rutaVentas))
+                {
+                    File.Delete(archivo);
+                }
+            }
+
+            var rutaReportes = Path.Combine(env.WebRootPath, "uploads/ReporteDiario");
+            if (Directory.Exists(rutaReportes))
+            {
+                foreach (var archivo in Directory.GetFiles(rutaReportes))
+                {
+                    File.Delete(archivo);
+                }
+            }
+            ToastService.Info("Operación cancelada. Archivos adjuntos eliminados.");
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al borrar archivos: " + ex.Message);
+        }
     }
 
     bool isLoading = false;
 
     async Task EjecutarProceso()
     {
-        isLoading = true;
-        await ProcesarArchivos();
-        await CargarReporteProceso();
-        isLoading = false;
+        if (trabajoSeleccionado != "Seleccionar")
+        {
+            if (EstadoAdjuntadoRegistroVentas != false)
+            {
+                if (EstadoAdjuntadoReportediario != false)
+                {
+                    if (trabajoSeleccionado == "Procesar Hoy")
+                    {
+                        ToastService.Info("MetodoParaProcesarHoy");
+                    }
+                    else if (trabajoSeleccionado == "Procesar Día")
+                    {
+                        if (diaSeleccionado == 0)
+                        {
+                            ToastService.Error("Seleccionar día");
+                        }
+                        else 
+                        {
+                            ToastService.Info("MetodoParaProcesarHoy");
+                        }
+                    } else
+                    {
+                        ToastService.Info("MetodoParaProcesarMes");
+                        // isLoading = true;
+                        // LimpiarArchivoReporteProceso();
+                        // await ProcesarArchivos();
+                        // await CargarReporteProceso();
+                        // isLoading = false;
+                    }
+
+                }
+                else
+                {
+                    ToastService.Error("Adjuntar reporte díario");
+                }
+            }
+            else
+            {
+                ToastService.Error("Adjuntar reporte díario");
+            }
+        } else
+        {
+            ToastService.Error("Seleccione un trabajo");
+        }
     }
 
     private async Task CargarReporteProceso()
@@ -543,7 +760,7 @@
                 
                 if (logsProcesados != null)
                 {
-                    archivosProcesados.Clear();
+                   
                     foreach (var log in logsProcesados)
                     {
                         int estado = log.Mensajes.All(m => m.Estado.Equals("INFO", StringComparison.OrdinalIgnoreCase)) ? 1 : 2;
@@ -558,7 +775,7 @@
                         };
                         archivosProcesados.Add(nuevoArchivo);
                         StateHasChanged();
-                        await Task.Delay(1000);
+                        // await Task.Delay(1000);
 
                     }
                    
@@ -597,7 +814,7 @@
             var ruta = Path.Combine(env.WebRootPath, "uploads/RegistroVentas");
             if (!Directory.Exists(ruta)) Directory.CreateDirectory(ruta);
 
-            var nombreArchivo = $"{Guid.NewGuid()}_{archivo.Name}";
+            var nombreArchivo = $"{archivo.Name}";
             var rutaCompleta = Path.Combine(ruta, nombreArchivo);
 
             using FileStream fs = new(rutaCompleta, FileMode.Create);
@@ -640,7 +857,7 @@
                     continue; 
                 }
 
-                var nombre = $"{Guid.NewGuid()}_{archivo.Name}";
+                var nombre = $"{archivo.Name}";
                 var rutaCompleta = Path.Combine(ruta, nombre);
 
                 using FileStream fs = new(rutaCompleta, FileMode.Create);
@@ -654,10 +871,14 @@
             if (listaArchivossubir.Any())
             {
                 EstadoAdjuntadoReportediario = true;
+                mensaje = "Archivo adjuntado correctamente";
+                ToastService.Success(mensaje);
             }
         }
         catch (Exception ex)
         {
+            mensaje = "Error: " + ex.Message;
+            ToastService.Error(mensaje);
             EstadoAdjuntadoReportediario = false;
             Console.WriteLine(ex.Message);
         }
@@ -669,6 +890,7 @@
 
     private async Task ProcesarArchivos()
     {
+        archivosProcesados.Clear();
         Stopwatch timerGlobal = Stopwatch.StartNew();
         try
         {
@@ -705,6 +927,49 @@
     {
         mostrarModal = false;
         archivoSeleccionado = null;
+    }
+
+    private bool mostrarModalAdjuntos = false;
+    private List<string> archivosRegistroVentas = new();
+    private List<string> archivosReporteDiario = new();
+
+    private void AbrirModalAdjuntos()
+    {
+        CargarArchivosAdjuntos();
+        mostrarModalAdjuntos = true;
+    }
+
+    private void CerrarModalAdjuntos()
+    {
+        mostrarModalAdjuntos = false;
+    }
+
+    private void CargarArchivosAdjuntos()
+    {
+        try
+        {
+            archivosRegistroVentas.Clear();
+            var rutaVentas = Path.Combine(env.WebRootPath, "uploads/RegistroVentas");
+            if (Directory.Exists(rutaVentas))
+            {
+                archivosRegistroVentas = Directory.GetFiles(rutaVentas, "*.xlsx")
+                                                  .Select(Path.GetFileName)
+                                                  .ToList()!;
+            }
+
+            archivosReporteDiario.Clear();
+            var rutaReportes = Path.Combine(env.WebRootPath, "uploads/ReporteDiario");
+            if (Directory.Exists(rutaReportes))
+            {
+                archivosReporteDiario = Directory.GetFiles(rutaReportes, "*.xlsx")
+                                                 .Select(Path.GetFileName)
+                                                 .ToList()!;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error al cargar archivos adjuntos: " + ex.Message);
+        }
     }
 
     public class ArchivoInfo

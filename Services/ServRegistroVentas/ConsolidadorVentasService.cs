@@ -20,7 +20,7 @@ namespace PETRO_BOT.Services.Services
 
         public void Procesar()
         {
-            var CONTADOR_dES = 1;
+            //var CONTADOR_dES = 1;
             Console.WriteLine("Iniciando lectura de archivos...");
             var listaGrifosProcesar = _lector.LeerPartesDiarios();
 
@@ -50,8 +50,8 @@ namespace PETRO_BOT.Services.Services
                 string? grifoObjetivo = archivoGrifoActual.Grifo;
                 if (string.IsNullOrEmpty(grifoObjetivo)) continue;
 
-                LoggerService.Info(grifoObjetivo, archivoGrifoActual.Archivo ?? "", $" CONTADOR {CONTADOR_dES}");
-                CONTADOR_dES++;
+                //LoggerService.Info(grifoObjetivo, archivoGrifoActual.Archivo ?? "", $" CONTADOR {CONTADOR_dES}");
+                //CONTADOR_dES++;
 
                 // Buscamos la hoja cuyo nombre contenga el grifoObjetivo de forma flexible (ignora mayúsculas)
                 var hojaEPPlus = workbook.Worksheets.FirstOrDefault(w => w.Name.IndexOf(grifoObjetivo, StringComparison.OrdinalIgnoreCase) >= 0);
