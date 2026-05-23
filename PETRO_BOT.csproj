@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Json\JsonRegistroVentas\" />
     <Folder Include="wwwroot\uploads\" />
     <Folder Include="wwwroot\uploads\RegistroVentas\" />
     <Folder Include="wwwroot\uploads\ReporteDiario\" />

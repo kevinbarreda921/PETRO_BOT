@@ -1,4 +1,4 @@
-﻿@page "/RegistroVentas"
+@page "/RegistroVentas"
 @using PETRO_BOT.Services.Toast
 @using PETRO_BOT.Components.Pages.Elementos
 @rendermode InteractiveServer
@@ -565,13 +565,11 @@
 
     private async Task ProcesarArchivos()
     {
-
-            // await Task.Delay(1000); // Simulando tiempo de lectura
-
+        Stopwatch timerGlobal = Stopwatch.StartNew();
         try
         {
             var consolidador = new ConsolidadorVentasService();
-            consolidador.Procesar();
+            await Task.Run(() => consolidador.Procesar());
         }
         catch (Exception ex)
         {
@@ -580,17 +578,14 @@
         }
         finally
         {
-
-            string rutaLog = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\", "reporte_proceso.json"));
+            string rutaLog = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Json\JsonRegistroVentas\", "reporte_proceso.json"));
             LoggerService.GuardarJson(rutaLog);
         }
-
-        // timerGlobal.Stop();
+        timerGlobal.Stop();
         Console.WriteLine("\n" + new string('=', 30));
         Console.WriteLine($"PROCESO FINALIZADO");
-        // Console.WriteLine($"Tiempo total: {timerGlobal.Elapsed.TotalSeconds:F2} segundos");
+        Console.WriteLine($"Tiempo total: {timerGlobal.Elapsed.TotalSeconds:F2} segundos");
         Console.WriteLine(new string('=', 30));
-
     }
 
     public class ArchivoInfo

@@ -16,7 +16,7 @@ namespace PETRO_BOT.Services.Services
 
         private static void CargarConfiguracionJson()
         {
-            string rutaConfig = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\", "config_grifos.json"));
+            string rutaConfig = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Json\JsonRegistroVentas\", "config_grifos.json"));
 
             if (File.Exists(rutaConfig))
             {
