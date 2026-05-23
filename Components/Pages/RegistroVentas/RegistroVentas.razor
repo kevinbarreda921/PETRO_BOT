@@ -52,42 +52,139 @@
                 }
             </div>
             <!-- ===================== -->
-            <!-- DÍA -->
-            <!-- ===================== -->
-            @if (showDiaActivar)
+            <!-- FECHA (CALENDARIO MINIMALISTA) -->
+            <!-- ===================== -->            @if (showDiaActivar)
             {
                 <div class="relative">
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">
-                        Día
+                        Fecha
                     </label>
-
-                    <div class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 flex items-center justify-between cursor-pointer hover:border-slate-300 hover:bg-slate-50 transition-all"
-                         @onclick="ToggleDia">
-                        <span>@(diaSeleccionado == 0 ? "Seleccionar" : diaSeleccionado.ToString())</span>
-                        <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 @(showDia ? "rotate-180" : "")"
-                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </div>
-
-                    @if (showDia)
-                    {
-                        <div class="absolute top-[calc(100%+4px)] left-0 w-full bg-white rounded-xl shadow-lg border border-slate-100 py-1.5 z-50 max-h-48 overflow-y-auto custom-scrollbar">
-                            <div class="px-4 py-2.5 hover:bg-slate-50 text-slate-600 hover:text-slate-900 cursor-pointer text-sm transition-colors"
-                                 @onclick:stopPropagation="true"
-                                 @onclick="() => SeleccionarDia(0)">
-                                Seleccionar
+                    <div class="relative" style="position: relative;">
+                        <!-- Input visual que al hacer click abre el calendario -->
+                        <div @onclick="ToggleCalendario" 
+                             class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 pr-10 text-sm font-medium text-slate-600 outline-none hover:border-slate-300 transition-all cursor-pointer flex items-center justify-between select-none @(mostrarCalendario ? "border-[#0186B5] ring-2 ring-[#0186B5]/10" : "")"
+                             style="display: flex; align-items: center; justify-content: space-between; position: relative; cursor: pointer;">
+                            <span>@fechaSeleccionada.ToString("d/MM/yyyy")</span>
+                            <div class="text-slate-400" style="color: #94a3b8; display: flex; align-items: center;">
+                                <svg class="w-4 h-4" style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
                             </div>
-                            @foreach (var dia in Enumerable.Range(1, 31))
-                            {
-                                <div class="px-4 py-2.5 hover:bg-slate-50 text-slate-600 hover:text-slate-900 cursor-pointer text-sm transition-colors"
-                                     @onclick:stopPropagation="true"
-                                     @onclick="() => SeleccionarDia(dia)">
-                                    @dia
-                                </div>
-                            }
                         </div>
-                    }
+
+                        @if (mostrarCalendario)
+                        {
+                            <!-- Backdrop invisible para cerrar al hacer click fuera -->
+                            <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 40; background-color: transparent;" @onclick="CerrarCalendario"></div>
+
+                            <!-- Contenedor del Calendario flotante -->
+                            <div class="absolute shadow-xl"
+                                 @onclick:stopPropagation="true"
+                                 style="position: absolute; top: calc(100% + 6px); left: 0; width: 280px; background-color: #ffffff; border: 1.5px solid #0186B5; border-radius: 20px; padding: 18px; z-index: 50; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); font-family: system-ui, -apple-system, sans-serif; transition: all 0.2s ease-in-out; transform-origin: top left; animation: calendarFadeIn 0.15s ease-out;">
+                                
+                                <!-- Encabezado: Mes y Año + Navegación -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                                    <button type="button" @onclick="MesAnterior" 
+                                            style="background: transparent; border: none; cursor: pointer; color: #64748b; padding: 6px; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                                            onmouseover="this.style.backgroundColor='#f1f5f9'; this.style.color='#1e293b';"
+                                            onmouseout="this.style.backgroundColor='transparent'; this.style.color='#64748b';">
+                                        <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+                                        </svg>
+                                    </button>
+                                    
+                                    <span style="font-size: 11px; font-weight: 800; color: #1e293b; text-transform: uppercase; letter-spacing: 0.1em;">
+                                        @mesVisualizado.ToString("MMMM yyyy", new System.Globalization.CultureInfo("es-ES"))
+                                    </span>
+                                    
+                                    <button type="button" @onclick="MesSiguiente" 
+                                            style="background: transparent; border: none; cursor: pointer; color: #64748b; padding: 6px; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                                            onmouseover="this.style.backgroundColor='#f1f5f9'; this.style.color='#1e293b';"
+                                            onmouseout="this.style.backgroundColor='transparent'; this.style.color='#64748b';">
+                                        <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Días de la semana en formato grid 7 columnas -->
+                                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px;">
+                                    @foreach (var diaSem in new[] { "DO", "LU", "MA", "MI", "JU", "VI", "SA" })
+                                    {
+                                        <span style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">@diaSem</span>
+                                    }
+                                </div>
+
+                                <!-- Grid de días - 7 columnas -->
+                                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; justify-items: center; align-items: center;">
+                                    @* Celdas vacías para el desfase del primer día del mes *@
+                                    @for (int i = 0; i < ObtenerDesfasePrimerDia(); i++)
+                                    {
+                                        <div style="width: 32px; height: 32px;"></div>
+                                    }
+
+                                    @* Días del mes *@
+                                    @for (int dia = 1; dia <= DateTime.DaysInMonth(mesVisualizado.Year, mesVisualizado.Month); dia++)
+                                    {
+                                        var diaActual = dia; 
+                                        var fechaCelda = new DateTime(mesVisualizado.Year, mesVisualizado.Month, diaActual);
+                                        var esSeleccionado = fechaCelda.Date == fechaSeleccionada.Date;
+                                        var esHoy = fechaCelda.Date == DateTime.Today;
+
+                                        if (esSeleccionado)
+                                        {
+                                            <button type="button" @onclick="() => SeleccionarFecha(fechaCelda)"
+                                                    style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border-radius: 10px; border: none; background-color: #0186B5; color: #ffffff; cursor: pointer; box-shadow: 0 4px 10px rgba(1, 134, 181, 0.3); transition: all 0.15s;">
+                                                @diaActual
+                                            </button>
+                                        }
+                                        else if (esHoy)
+                                        {
+                                            <button type="button" @onclick="() => SeleccionarFecha(fechaCelda)"
+                                                    style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border-radius: 10px; border: none; background-color: rgba(1, 134, 181, 0.1); color: #0186B5; cursor: pointer; transition: all 0.15s;"
+                                                    onmouseover="this.style.backgroundColor='rgba(1, 134, 181, 0.2)';"
+                                                    onmouseout="this.style.backgroundColor='rgba(1, 134, 181, 0.1)';">
+                                                @diaActual
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" @onclick="() => SeleccionarFecha(fechaCelda)"
+                                                    style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; border-radius: 10px; border: none; background-color: transparent; color: #475569; cursor: pointer; transition: all 0.15s;"
+                                                    onmouseover="this.style.backgroundColor='#f1f5f9'; this.style.color='#0f172a';"
+                                                    onmouseout="this.style.backgroundColor='transparent'; this.style.color='#475569';">
+                                                @diaActual
+                                            </button>
+                                        }
+                                    }
+                                </div>
+
+                                <!-- Accesos rápidos minimalistas en el pie del calendario -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 14px; padding-top: 10px; border-top: 1px solid #f1f5f9;">
+                                    <button type="button" @onclick="EstablecerHoy" 
+                                            style="background: transparent; border: none; cursor: pointer; font-size: 10px; font-weight: 800; color: #0186B5; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 8px; border-radius: 6px; transition: background 0.2s;"
+                                            onmouseover="this.style.backgroundColor='rgba(1, 134, 181, 0.05)';"
+                                            onmouseout="this.style.backgroundColor='transparent';">
+                                        Hoy
+                                    </button>
+                                    <button type="button" @onclick="LimpiarCalendario" 
+                                            style="background: transparent; border: none; cursor: pointer; font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 8px; border-radius: 6px; transition: background 0.2s;"
+                                            onmouseover="this.style.backgroundColor='#f1f5f9'; this.style.color='#64748b';"
+                                            onmouseout="this.style.backgroundColor='transparent'; this.style.color='#94a3b8';">
+                                        Borrar
+                                    </button>
+                                </div>
+
+                            </div>
+                            
+                            <style>
+                                @@keyframes calendarFadeIn {
+                                    from { opacity: 0; transform: scale(0.95) translateY(-5px); }
+                                    to { opacity: 1; transform: scale(1) translateY(0); }
+                                }
+                            </style>
+                        }
+                    </div>
                 </div>
             }
 
@@ -596,6 +693,59 @@
 
     string trabajoSeleccionado = "Seleccionar";
     int diaSeleccionado = 0;
+    private DateTime fechaSeleccionada = DateTime.Today;
+    private DateTime mesVisualizado = DateTime.Today;
+    private bool mostrarCalendario = false;
+
+    private void ToggleCalendario()
+    {
+        mostrarCalendario = !mostrarCalendario;
+        if (mostrarCalendario)
+        {
+            mesVisualizado = new DateTime(fechaSeleccionada.Year, fechaSeleccionada.Month, 1);
+        }
+    }
+
+    private void CerrarCalendario()
+    {
+        mostrarCalendario = false;
+    }
+
+    private void MesAnterior()
+    {
+        mesVisualizado = mesVisualizado.AddMonths(-1);
+    }
+
+    private void MesSiguiente()
+    {
+        mesVisualizado = mesVisualizado.AddMonths(1);
+    }
+
+    private void SeleccionarFecha(DateTime fecha)
+    {
+        fechaSeleccionada = fecha;
+        mostrarCalendario = false;
+    }
+
+    private void EstablecerHoy()
+    {
+        fechaSeleccionada = DateTime.Today;
+        mesVisualizado = DateTime.Today;
+        mostrarCalendario = false;
+    }
+
+    private void LimpiarCalendario()
+    {
+        fechaSeleccionada = DateTime.Today;
+        mesVisualizado = DateTime.Today;
+        mostrarCalendario = false;
+    }
+
+    private int ObtenerDesfasePrimerDia()
+    {
+        var primerDia = new DateTime(mesVisualizado.Year, mesVisualizado.Month, 1);
+        return (int)primerDia.DayOfWeek;
+    }
 
     bool showTrabajo;
     bool showDia;
@@ -725,11 +875,11 @@
                     } else
                     {
                         ToastService.Info("MetodoParaProcesarMes");
-                        // isLoading = true;
-                        // LimpiarArchivoReporteProceso();
-                        // await ProcesarArchivos();
-                        // await CargarReporteProceso();
-                        // isLoading = false;
+                        isLoading = true;
+                        LimpiarArchivoReporteProceso();
+                        await ProcesarArchivos();
+                        await CargarReporteProceso();
+                        isLoading = false;
                     }
 
                 }
@@ -747,6 +897,7 @@
             ToastService.Error("Seleccione un trabajo");
         }
     }
+
 
     private async Task CargarReporteProceso()
     {
