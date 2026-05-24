@@ -59,7 +59,9 @@ namespace PETRO_BOT.Services.Services
 
                     if (configGrifo == null) return;
 
-                    var filasDeseadas = new HashSet<int>(configGrifo.MapeoFilas.Keys.Select(int.Parse));
+                    var filasDeseadas = new HashSet<int>(configGrifo.MapeoFilas.Keys
+                        .Where(k => int.TryParse(k, out _))
+                        .Select(int.Parse));
 
                     ArchivoGrifo nuevoGrifo = new ArchivoGrifo(nombreGrifoDetectado, Path.GetFileName(ruta));
 
@@ -368,7 +370,9 @@ namespace PETRO_BOT.Services.Services
 
                     if (configGrifo == null) return;
 
-                    var filasDeseadas = new HashSet<int>(configGrifo.MapeoFilas.Keys.Select(int.Parse));
+                    var filasDeseadas = new HashSet<int>(configGrifo.MapeoFilas.Keys
+                        .Where(k => int.TryParse(k, out _))
+                        .Select(int.Parse));
 
                     using var stream = new FileStream(ruta, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, FileOptions.SequentialScan);
                     using var reader = ExcelReaderFactory.CreateOpenXmlReader(stream);
