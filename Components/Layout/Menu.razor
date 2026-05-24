@@ -1,3 +1,4 @@
+@inject NavigationManager Navigation
 
 <style>
     /* Estilos minimalistas premium para el menú lateral */
@@ -20,10 +21,46 @@
         color: #ffffff !important;
     }
 
-    #sidebar .nav-link.active {
+    #sidebar .nav-link.active,
+    #sidebar .nav-link.submenu-expanded {
+        background-color: #1e293b !important; /* Color slate original */
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    /* Submenú estilo acordeón */
+    .submenu-container {
+        padding-left: 0;
+        margin-top: 0.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .submenu-link {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 1.25rem 0.5rem 3.25rem !important; /* Indentación matemática perfecta */
+        color: rgba(255, 255, 255, 0.7) !important;
+        font-size: 0.85rem !important;
+        font-weight: 500 !important;
+        border-radius: 0.75rem !important;
+        transition: all 200ms ease-in-out !important;
+        text-decoration: none !important;
+        cursor: pointer !important;
+    }
+
+    .submenu-link:hover {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        color: #ffffff !important;
+    }
+
+    .submenu-link.active {
         background-color: #1e293b !important;
         color: #ffffff !important;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+        font-weight: 600 !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
     }
 </style>
 
@@ -71,7 +108,8 @@
         <div>
             <!-- Cabecera de Registro Ventas con botón de colapso -->
             <button @onclick="ToggleVentasSubmenu"
-                    class="w-full flex items-center justify-between nav-link text-white hover:bg-white/10 rounded-xl px-4 py-3 transition-colors cursor-pointer select-none">
+                    class="w-full flex items-center justify-between nav-link transition-colors cursor-pointer select-none @(IsSubmenuActive() ? "submenu-expanded" : "")"
+                    style="border: none; background: transparent; text-align: left;">
                 <div class="flex items-center gap-3">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -87,18 +125,16 @@
             </button>
 
             <!-- Submenú con animación -->
-            <div class="space-y-1 mt-1 overflow-hidden transition-all duration-300 @(showVentasSubmenu ? "max-h-[120px] opacity-100" : "max-h-0 opacity-0")">
+            <div class="submenu-container overflow-hidden transition-all duration-300 @(showVentasSubmenu ? "max-h-[120px] opacity-100" : "max-h-0 opacity-0")">
                 
                 <NavLink href="/RegistroVentas"
-                         class="nav-link py-2 flex items-center"
-                         style="padding-left: 3.25rem !important;">
-                    <span class="text-xs font-semibold">Registro ventas</span>
+                         class="submenu-link">
+                    <span>Registro ventas</span>
                 </NavLink>
 
                 <NavLink href="/ConfigGrifos"
-                         class="nav-link py-2 flex items-center"
-                         style="padding-left: 3.25rem !important;">
-                    <span class="text-xs font-semibold">Config Grifos</span>
+                         class="submenu-link">
+                    <span>Config Grifos</span>
                 </NavLink>
 
             </div>
@@ -121,5 +157,19 @@
     private void ToggleVentasSubmenu()
     {
         showVentasSubmenu = !showVentasSubmenu;
+    }
+
+    private bool IsSubmenuActive()
+    {
+        try
+        {
+            var relativeUrl = Navigation.ToBaseRelativePath(Navigation.Uri);
+            return relativeUrl.StartsWith("RegistroVentas", StringComparison.OrdinalIgnoreCase) ||
+                   relativeUrl.StartsWith("ConfigGrifos", StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
