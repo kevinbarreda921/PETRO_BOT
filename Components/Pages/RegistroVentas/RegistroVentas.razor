@@ -4,6 +4,7 @@
 @rendermode InteractiveServer
 @inject IWebHostEnvironment env
 @inject ToastService ToastService
+@inject IJSRuntime JSRuntime
 @using PETRO_BOT.Services.Services
 @using System.Diagnostics
 @using PETRO_BOT.Models.Log
@@ -683,6 +684,11 @@
 
 @code {
 
+    protected override async Task OnInitializedAsync()
+    {
+        EliminarAarchivos_Ventas_y_Diario();
+    }
+
     string[] trabajos =
         {
         "Seleccionar",
@@ -819,8 +825,13 @@
         StateHasChanged();
         // Limpiar reporte_proceso.json
         LimpiarArchivoReporteProceso();
+        EliminarAarchivos_Ventas_y_Diario();
+        ToastService.Info("Operación cancelada. Archivos adjuntos eliminados.");
 
-        // Eliminar físicamente los archivos del disco
+    }
+    void EliminarAarchivos_Ventas_y_Diario()
+    {
+            // Eliminar físicamente los archivos del disco
         try
         {
             var rutaVentas = Path.Combine(env.WebRootPath, "uploads/RegistroVentas");
@@ -840,13 +851,13 @@
                     File.Delete(archivo);
                 }
             }
-            ToastService.Info("Operación cancelada. Archivos adjuntos eliminados.");
         }
         catch (Exception ex)
         {
             ToastService.Error("Error al borrar archivos: " + ex.Message);
         }
     }
+
 
     bool isLoading = false;
 
@@ -868,7 +879,6 @@
                         StateHasChanged();
                         await ProcesarArchivos(trabajoSeleccionado, fechaFormateada);
                         await CargarReporteProceso();
-                        isLoading = false;
                     }
                     else if (trabajoSeleccionado == "Procesar Día")
                     {
@@ -880,7 +890,6 @@
                         StateHasChanged();
                         await ProcesarArchivos(trabajoSeleccionado, fechaFormateada);
                         await CargarReporteProceso();
-                        isLoading = false;
                     } 
                     else
                     {
@@ -891,9 +900,12 @@
                         StateHasChanged();
                         await ProcesarArchivos(trabajoSeleccionado, "");
                         await CargarReporteProceso();
-                        isLoading = false;
                     }
 
+                    // Descargar automáticamente el archivo consolidado
+                    await DescargarArchivoConsolidado();
+                    
+                    isLoading = false;
                 }
                 else
                 {
@@ -907,6 +919,36 @@
         } else
         {
             ToastService.Error("Seleccione un trabajo");
+        }
+    }
+
+    private async Task DescargarArchivoConsolidado()
+    {
+        try
+        {
+            var rutaVentas = Path.Combine(env.WebRootPath, "uploads/RegistroVentas");
+            if (Directory.Exists(rutaVentas))
+            {
+                var archivos = Directory.GetFiles(rutaVentas, "*.xlsx");
+                if (archivos.Length > 0)
+                {
+                    string nombreArchivo = Path.GetFileName(archivos[0]);
+                    ToastService.Info($"Iniciando descarga de {nombreArchivo}...");
+                    await JSRuntime.InvokeVoidAsync("eval", $"const a = document.createElement('a'); a.href = '/uploads/RegistroVentas/{nombreArchivo}'; a.download = '{nombreArchivo}'; document.body.appendChild(a); a.click(); document.body.removeChild(a);");
+                }
+                else
+                {
+                    ToastService.Warning("No se encontró ningún archivo consolidado para descargar en uploads/RegistroVentas.");
+                }
+            }
+            else
+            {
+                ToastService.Error("La carpeta de destino uploads/RegistroVentas no existe.");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al descargar el archivo: " + ex.Message);
         }
     }
 

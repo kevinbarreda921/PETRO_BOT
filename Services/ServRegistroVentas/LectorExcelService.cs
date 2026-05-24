@@ -645,7 +645,7 @@ namespace PETRO_BOT.Services.Services
 
                     if (!diaEncontrado)
                     {
-                        LoggerService.Error(nombreGrifoDetectadoStr, Path.GetFileName(ruta), "El archivo no tiene el día a procesar");
+                        LoggerService.Error(nombreGrifoDetectadoStr, Path.GetFileName(ruta), $"El archivo no tiene el día {fechaAProcesar} a procesar");
                     }
                 }
                 catch (Exception ex)
