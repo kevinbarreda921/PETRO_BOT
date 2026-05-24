@@ -2,13 +2,13 @@
   "Grifos": {
     "BRASIL": {
       "Lectura": {
-        "ColumnaCreditoMonto": 6,
-        "ColumnaCreditoNombre": 0,
         "ColumnaFecha": 14,
-        "ColumnaTablaHermes": 14,
         "ColumnaTotales": 15,
-        "ColumnaVariaCombusMonto": 18,
+        "ColumnaCreditoNombre": 0,
+        "ColumnaCreditoMonto": 6,
         "ColumnaVariaCombusNombre": 16,
+        "ColumnaVariaCombusMonto": 18,
+        "ColumnaTablaHermes": 14,
         "MapeoFilas": {
           "8": "Venta_GPL",
           "9": "Venta_GNV",
@@ -24,22 +24,22 @@
       },
       "Escritura": {
         "Columnas": {
-          "DescuentoGLP": "",
-          "DescuentoLiquidos": "",
-          "ErrorMaquina": "",
-          "Gastos": "BY",
-          "Hermes_monto_GLP": "BD",
-          "Hermes_monto_GNV1": "BE",
-          "Hermes_monto_GNV2": "BF",
-          "Hermes_monto_liquido": "AX",
-          "Recaudo_Cofide_GNV": "F",
-          "Total_Tarjeta_de_Credito_GLP": "AP",
-          "Total_Tarjeta_de_Credito_GNV": "AQ",
-          "Total_Tarjeta_de_Credito_Liquidos": "AO",
-          "Total_venta_acumulada": "C",
           "Venta_GPL": "D",
           "Venta_GNV": "E",
-          "Ventas_con_transferencia": "AY"
+          "Total_venta_acumulada": "C",
+          "Total_Tarjeta_de_Credito_Liquidos": "AO",
+          "Total_Tarjeta_de_Credito_GLP": "AP",
+          "Total_Tarjeta_de_Credito_GNV": "AQ",
+          "ErrorMaquina": "",
+          "Recaudo_Cofide_GNV": "F",
+          "Gastos": "BY",
+          "Ventas_con_transferencia": "AY",
+          "DescuentoLiquidos": "",
+          "DescuentoGLP": "",
+          "Hermes_monto_liquido": "AX",
+          "Hermes_monto_GLP": "BD",
+          "Hermes_monto_GNV1": "BE",
+          "Hermes_monto_GNV2": "BF"
         }
       },
       "FilasClientesCreditos": {
@@ -60,13 +60,13 @@
     },
     "PUENTE": {
       "Lectura": {
-        "ColumnaCreditoMonto": 6,
-        "ColumnaCreditoNombre": 0,
         "ColumnaFecha": 14,
-        "ColumnaTablaHermes": 14,
         "ColumnaTotales": 15,
-        "ColumnaVariaCombusMonto": 18,
+        "ColumnaCreditoNombre": 0,
+        "ColumnaCreditoMonto": 6,
         "ColumnaVariaCombusNombre": 16,
+        "ColumnaVariaCombusMonto": 18,
+        "ColumnaTablaHermes": 14,
         "MapeoFilas": {
           "8": "Venta_GPL",
           "9": "Venta_GNV",
@@ -110,13 +110,13 @@
     },
     "CHILCA": {
       "Lectura": {
-        "ColumnaCreditoMonto": 6,
-        "ColumnaCreditoNombre": 0,
         "ColumnaFecha": 14,
-        "ColumnaTablaHermes": 14,
         "ColumnaTotales": 15,
-        "ColumnaVariaCombusMonto": 18,
+        "ColumnaCreditoNombre": 0,
+        "ColumnaCreditoMonto": 6,
         "ColumnaVariaCombusNombre": 16,
+        "ColumnaVariaCombusMonto": 18,
+        "ColumnaTablaHermes": 14,
         "MapeoFilas": {
           "8": "Venta_GPL",
           "9": "Venta_GNV",
@@ -163,13 +163,13 @@
     },
     "VIRU": {
       "Lectura": {
-        "ColumnaCreditoMonto": 6,
-        "ColumnaCreditoNombre": 0,
         "ColumnaFecha": 14,
-        "ColumnaTablaHermes": 14,
         "ColumnaTotales": 15,
-        "ColumnaVariaCombusMonto": 18,
+        "ColumnaCreditoNombre": 0,
+        "ColumnaCreditoMonto": 6,
         "ColumnaVariaCombusNombre": 16,
+        "ColumnaVariaCombusMonto": 18,
+        "ColumnaTablaHermes": 14,
         "MapeoFilas": {
           "8": "Venta_GPL",
           "11": "Total_venta_acumulada",
@@ -212,13 +212,13 @@
     },
     "MAKITA": {
       "Lectura": {
-        "ColumnaCreditoMonto": 6,
-        "ColumnaCreditoNombre": 0,
         "ColumnaFecha": 14,
-        "ColumnaTablaHermes": 14,
         "ColumnaTotales": 15,
-        "ColumnaVariaCombusMonto": 18,
+        "ColumnaCreditoNombre": 0,
+        "ColumnaCreditoMonto": 6,
         "ColumnaVariaCombusNombre": 16,
+        "ColumnaVariaCombusMonto": 18,
+        "ColumnaTablaHermes": 14,
         "MapeoFilas": {
           "8": "Venta_GPL",
           "12": "Total_venta_acumulada",
@@ -253,13 +253,13 @@
     },
     "SAN PABLO": {
       "Lectura": {
-        "ColumnaCreditoMonto": 6,
-        "ColumnaCreditoNombre": 0,
         "ColumnaFecha": 14,
-        "ColumnaTablaHermes": 14,
         "ColumnaTotales": 15,
-        "ColumnaVariaCombusMonto": 18,
+        "ColumnaCreditoNombre": 0,
+        "ColumnaCreditoMonto": 6,
         "ColumnaVariaCombusNombre": 16,
+        "ColumnaVariaCombusMonto": 18,
+        "ColumnaTablaHermes": 14,
         "MapeoFilas": {
           "8": "Venta_GPL",
           "12": "Total_venta_acumulada",
@@ -297,13 +297,13 @@
     },
     "HUANCHACO": {
       "Lectura": {
-        "ColumnaCreditoMonto": 6,
-        "ColumnaCreditoNombre": 0,
         "ColumnaFecha": 14,
-        "ColumnaTablaHermes": 14,
         "ColumnaTotales": 15,
-        "ColumnaVariaCombusMonto": 18,
+        "ColumnaCreditoNombre": 0,
+        "ColumnaCreditoMonto": 6,
         "ColumnaVariaCombusNombre": 16,
+        "ColumnaVariaCombusMonto": 18,
+        "ColumnaTablaHermes": 14,
         "MapeoFilas": {
           "8": "Venta_GPL",
           "12": "Total_venta_acumulada",
@@ -342,13 +342,13 @@
     },
     "ENACE": {
       "Lectura": {
-        "ColumnaCreditoMonto": 6,
-        "ColumnaCreditoNombre": 0,
         "ColumnaFecha": 14,
-        "ColumnaTablaHermes": 14,
         "ColumnaTotales": 15,
-        "ColumnaVariaCombusMonto": 18,
+        "ColumnaCreditoNombre": 0,
+        "ColumnaCreditoMonto": 6,
         "ColumnaVariaCombusNombre": 16,
+        "ColumnaVariaCombusMonto": 18,
+        "ColumnaTablaHermes": 14,
         "MapeoFilas": {
           "8": "Venta_GPL",
           "11": "Total_venta_acumulada",
@@ -390,13 +390,13 @@
     },
     "ACAPULCO": {
       "Lectura": {
-        "ColumnaCreditoMonto": 6,
-        "ColumnaCreditoNombre": 0,
         "ColumnaFecha": 14,
-        "ColumnaTablaHermes": 14,
         "ColumnaTotales": 15,
-        "ColumnaVariaCombusMonto": 18,
+        "ColumnaCreditoNombre": 0,
+        "ColumnaCreditoMonto": 6,
         "ColumnaVariaCombusNombre": 16,
+        "ColumnaVariaCombusMonto": 18,
+        "ColumnaTablaHermes": 14,
         "MapeoFilas": {
           "8": "Venta_GPL",
           "11": "Total_venta_acumulada",
@@ -437,13 +437,13 @@
     },
     "CATACAOS": {
       "Lectura": {
-        "ColumnaCreditoMonto": 6,
-        "ColumnaCreditoNombre": 0,
         "ColumnaFecha": 14,
-        "ColumnaTablaHermes": 14,
         "ColumnaTotales": 15,
-        "ColumnaVariaCombusMonto": 18,
+        "ColumnaCreditoNombre": 0,
+        "ColumnaCreditoMonto": 6,
         "ColumnaVariaCombusNombre": 16,
+        "ColumnaVariaCombusMonto": 18,
+        "ColumnaTablaHermes": 14,
         "MapeoFilas": {
           "8": "Venta_GPL",
           "11": "Total_venta_acumulada",
@@ -482,13 +482,13 @@
     },
     "TULIS": {
       "Lectura": {
-        "ColumnaCreditoMonto": 6,
-        "ColumnaCreditoNombre": 0,
         "ColumnaFecha": 14,
-        "ColumnaTablaHermes": 14,
         "ColumnaTotales": 15,
-        "ColumnaVariaCombusMonto": 18,
+        "ColumnaCreditoNombre": 0,
+        "ColumnaCreditoMonto": 6,
         "ColumnaVariaCombusNombre": 16,
+        "ColumnaVariaCombusMonto": 18,
+        "ColumnaTablaHermes": 14,
         "MapeoFilas": {
           "8": "Venta_GPL",
           "11": "Total_venta_acumulada",
@@ -528,13 +528,13 @@
     },
     "SAN MARCOS": {
       "Lectura": {
-        "ColumnaCreditoMonto": 6,
-        "ColumnaCreditoNombre": 0,
         "ColumnaFecha": 14,
-        "ColumnaTablaHermes": 14,
         "ColumnaTotales": 15,
-        "ColumnaVariaCombusMonto": 18,
+        "ColumnaCreditoNombre": 0,
+        "ColumnaCreditoMonto": 6,
         "ColumnaVariaCombusNombre": 16,
+        "ColumnaVariaCombusMonto": 18,
+        "ColumnaTablaHermes": 14,
         "MapeoFilas": {
           "10": "Total_venta_acumulada",
           "15": "Total_Tarjeta_de_Credito_Liquidos",
@@ -568,13 +568,13 @@
     },
     "MARIA": {
       "Lectura": {
-        "ColumnaCreditoMonto": 6,
-        "ColumnaCreditoNombre": 0,
         "ColumnaFecha": 14,
-        "ColumnaTablaHermes": 14,
         "ColumnaTotales": 15,
-        "ColumnaVariaCombusMonto": 18,
+        "ColumnaCreditoNombre": 0,
+        "ColumnaCreditoMonto": 6,
         "ColumnaVariaCombusNombre": 16,
+        "ColumnaVariaCombusMonto": 18,
+        "ColumnaTablaHermes": 14,
         "MapeoFilas": {
           "10": "Total_venta_acumulada",
           "15": "Total_Tarjeta_de_Credito_Liquidos",
@@ -608,13 +608,13 @@
     },
     "VELITA": {
       "Lectura": {
-        "ColumnaCreditoMonto": 6,
-        "ColumnaCreditoNombre": 0,
         "ColumnaFecha": 14,
-        "ColumnaTablaHermes": 14,
         "ColumnaTotales": 15,
-        "ColumnaVariaCombusMonto": 18,
+        "ColumnaCreditoNombre": 0,
+        "ColumnaCreditoMonto": 6,
         "ColumnaVariaCombusNombre": 16,
+        "ColumnaVariaCombusMonto": 18,
+        "ColumnaTablaHermes": 14,
         "MapeoFilas": {
           "10": "Total_venta_acumulada",
           "15": "Total_Tarjeta_de_Credito_Liquidos",
@@ -658,13 +658,13 @@
     },
     "QUISTOCOCHA": {
       "Lectura": {
-        "ColumnaCreditoMonto": 6,
-        "ColumnaCreditoNombre": 0,
         "ColumnaFecha": 14,
-        "ColumnaTablaHermes": 14,
         "ColumnaTotales": 15,
-        "ColumnaVariaCombusMonto": 18,
+        "ColumnaCreditoNombre": 0,
+        "ColumnaCreditoMonto": 6,
         "ColumnaVariaCombusNombre": 16,
+        "ColumnaVariaCombusMonto": 18,
+        "ColumnaTablaHermes": 14,
         "MapeoFilas": {
           "10": "Total_venta_acumulada",
           "15": "Total_Tarjeta_de_Credito_Liquidos",

@@ -1,4 +1,32 @@
-﻿
+
+<style>
+    /* Estilos minimalistas premium para el menú lateral */
+    #sidebar .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1.25rem !important;
+        color: rgba(255, 255, 255, 0.8) !important;
+        border-radius: 0.75rem !important;
+        transition: all 200ms ease-in-out !important;
+        text-decoration: none !important;
+        cursor: pointer !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    #sidebar .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        color: #ffffff !important;
+    }
+
+    #sidebar .nav-link.active {
+        background-color: #1e293b !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    }
+</style>
+
 <aside id="sidebar" class="fixed inset-y-4 left-4 lg:relative lg:inset-0 z-40 w-[280px] bg-gradient-to-b from-[#0186B5] to-[#0186B5] rounded-[30px] p-8 flex flex-col transition-transform duration-300 ease-in-out shadow-2xl lg:translate-x-0">
 
     <div class="mb-12 flex items-center gap-3 px-2">
@@ -30,7 +58,7 @@
 
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-width="2"
-                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                       d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
                 </path>
             </svg>
 
@@ -40,30 +68,58 @@
 
         </NavLink>
 
-        <NavLink href="/RegistroVentas"
-                 class="nav-link">
+        <div>
+            <!-- Cabecera de Registro Ventas con botón de colapso -->
+            <button @onclick="ToggleVentasSubmenu"
+                    class="w-full flex items-center justify-between nav-link text-white hover:bg-white/10 rounded-xl px-4 py-3 transition-colors cursor-pointer select-none">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">
+                        </path>
+                    </svg>
+                    <span class="text-sm font-medium">Registro ventas</span>
+                </div>
+                <svg class="w-4 h-4 transition-transform duration-200 @(showVentasSubmenu ? "rotate-180" : "")"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
 
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-width="2"
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">
-                </path>
-            </svg>
+            <!-- Submenú con animación -->
+            <div class="space-y-1 mt-1 overflow-hidden transition-all duration-300 @(showVentasSubmenu ? "max-h-[120px] opacity-100" : "max-h-0 opacity-0")">
+                
+                <NavLink href="/RegistroVentas"
+                         class="nav-link py-2 flex items-center"
+                         style="padding-left: 3.25rem !important;">
+                    <span class="text-xs font-semibold">Registro ventas</span>
+                </NavLink>
 
-            <span class="text-sm font-medium">
-                Registro ventas
-            </span>
+                <NavLink href="/ConfigGrifos"
+                         class="nav-link py-2 flex items-center"
+                         style="padding-left: 3.25rem !important;">
+                    <span class="text-xs font-semibold">Config Grifos</span>
+                </NavLink>
 
-        </NavLink>
+            </div>
+        </div>
 
     </nav>
 
-
-
     <div class="mt-auto">
-        <a href="#" class="nav-link active">
+        <a href="#" class="nav-link">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
             </svg> <span class="text-sm font-medium">Salir</span>
         </a>
     </div>
 </aside>
+
+@code {
+    private bool showVentasSubmenu = true; // Por defecto abierto
+
+    private void ToggleVentasSubmenu()
+    {
+        showVentasSubmenu = !showVentasSubmenu;
+    }
+}

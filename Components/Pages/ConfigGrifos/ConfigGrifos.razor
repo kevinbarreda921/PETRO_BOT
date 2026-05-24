@@ -1,0 +1,666 @@
+@page "/ConfigGrifos"
+@using PETRO_BOT.Services.Toast
+@using PETRO_BOT.Components.Pages.Elementos
+@rendermode InteractiveServer
+@inject IWebHostEnvironment env
+@inject ToastService ToastService
+@inject IJSRuntime JSRuntime
+@using PETRO_BOT.Services.Services
+@using PETRO_BOT.Models.Configuracion
+@using System.IO
+@using System.Text.Json
+
+<div class="flex flex-col lg:flex-row gap-6 items-start">
+
+    <!-- PANEL DE GRIFOS (IZQUIERDA) -->
+    <div class="lg:w-[360px] bg-white rounded-[35px] p-8 shadow-sm flex flex-col gap-6 relative z-30 border border-slate-50 overflow-hidden">
+        
+        <div class="flex items-center justify-between border-b border-slate-100 pb-5">
+            <h2 id="section-title-params" class="text-sm font-black text-slate-800 uppercase tracking-[0.2em]">Configuración de Grifos</h2>
+            <span class="h-2 w-2 bg-emerald-400 rounded-full animate-pulse"></span>
+        </div>
+
+        <!-- Botón Agregar Nuevo Grifo -->
+        <button id="btn-add-grifo"
+                @onclick="AbrirModalAgregarGrifo"
+                class="w-full bg-[#0186B5] text-white rounded-xl py-3.5 flex items-center justify-center gap-2.5 shadow-sm hover:bg-[#017099] transition-all active:scale-[0.98] font-bold text-xs cursor-pointer select-none">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            <span>Agregar nuevo grifo</span>
+        </button>
+
+        <!-- Lista Minimalista de Grifos -->
+        <div class="overflow-y-auto custom-scrollbar flex flex-col gap-1" style="max-height: calc(100vh - 320px); padding-right: 4px;">
+            <!-- Encabezados de la lista -->
+            <div class="flex items-center text-slate-400 text-[10px] uppercase tracking-[0.15em] border-b border-slate-100 pb-2 mb-1 font-black px-3 select-none">
+                <span class="w-10 text-center">#</span>
+                <span class="flex-1 pl-2">Grifo</span>
+                <span class="w-20 text-right pr-2">Acción</span>
+            </div>
+
+            @{ int idx = 1; }
+            @foreach (var grifo in grifosConfig)
+            {
+                var gName = grifo.Key;
+                var esSeleccionado = gName == grifoSeleccionadoName;
+                var currentIdx = idx++;
+                <div class="flex items-center py-1.5 px-3 rounded-xl transition-all duration-200 border-transparent @(esSeleccionado ? "bg-[#0186B5] text-white border-[#0186B5] shadow-md shadow-[#0186B5]/15 scale-[1.01]" : "bg-transparent text-slate-700 hover:bg-slate-50")">
+                    <span class="w-10 text-center font-bold text-xs @(esSeleccionado ? "text-white/90" : "text-slate-400")">@currentIdx</span>
+                    <span class="flex-1 pl-2 font-semibold text-xs @(esSeleccionado ? "text-white font-extrabold" : "text-slate-600")">@gName</span>
+                    <div class="w-20 text-right">
+                        <button @onclick="() => SeleccionarGrifo(gName)" 
+                                class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all active:scale-95 cursor-pointer select-none border
+                                       @(esSeleccionado ? "bg-white text-[#0186B5] border-white shadow-sm hover:bg-slate-50" : "bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100 hover:text-slate-800")">
+                            Editar
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+
+    </div>
+
+    <!-- PANEL DE EDICIÓN (DERECHA) -->
+    <div class="flex-1 bg-white w-full rounded-[30px] p-8 shadow-sm border border-slate-50 overflow-hidden" style="position: relative; min-height: 480px;">
+        
+        @if (string.IsNullOrEmpty(grifoSeleccionadoName))
+        {
+            <!-- Estado sin selección -->
+            <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
+                <div style="background-color: #f8fafc; padding: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid #f1f5f9;">
+                    <svg style="width: 48px; height: 48px; color: #94a3b8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                    </svg>
+                </div>
+                <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Selecciona un grifo para editar</span>
+            </div>
+        }
+        else
+        {
+            <!-- Formulario de Edición del Grifo -->
+            <div class="flex flex-col gap-6 custom-scrollbar" style="max-height: calc(100vh - 180px); overflow-y: auto; padding-right: 8px;">
+                
+                <!-- Cabecera del Grifo Editado -->
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-slate-800 uppercase tracking-tight">Editar Grifo: @grifoSeleccionadoName</h2>
+                        <p class="text-slate-400 text-xs mt-1">Modifica los parámetros de lectura, escritura y clientes autorizados.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button @onclick="ConfirmarEliminarGrifo"
+                                class="px-4 py-2.5 bg-red-50 text-red-600 border border-red-200 rounded-xl text-xs font-bold hover:bg-red-100 hover:text-red-700 transition-all active:scale-95 cursor-pointer select-none">
+                            Eliminar Grifo
+                        </button>
+                        <button @onclick="CancelarEdicion"
+                                class="px-4 py-2.5 bg-slate-50 text-slate-500 border border-slate-200 rounded-xl text-xs font-bold hover:bg-slate-100 hover:text-slate-700 transition-all active:scale-95 cursor-pointer select-none">
+                            Cancelar
+                        </button>
+                        <button @onclick="GuardarConfiguracion"
+                                class="px-5 py-2.5 bg-[#0186B5] text-white rounded-xl text-xs font-extrabold shadow-md hover:bg-[#017099] transition-all active:scale-95 cursor-pointer select-none">
+                            Guardar Cambios
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- BOX 1: LECTURA -->
+                <div style="background-color: #ffffff; border: 1.5px solid #0186B5; border-radius: 24px; padding: 24px; box-shadow: 0 4px 15px rgba(1, 134, 181, 0.05);">
+                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-[0.1em] border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
+                        <span class="w-1.5 h-3 bg-[#0186B5] rounded-full"></span>
+                        Configuración de Lectura
+                    </h3>
+                    
+                    <div class="config-grid">
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Columna Fecha</label>
+                            <input type="text" @bind="lecturaConfig.ColumnaFecha" class="w-full border rounded-xl px-4 py-2.5 text-sm outline-none transition-all" style="text-align: center; border-width: 1px; border-style: solid; transition: all 0.2s ease; @(lecturaConfig.ColumnaFecha >= 0  ? "background-color: #f0fdf4 !important; border-color: #34d399 !important; color: #065f46 !important;" : "background-color: #fef2f2 !important; border-color: #f87171 !important; color: #991b1b !important;")" />
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Columna Totales</label>
+                            <input type="text" @bind="lecturaConfig.ColumnaTotales" class="w-full border rounded-xl px-4 py-2.5 text-sm outline-none transition-all" style="text-align: center; border-width: 1px; border-style: solid; transition: all 0.2s ease; @(lecturaConfig.ColumnaTotales >= 0 ? "background-color: #f0fdf4 !important; border-color: #34d399 !important; color: #065f46 !important;" : "background-color: #fef2f2 !important; border-color: #f87171 !important; color: #991b1b !important;")" />
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Columna Crédito Nombre</label>
+                            <input type="text" @bind="lecturaConfig.ColumnaCreditoNombre" class="w-full border rounded-xl px-4 py-2.5 text-sm outline-none transition-all" style="text-align: center; border-width: 1px; border-style: solid; transition: all 0.2s ease; @(lecturaConfig.ColumnaCreditoNombre >= 0 ? "background-color: #f0fdf4 !important; border-color: #34d399 !important; color: #065f46 !important;" : "background-color: #fef2f2 !important; border-color: #f87171 !important; color: #991b1b !important;")" />
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Columna Crédito Monto</label>
+                            <input type="text" @bind="lecturaConfig.ColumnaCreditoMonto" class="w-full border rounded-xl px-4 py-2.5 text-sm outline-none transition-all" style="text-align: center; border-width: 1px; border-style: solid; transition: all 0.2s ease; @(lecturaConfig.ColumnaCreditoMonto >= 0 ? "background-color: #f0fdf4 !important; border-color: #34d399 !important; color: #065f46 !important;" : "background-color: #fef2f2 !important; border-color: #f87171 !important; color: #991b1b !important;")" />
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Columna Var. Comb. Nombre</label>
+                            <input type="text" @bind="lecturaConfig.ColumnaVariaCombusNombre" class="w-full border rounded-xl px-4 py-2.5 text-sm outline-none transition-all" style="text-align: center; border-width: 1px; border-style: solid; transition: all 0.2s ease; @(lecturaConfig.ColumnaVariaCombusNombre >= 0 ? "background-color: #f0fdf4 !important; border-color: #34d399 !important; color: #065f46 !important;" : "background-color: #fef2f2 !important; border-color: #f87171 !important; color: #991b1b !important;")" />
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Columna Var. Comb. Monto</label>
+                            <input type="text" @bind="lecturaConfig.ColumnaVariaCombusMonto" class="w-full border rounded-xl px-4 py-2.5 text-sm outline-none transition-all" style="text-align: center; border-width: 1px; border-style: solid; transition: all 0.2s ease; @(lecturaConfig.ColumnaVariaCombusMonto >= 0 ? "background-color: #f0fdf4 !important; border-color: #34d399 !important; color: #065f46 !important;" : "background-color: #fef2f2 !important; border-color: #f87171 !important; color: #991b1b !important;")" />
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Columna Tabla Hermes</label>
+                            <input type="text" @bind="lecturaConfig.ColumnaTablaHermes" class="w-full border rounded-xl px-4 py-2.5 text-sm outline-none transition-all" style="text-align: center; border-width: 1px; border-style: solid; transition: all 0.2s ease; @(lecturaConfig.ColumnaTablaHermes >= 0 ? "background-color: #f0fdf4 !important; border-color: #34d399 !important; color: #065f46 !important;" : "background-color: #fef2f2 !important; border-color: #f87171 !important; color: #991b1b !important;")" />
+                        </div>
+                    </div>
+
+                    <!-- Mapeo de Filas -->
+                    <h4 class="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] border-t border-slate-100 pt-5 mt-5 mb-3 flex items-center gap-2">Mapeo de Filas (Excel -> Propiedad)</h4>
+                    <div class="config-grid">
+                        @foreach (var prop in mapeoFilasKeys)
+                        {
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">@prop</label>
+                                <input type="text" @bind="mapeoFilasTemp[prop]" class="w-full border rounded-xl px-3 py-2 text-xs outline-none transition-all" style="text-align: center; border-width: 1px; border-style: solid; transition: all 0.2s ease; @(string.IsNullOrWhiteSpace(mapeoFilasTemp[prop]) ? "background-color: #fef2f2 !important; border-color: #f87171 !important; color: #991b1b !important;" : "background-color: #f0fdf4 !important; border-color: #34d399 !important; color: #065f46 !important;")" placeholder="Sin mapear" />
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- BOX 2: ESCRITURA -->
+                <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 24px; padding: 24px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);">
+                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-[0.1em] border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
+                        <span class="w-1.5 h-3 bg-slate-400 rounded-full"></span>
+                        Configuración de Escritura (Columnas Excel Maestro)
+                    </h3>
+                    <div class="config-grid">
+                        @foreach (var col in columnasEscrituraKeys)
+                        {
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">@col</label>
+                                <input type="text" @bind="columnasEscrituraTemp[col]" class="w-full border rounded-xl px-3 py-2 text-xs outline-none transition-all" style="text-align: center; border-width: 1px; border-style: solid; transition: all 0.2s ease; @(string.IsNullOrWhiteSpace(columnasEscrituraTemp[col]) ? "background-color: #fef2f2 !important; border-color: #f87171 !important; color: #991b1b !important;" : "background-color: #f0fdf4 !important; border-color: #34d399 !important; color: #065f46 !important;")" placeholder="Letra" />
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- BOX 3: CLIENTES CRÉDITO -->
+                <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 24px; padding: 24px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02); margin-bottom: 24px;">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-5">
+                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-[0.1em] flex items-center gap-2">
+                            <span class="w-1.5 h-3 bg-emerald-500 rounded-full"></span>
+                            Clientes de Crédito Autorizados
+                        </h3>
+                        <button @onclick="AbrirModalAgregarCliente"
+                                class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200 px-3.5 py-2 rounded-xl text-[10px] font-extrabold tracking-wider uppercase transition-all active:scale-95 cursor-pointer select-none">
+                            Agregar cliente de crédito
+                        </button>
+                    </div>
+
+                    <div class="overflow-y-auto custom-scrollbar" style="max-height: 280px; padding-right: 4px;">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="text-slate-400 text-[10px] uppercase tracking-[0.15em] border-b border-slate-100">
+                                    <th class="pb-3 font-black">Columna</th>
+                                    <th class="pb-3 font-black">Cliente</th>
+                                    <th class="pb-3 font-black">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-xs">
+                                @if (clientesCreditoTemp == null || !clientesCreditoTemp.Any())
+                                {
+                                    <tr>
+                                        <td colspan="3" class="py-6 text-center text-slate-400 italic">No hay clientes de crédito registrados para este grifo.</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var cliente in clientesCreditoTemp)
+                                    {
+                                        var col = cliente.Key;
+                                        var name = cliente.Value;
+                                        <tr class="border-b border-slate-50 group hover:bg-slate-50/50 transition-colors">
+                                            <td class="py-3 font-extrabold text-slate-700">@col</td>
+                                            <td class="py-3 text-slate-600">@name</td>
+                                            <td class="py-3 text-right flex items-center justify-end gap-2.5">
+                                                <button @onclick="() => AbrirModalEditarCliente(col, name)" class="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-100 hover:text-amber-700 transition-all font-bold text-xs select-none cursor-pointer">Editar</button>
+                                                <button @onclick="() => EliminarCliente(col)" class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 hover:text-red-700 transition-all font-bold text-xs select-none cursor-pointer">Eliminar</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+<!-- ============================================== -->
+<!-- MODALES (AGREGAR NUEVO GRIFO, CLIENTE CRÉDITO) -->
+<!-- ============================================== -->
+
+<!-- 1. MODAL NUEVO GRIFO -->
+@if (mostrarModalNuevoGrifo)
+{
+    <div style="position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.3); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 100; animation: modalFadeIn 0.2s ease-out;">
+        <div style="background-color: #ffffff; width: 420px; border-radius: 28px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border: 1.5px solid #0186B5; overflow: hidden; display: flex; flex-direction: column;">
+            
+            <div style="padding: 24px; border-bottom: 1.5px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">
+                <h3 style="font-size: 14px; font-weight: 900; color: #1e293b; text-transform: uppercase; letter-spacing: 0.1em; margin: 0;">Agregar Nuevo Grifo</h3>
+                <button @onclick="CerrarModalAgregarGrifo" style="background: transparent; border: none; cursor: pointer; color: #94a3b8; padding: 4px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'; this.style.color='#475569';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#94a3b8';">
+                    <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Nombre del Grifo</label>
+                    <input type="text" @bind="nuevoGrifoNombre" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#0186B5] focus:bg-white transition-all" placeholder="EJ: BRASIL" />
+                </div>
+            </div>
+
+            <div style="padding: 16px 24px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 12px; background-color: #f8fafc;">
+                <button @onclick="CerrarModalAgregarGrifo" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-xs font-bold hover:bg-red-100 hover:text-red-700 transition-all select-none cursor-pointer">Cancelar</button>
+                <button @onclick="AgregarNuevoGrifo" class="px-5 py-2.5 bg-[#0186B5] text-white rounded-xl text-xs font-extrabold shadow-sm hover:bg-[#017099] transition-all select-none cursor-pointer">Crear Grifo</button>
+            </div>
+
+        </div>
+    </div>
+}
+
+<!-- 2. MODAL CLIENTE CRÉDITO (AGREGAR / EDITAR) -->
+@if (mostrarModalCliente)
+{
+    <div style="position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.3); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 100; animation: modalFadeIn 0.2s ease-out;">
+        <div style="background-color: #ffffff; width: 440px; border-radius: 28px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border: 1.5px solid #0186B5; overflow: hidden; display: flex; flex-direction: column;">
+            
+            <div style="padding: 24px; border-bottom: 1.5px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">
+                <h3 style="font-size: 14px; font-weight: 900; color: #1e293b; text-transform: uppercase; letter-spacing: 0.1em; margin: 0;">
+                    @(isEditingClient ? "Editar Cliente de Crédito" : "Agregar Cliente de Crédito")
+                </h3>
+                <button @onclick="CerrarModalAgregarCliente" style="background: transparent; border: none; cursor: pointer; color: #94a3b8; padding: 4px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'; this.style.color='#475569';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#94a3b8';">
+                    <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Columna Excel</label>
+                    <input type="text" @bind="nuevoClienteColumna" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#0186B5] focus:bg-white transition-all uppercase text-center" style="text-align: center;" placeholder="EJ: H" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Nombre Completo / Razón Social</label>
+                    <input type="text" @bind="nuevoClienteNombre" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#0186B5] focus:bg-white transition-all text-center" style="text-align: center;" placeholder="EJ: REDCOL SAC" />
+                </div>
+            </div>
+
+            <div style="padding: 16px 24px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 12px; background-color: #f8fafc;">
+                <button @onclick="CerrarModalAgregarCliente" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-xs font-bold hover:bg-red-100 hover:text-red-700 transition-all select-none cursor-pointer">Cancelar</button>
+                <button @onclick="GuardarCliente" class="px-5 py-2.5 bg-[#0186B5] text-white rounded-xl text-xs font-extrabold shadow-sm hover:bg-[#017099] transition-all select-none cursor-pointer">
+                    @(isEditingClient ? "Guardar Cambios" : "Agregar Cliente")
+                </button>
+            </div>
+
+        </div>
+    </div>
+}
+
+<style>
+    @@keyframes modalFadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Cuadrícula responsiva fluida de inputs */
+    .config-grid {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)) !important;
+        gap: 10px !important;
+        width: 100% !important;
+    }
+
+    /* Truncado automático de etiquetas largas */
+    .config-grid .flex-col label {
+        font-size: 8px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        text-transform: uppercase !important;
+        display: block !important;
+        max-width: 100% !important;
+    }
+</style>
+
+@code {
+    private Dictionary<string, GrifoConfig> grifosConfig = new();
+    private string grifoSeleccionadoName = "";
+    
+    // Configuración local del grifo seleccionado
+    private LecturaConfig lecturaConfig = new();
+    private Dictionary<string, string> mapeoFilasTemp = new();
+    private Dictionary<string, string> columnasEscrituraTemp = new();
+    private Dictionary<string, string> clientesCreditoTemp = new();
+
+    // Listas fijas de propiedades mapeadas
+    private readonly string[] mapeoFilasKeys = {
+        "Venta_GLP", "Venta_GNV", "Total_venta_acumulada", "Total_Tarjeta_de_Credito_Liquidos",
+        "Total_Tarjeta_de_Credito_GLP", "Total_Tarjeta_de_Credito_GNV", "ErrorMaquina",
+        "Recaudo_Cofide_GNV", "Gastos", "Ventas_con_transferencia"
+    };
+
+    private readonly string[] columnasEscrituraKeys = {
+        "Venta_GLP", "Venta_GNV", "Total_venta_acumulada", "Total_Tarjeta_de_Credito_Liquidos",
+        "Total_Tarjeta_de_Credito_GLP", "Total_Tarjeta_de_Credito_GNV", "ErrorMaquina",
+        "Recaudo_Cofide_GNV", "Gastos", "Ventas_con_transferencia", "DescuentoLiquidos",
+        "DescuentoGLP", "Hermes_monto_liquido", "Hermes_monto_GLP", "Hermes_monto_GNV1", "Hermes_monto_GNV2"
+    };
+
+    // Estados de Modales
+    private bool mostrarModalNuevoGrifo = false;
+    private string nuevoGrifoNombre = "";
+
+    private bool mostrarModalCliente = false;
+    private bool isEditingClient = false;
+    private string oldClienteColumna = "";
+    private string nuevoClienteColumna = "";
+    private string nuevoClienteNombre = "";
+
+    protected override void OnInitialized()
+    {
+        CargarConfiguracion();
+    }
+
+    private void CargarConfiguracion()
+    {
+        grifosConfig = new Dictionary<string, GrifoConfig>(ConfiguracionService.ConfigGlobal.Grifos);
+    }
+
+    private void CancelarEdicion()
+    {
+        grifoSeleccionadoName = "";
+        ToastService.Success("Edición cancelada.");
+    }
+
+    private void SeleccionarGrifo(string name)
+    {
+        grifoSeleccionadoName = name;
+        var config = grifosConfig[name];
+        
+        // Cargar lectura
+        lecturaConfig = new LecturaConfig
+        {
+            ColumnaFecha = config.Lectura?.ColumnaFecha ?? 14,
+            ColumnaTotales = config.Lectura?.ColumnaTotales ?? 15,
+            ColumnaCreditoNombre = config.Lectura?.ColumnaCreditoNombre ?? 0,
+            ColumnaCreditoMonto = config.Lectura?.ColumnaCreditoMonto ?? 6,
+            ColumnaVariaCombusNombre = config.Lectura?.ColumnaVariaCombusNombre ?? 16,
+            ColumnaVariaCombusMonto = config.Lectura?.ColumnaVariaCombusMonto ?? 18,
+            ColumnaTablaHermes = config.Lectura?.ColumnaTablaHermes ?? 14
+        };
+
+        // Cargar MapeoFilas
+        mapeoFilasTemp = new Dictionary<string, string>();
+        foreach (var key in mapeoFilasKeys)
+        {
+            mapeoFilasTemp[key] = "";
+        }
+
+        if (config.Lectura?.MapeoFilas != null)
+        {
+            foreach (var kvp in config.Lectura.MapeoFilas)
+            {
+                string rowNumber = kvp.Key.Trim();
+                string propName = kvp.Value;
+                if (!string.IsNullOrEmpty(rowNumber) && mapeoFilasTemp.ContainsKey(propName))
+                {
+                    mapeoFilasTemp[propName] = rowNumber;
+                }
+            }
+        }
+
+        // Cargar Columnas Escritura
+        columnasEscrituraTemp = new Dictionary<string, string>();
+        foreach (var key in columnasEscrituraKeys)
+        {
+            columnasEscrituraTemp[key] = "";
+        }
+
+        if (config.Escritura?.Columnas != null)
+        {
+            foreach (var kvp in config.Escritura.Columnas)
+            {
+                if (columnasEscrituraTemp.ContainsKey(kvp.Key))
+                {
+                    columnasEscrituraTemp[kvp.Key] = kvp.Value;
+                }
+            }
+        }
+
+        // Cargar Clientes
+        clientesCreditoTemp = config.FilasClientesCreditos != null 
+            ? new Dictionary<string, string>(config.FilasClientesCreditos) 
+            : new Dictionary<string, string>();
+    }
+
+    private void GuardarConfiguracion()
+    {
+        if (string.IsNullOrEmpty(grifoSeleccionadoName)) return;
+
+        var grifo = grifosConfig[grifoSeleccionadoName];
+        
+        // Asignar lectura y re-mapear filas con llaves vacías únicas
+        var mapeoFilasOutput = new Dictionary<string, string>();
+        int spaceCount = 0;
+        foreach (var kvp in mapeoFilasTemp)
+        {
+            string rowNumber = kvp.Value?.Trim() ?? "";
+            string propName = kvp.Key;
+            if (!string.IsNullOrEmpty(rowNumber))
+            {
+                mapeoFilasOutput[rowNumber] = propName;
+            }
+            else
+            {
+                string emptyKey = new string(' ', spaceCount);
+                mapeoFilasOutput[emptyKey] = propName;
+                spaceCount++;
+            }
+        }
+
+        lecturaConfig.MapeoFilas = mapeoFilasOutput;
+        grifo.Lectura = lecturaConfig;
+
+        // Asignar escritura
+        grifo.Escritura ??= new EscrituraConfig();
+        grifo.Escritura.Columnas = new Dictionary<string, string>(columnasEscrituraTemp);
+
+        // Asignar clientes
+        grifo.FilasClientesCreditos = new Dictionary<string, string>(clientesCreditoTemp);
+
+        // Guardar físicamente en config_grifos.json
+        try
+        {
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string pathJson = Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\Json\JsonRegistroVentas\", "config_grifos.json"));
+            
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string jsonText = JsonSerializer.Serialize(new { Grifos = grifosConfig }, options);
+            File.WriteAllText(pathJson, jsonText);
+            
+            ConfiguracionService.ConfigGlobal.Grifos = grifosConfig;
+            ToastService.Success($"Configuración de {grifoSeleccionadoName} guardada correctamente en config_grifos.json");
+            grifoSeleccionadoName = "";
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al guardar en el archivo JSON: " + ex.Message);
+        }
+    }
+
+    // ==============================================
+    // OPERACIONES DE NUEVO GRIFO
+    // ==============================================
+    private void AbrirModalAgregarGrifo()
+    {
+        nuevoGrifoNombre = "";
+        mostrarModalNuevoGrifo = true;
+    }
+
+    private void CerrarModalAgregarGrifo()
+    {
+        mostrarModalNuevoGrifo = false;
+    }
+
+    private void AgregarNuevoGrifo()
+    {
+        if (string.IsNullOrWhiteSpace(nuevoGrifoNombre))
+        {
+            ToastService.Error("Ingresa el nombre del nuevo grifo.");
+            return;
+        }
+
+        string grifoNameUpper = nuevoGrifoNombre.Trim().ToUpper();
+        if (grifosConfig.ContainsKey(grifoNameUpper))
+        {
+            ToastService.Error("Este grifo ya existe en la configuración.");
+            return;
+        }
+
+        var nuevoGrifo = new GrifoConfig
+        {
+            Lectura = new LecturaConfig
+            {
+                ColumnaFecha = 14,
+                ColumnaTotales = 15,
+                ColumnaCreditoNombre = 0,
+                ColumnaCreditoMonto = 6,
+                ColumnaVariaCombusNombre = 16,
+                ColumnaVariaCombusMonto = 18,
+                ColumnaTablaHermes = 14,
+                MapeoFilas = new Dictionary<string, string>()
+            },
+            Escritura = new EscrituraConfig
+            {
+                Columnas = new Dictionary<string, string>()
+            },
+            FilasClientesCreditos = new Dictionary<string, string>()
+        };
+
+        // MapeoFilas inicial normalizado
+        for (int i = 0; i < mapeoFilasKeys.Length; i++)
+        {
+            nuevoGrifo.Lectura.MapeoFilas[new string(' ', i)] = mapeoFilasKeys[i];
+        }
+
+        // Escritura inicial vacía
+        foreach (var key in columnasEscrituraKeys)
+        {
+            nuevoGrifo.Escritura.Columnas[key] = "";
+        }
+
+        grifosConfig[grifoNameUpper] = nuevoGrifo;
+        mostrarModalNuevoGrifo = false;
+        
+        // Seleccionarlo inmediatamente para editarlo
+        SeleccionarGrifo(grifoNameUpper);
+        ToastService.Success($"Grifo {grifoNameUpper} creado correctamente de forma temporal.");
+    }
+
+    private async Task ConfirmarEliminarGrifo()
+    {
+        if (string.IsNullOrEmpty(grifoSeleccionadoName)) return;
+
+        bool confirm = await JSRuntime.InvokeAsync<bool>("confirm", $"¿Estás seguro de que deseas eliminar permanentemente el grifo {grifoSeleccionadoName}?");
+        if (confirm)
+        {
+            EliminarGrifoActual();
+        }
+    }
+
+    private void EliminarGrifoActual()
+    {
+        string name = grifoSeleccionadoName;
+        try
+        {
+            grifosConfig.Remove(name);
+            grifoSeleccionadoName = "";
+
+            // Guardar cambios
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string pathJson = Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\Json\JsonRegistroVentas\", "config_grifos.json"));
+            
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string jsonText = JsonSerializer.Serialize(new { Grifos = grifosConfig }, options);
+            File.WriteAllText(pathJson, jsonText);
+            
+            ConfiguracionService.ConfigGlobal.Grifos = grifosConfig;
+            ToastService.Success($"El grifo {name} ha sido eliminado con éxito.");
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al guardar la eliminación: " + ex.Message);
+        }
+    }
+
+    // ==============================================
+    // OPERACIONES DE CLIENTES CRÉDITO
+    // ==============================================
+    private void AbrirModalAgregarCliente()
+    {
+        isEditingClient = false;
+        nuevoClienteColumna = "";
+        nuevoClienteNombre = "";
+        mostrarModalCliente = true;
+    }
+
+    private void AbrirModalEditarCliente(string col, string name)
+    {
+        isEditingClient = true;
+        oldClienteColumna = col;
+        nuevoClienteColumna = col;
+        nuevoClienteNombre = name;
+        mostrarModalCliente = true;
+    }
+
+    private void CerrarModalAgregarCliente()
+    {
+        mostrarModalCliente = false;
+    }
+
+    private void GuardarCliente()
+    {
+        if (string.IsNullOrWhiteSpace(nuevoClienteColumna) || string.IsNullOrWhiteSpace(nuevoClienteNombre))
+        {
+            ToastService.Error("Completa todos los campos obligatorios.");
+            return;
+        }
+
+        string colUpper = nuevoClienteColumna.Trim().ToUpper();
+        string nameTrim = nuevoClienteNombre.Trim();
+
+        if (isEditingClient)
+        {
+            if (colUpper != oldClienteColumna)
+            {
+                clientesCreditoTemp.Remove(oldClienteColumna);
+            }
+            clientesCreditoTemp[colUpper] = nameTrim;
+            ToastService.Success("Cliente editado de forma temporal. Recuerda guardar los cambios globales.");
+        }
+        else
+        {
+            if (clientesCreditoTemp.ContainsKey(colUpper))
+            {
+                ToastService.Error($"La columna {colUpper} ya está asignada a un cliente.");
+                return;
+            }
+            clientesCreditoTemp[colUpper] = nameTrim;
+            ToastService.Success("Cliente agregado de forma temporal. Recuerda guardar los cambios globales.");
+        }
+
+        mostrarModalCliente = false;
+    }
+
+    private void EliminarCliente(string col)
+    {
+        clientesCreditoTemp.Remove(col);
+        ToastService.Success($"Cliente de la columna {col} eliminado de forma temporal. Recuerda guardar los cambios globales.");
+    }
+}
