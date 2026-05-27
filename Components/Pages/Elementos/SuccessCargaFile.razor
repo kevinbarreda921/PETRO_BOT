@@ -1,20 +1,27 @@
-﻿<!-- SECCIÓN CARGA DE ARCHIVO -->
-<div class="space-y-2">
-    <div class="group relative w-full bg-emerald-50 border-2 border-emerald-200 rounded-2xl px-4 py-2 flex items-center justify-between transition-all">
-        <!-- Texto e info del archivo a la izquierda -->
-        <div class="flex items-center gap-2">
+<!-- SECTION SUCCESS FILE ATTACHED (LIGHT MODE CAPSULE) -->
+<div class="space-y-2 animate-new-row">
+    <div class="group relative w-full bg-emerald-50/65 border border-emerald-300 rounded-2xl px-4 py-3 flex items-center justify-between transition-all hover:border-emerald-400 hover:shadow-md">
+        
+        <!-- Text and File details -->
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+            </div>
             <div class="flex flex-col">
-                <span class="text-[11px] font-bold text-emerald-700 leading-tight">@File</span>
-                <span class="text-[9px] text-emerald-500/80 font-medium">Archivo adjuntado con éxito</span>
+                <span class="text-[11px] font-black text-emerald-800 leading-tight font-mono truncate max-w-[200px]">@File</span>
+                <span class="text-[8px] text-emerald-600 font-bold uppercase tracking-wider mt-0.5">Adjuntado con éxito</span>
             </div>
         </div>
         
-        <!-- Icono de éxito a la derecha -->
-        <div class="p-1.5 bg-white rounded-lg shadow-sm text-emerald-500">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        <!-- Success icon badge -->
+        <div class="p-1 bg-emerald-500 border border-emerald-400 rounded-lg text-white shadow-sm">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
             </svg>
         </div>
+
     </div>
 </div>
 

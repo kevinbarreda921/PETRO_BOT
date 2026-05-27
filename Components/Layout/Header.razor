@@ -1,87 +1,250 @@
-﻿@* <style>
-    body {
-        -webkit-tap-highlight-color: transparent;
-    }
+@using PETRO_BOT.Services.Toast
+@inject ToastService ToastService
+@inject NavigationManager Navigation
+@implements IDisposable
 
-    *:focus-visible {
-        outline: none;
-        box-shadow: none;
-    }
+<header class="flex flex-col md:flex-row md:items-center justify-between gap-4 select-none mb-4 pb-4 border-b border-slate-200/60 relative z-50">
 
-</style> *@
+    <!-- LEFT: HORIZONTAL NAVIGATION PILLS FROM MOCKUP -->
+    @if (!EsRutaActiva("/"))
+    {
+        <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 md:pb-0 shrink-0">
+            
+            <!-- Mobile Menu Toggle -->
+            <button id="menu-toggle"
+                    class="lg:hidden shrink-0 p-2.5 bg-white border border-slate-200 rounded-xl text-slate-500 hover:text-slate-900 focus:outline-none cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
 
-<header class="flex items-center justify-between mb-8 gap-4 select-none">
+            <!-- Pill 1: Registro Ventas -->
+            <button @onclick='() => Navigation.NavigateTo("/RegistroVentas")'
+                    class="px-4 py-2 text-xs font-black uppercase tracking-wider rounded-full transition-all cursor-pointer @(EsRutaActiva("/RegistroVentas") ? "bg-[#1e293b] text-white shadow-md shadow-slate-900/10" : "bg-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100")">
+                Registro Ventas
+            </button>
 
-    <div class="flex items-center gap-4 flex-1 min-w-0">
-
-        <button id="menu-toggle"
-                class="lg:hidden shrink-0 p-3 bg-white rounded-2xl shadow-sm text-slate-600 hover:text-indigo-600 transition-colors focus:outline-none focus:ring-0">
-
-            <svg class="w-6 h-6"
-                 fill="none"
-                 stroke="currentColor"
-                 viewBox="0 0 24 24">
-
-                <path stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 6h16M4 12h16m-7 6h7">
-                </path>
-
-            </svg>
-
-        </button>
-
-        <div class="truncate select-none outline-none">
-
-            <p class="text-slate-400 text-[10px] md:text-xs font-black uppercase tracking-widest leading-tight">
-                Bienvenido
-            </p>
-
-            <h1 class="text-lg md:text-3xl font-bold text-slate-800 truncate outline-none">
-                A tu asistente preferido
-            </h1>
+            <!-- Pill 2: Config Grifos -->
+            <button @onclick='() => Navigation.NavigateTo("/ConfigGrifos")'
+                    class="px-4 py-2 text-xs font-black uppercase tracking-wider rounded-full transition-all cursor-pointer @(EsRutaActiva("/ConfigGrifos") ? "bg-[#1e293b] text-white shadow-md shadow-slate-900/10" : "bg-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100")">
+                Config Grifos
+            </button>
 
         </div>
+    }
+    else
+    {
+        <!-- Empty placeholder to push the right elements to the right corner under justify-between -->
+        <div class="hidden md:block"></div>
+    }
 
-    </div>
+    <!-- RIGHT: USER AVATAR STACK, BELL ALERTS & PROFILE -->
+    <div class="flex items-center justify-between md:justify-end gap-4 shrink-0">
 
-    <div class="flex items-center gap-3 shrink-0">
+        <!-- Separator -->
+        <span class="w-px h-6 bg-slate-200 shrink-0 hidden sm:block"></span>
 
-        <button class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-white rounded-2xl text-slate-400 hover:text-indigo-600 transition-all focus:outline-none focus:ring-0">
+        <!-- Notification Bell with Popover -->
+        <div class="relative shrink-0">
+            <button @onclick="ToggleNotificaciones" 
+                    class="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-full text-slate-500 hover:text-slate-800 hover:border-slate-350 shadow-sm transition-all focus:outline-none relative cursor-pointer @(mostrarNotificaciones ? "text-slate-900 border-slate-400" : "")">
+                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                          d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
+                    </path>
+                </svg>
+                @if (nuevasNotificaciones > 0)
+                {
+                    <span class="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full shadow-lg shadow-rose-500/50 animate-pulse"></span>
+                }
+            </button>
 
-            <svg class="w-5 h-5"
-                 fill="none"
-                 stroke="currentColor"
-                 viewBox="0 0 24 24">
+            <!-- ========================================== -->
+            <!-- PREMIER NOTIFICATIONS POPOVER (PROTOTYPE) -->
+            <!-- ========================================== -->
+            @if (mostrarNotificaciones)
+            {
+                <div class="absolute right-0 mt-3 w-[350px] sm:w-[380px] bg-white border border-slate-200 rounded-[24px] shadow-2xl z-[99] p-4.5 overflow-hidden animate-calendar-in origin-top-right">
+                    
+                    <!-- Popover Backdrop Close Detector -->
+                    <div class="fixed inset-0 z-[-1]" @onclick="CerrarNotificaciones"></div>
 
-                <path stroke-width="2"
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z">
-                </path>
+                    <!-- Header -->
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3.5">
+                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-wider">Notifications</h3>
+                        <div class="flex gap-1.5 p-0.5 bg-slate-50 border border-slate-200 rounded-lg">
+                            <button @onclick="() => CambiarFiltro(true)" class="px-2.5 py-1 text-[9px] font-black uppercase tracking-wider rounded-md transition-all @(verTodas ? "bg-[#1e293b] text-white" : "text-slate-500 hover:text-slate-800")">All</button>
+                            <button @onclick="() => CambiarFiltro(false)" class="px-2.5 py-1 text-[9px] font-black uppercase tracking-wider rounded-md transition-all @(!verTodas ? "bg-[#1e293b] text-white" : "text-slate-500 hover:text-slate-800")">Unread</button>
+                        </div>
+                    </div>
 
-            </svg>
+                    <!-- List content matching the notifications popover screenshot exactly -->
+                    <div class="flex flex-col gap-3 max-h-[340px] overflow-y-auto custom-scrollbar pr-1">
+                        @if (!ObtenerNotificacionesFiltradas().Any())
+                        {
+                            <div class="py-6 text-center text-slate-400 italic text-xs">
+                                No new notifications.
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var n in ObtenerNotificacionesFiltradas())
+                            {
+                                <div class="flex gap-3 p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-150 transition-all relative">
+                                    
+                                    <!-- Circles Icons -->
+                                    <div class="w-9 h-9 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0">
+                                        @if (n.Tipo == "payment")
+                                        {
+                                            <svg class="w-4.5 h-4.5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                        }
+                                        else if (n.Tipo == "ethereum")
+                                        {
+                                            <span class="text-slate-800 text-xs font-black">Ξ</span>
+                                        }
+                                        else if (n.Tipo == "bitcoin")
+                                        {
+                                            <span class="text-slate-850 text-xs font-black">₿</span>
+                                        }
+                                        else if (n.Tipo == "flag")
+                                        {
+                                            <svg class="w-4 h-4 text-slate-650" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg>
+                                        }
+                                        else
+                                        {
+                                            <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                        }
+                                    </div>
 
-        </button>
+                                    <!-- Content info -->
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between gap-2">
+                                            <span class="font-bold text-xs text-slate-900 truncate">@n.Titulo</span>
+                                            <span class="text-[8px] text-slate-400 font-bold shrink-0">@n.Tiempo</span>
+                                        </div>
+                                        <p class="text-[10px] text-slate-800 font-bold mt-0.5">@n.Subtitulo</p>
+                                        <p class="text-[9px] text-slate-500 font-semibold mt-0.5 leading-tight select-all">@n.Cuerpo</p>
 
-        <button class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-white rounded-2xl text-slate-400 hover:text-indigo-600 transition-all focus:outline-none focus:ring-0">
+                                        <!-- Decline / Accept buttons for Flagged item -->
+                                        @if (n.Tipo == "flag")
+                                        {
+                                            <div class="flex gap-2 mt-2.5">
+                                                <button @onclick="() => ProcesarNotificacion(n.Id, false)" class="px-4 py-1.5 bg-[#f1f5f9] text-slate-900 hover:bg-slate-200 rounded-full text-[9px] font-black uppercase tracking-wider cursor-pointer">Decline</button>
+                                                <button @onclick="() => ProcesarNotificacion(n.Id, true)" class="px-4 py-1.5 bg-black text-white hover:bg-slate-800 rounded-full text-[9px] font-black uppercase tracking-wider cursor-pointer">Accept</button>
+                                            </div>
+                                        }
+                                    </div>
 
-            <svg class="w-5 h-5"
-                 fill="none"
-                 stroke="currentColor"
-                 viewBox="0 0 24 24">
+                                    <!-- Alert unread dot -->
+                                    @if (!n.Leida)
+                                    {
+                                        <span class="absolute top-3 right-3 w-1.5 h-1.5 bg-rose-500 rounded-full"></span>
+                                    }
 
-                <path stroke-width="2"
-                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
-                </path>
+                                </div>
+                            }
+                        }
+                    </div>
 
-            </svg>
+                </div>
+            }
+        </div>
 
-        </button>
+        <!-- circular avatar on the right -->
+        <div class="w-10 h-10 rounded-full bg-slate-100 p-0.5 border border-slate-200 overflow-hidden shrink-0 shadow-sm cursor-pointer hover:border-slate-400 transition-colors" @onclick='() => ToastService.Info("Perfil: Amelia (Administrador)")'>
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" class="w-full h-full object-cover rounded-full">
+        </div>
 
     </div>
 
 </header>
 
 @code {
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+    }
 
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
+
+    private bool mostrarNotificaciones = false;
+    private bool verTodas = true;
+
+    private int nuevasNotificaciones => listaNotificaciones.Count(n => !n.Leida);
+
+    // Mock Notifications list
+    private List<NotificationItem> listaNotificaciones = new()
+    {
+        new NotificationItem { Id = 1, Tipo = "", Titulo = "Bienvenido a PetroBot", Subtitulo = "Tu asistente preferido", Cuerpo = "Iniciemos...", Tiempo = "1m", Leida = true }
+    };
+
+    private void ToggleNotificaciones() => mostrarNotificaciones = !mostrarNotificaciones;
+
+    private void CerrarNotificaciones() => mostrarNotificaciones = false;
+
+    private void CambiarFiltro(bool todas) => verTodas = todas;
+
+    private List<NotificationItem> ObtenerNotificacionesFiltradas()
+    {
+        if (verTodas) return listaNotificaciones;
+        return listaNotificaciones.Where(n => !n.Leida).ToList();
+    }
+
+    private void ProcesarNotificacion(int id, bool aceptado)
+    {
+        var item = listaNotificaciones.FirstOrDefault(n => n.Id == id);
+        if (item != null)
+        {
+            if (aceptado)
+            {
+                ToastService.Success($"Approved {item.Subtitulo} successfully.");
+            }
+            else
+            {
+                ToastService.Warning($"Transaction declined.");
+            }
+            listaNotificaciones.Remove(item);
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private bool EsRutaActiva(string path)
+    {
+        try
+        {
+            var uri = new Uri(Navigation.Uri);
+            var localPath = uri.LocalPath.Trim('/');
+            var targetPath = path.Trim('/');
+            
+            if (string.IsNullOrEmpty(targetPath))
+            {
+                return string.IsNullOrEmpty(localPath);
+            }
+            
+            return string.Equals(localPath, targetPath, StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public class NotificationItem
+    {
+        public int Id { get; set; }
+        public string Tipo { get; set; }
+        public string Titulo { get; set; }
+        public string Subtitulo { get; set; }
+        public string Cuerpo { get; set; }
+        public string Tiempo { get; set; }
+        public bool Leida { get; set; }
+    }
 }

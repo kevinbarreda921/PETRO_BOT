@@ -1,21 +1,31 @@
-﻿@using PETRO_BOT.Components.Pages.Elementos
+@using PETRO_BOT.Components.Pages.Elementos
 @inherits LayoutComponentBase
 
-<div id="sidebar-overlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 hidden transition-opacity duration-300"></div>
-<div class="flex min-h-screen p-4 lg:p-6 gap-6">
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-md z-40 hidden transition-opacity duration-300"></div>
+
+<!-- Outer wrapper with deep sideral radial gradient background -->
+<div class="flex min-h-screen p-4 lg:p-6 gap-6 bg-[#f5f6fa] text-slate-800 font-sans">
+    
+    <!-- Left Thin Icon Sidebar -->
     <Menu/>
-    <main class="flex-1 mx-auto w-full">
+
+    <!-- Main Viewport containing header and page body -->
+    <main class="flex-1 flex flex-col min-w-0">
+        <!-- Main dynamic header with pills and avatar actions -->
         <Header/>
-        @Body
+        
+        <!-- Render current view -->
+        <div class="flex-1 mt-4">
+            @Body
+        </div>
     </main>
+
 </div>
 
- <div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
+<div id="blazor-error-ui" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[9999] bg-white border border-red-200 px-6 py-3.5 rounded-2xl shadow-2xl text-slate-800 text-xs font-bold flex items-center gap-3 hidden" data-nosnippet>
+    <span>⚠️ Ha ocurrido un error inesperado en el sistema.</span>
+    <a href="." class="reload px-3 py-1 bg-red-100 border border-red-200 text-red-700 rounded-lg">Recargar</a>
+    <span class="dismiss cursor-pointer p-1 hover:bg-slate-100 rounded-lg">🗙</span>
 </div>
 
 <Toast />
-
-  

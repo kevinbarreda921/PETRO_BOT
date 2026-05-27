@@ -1,2 +1,108 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 @import "../css/style_menu.css";
+
+@theme {
+  --color-brand-cyan: #00b4d8;
+  --color-brand-blue: #0077b6;
+  --color-bg-sideral: #f5f6fa;
+  --color-bg-card: #ffffff;
+  --color-bg-sidebar: #ffffff;
+  --color-border-slate: #f1f5f9;
+  
+  --animate-new-row: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-modal-in: modalFadeIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  --animate-calendar-in: calendarFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes calendarFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Personalización de Scrollbars en Modo Claro */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.01);
+  transition: background 0.2s;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Modificaciones del cuerpo y fuentes para el tema CLARO */
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  background-color: #f5f6fa !important;
+  color: #0f172a !important;
+}
+
+/* Ajustes globales de enfoque y selección */
+*:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.15) !important;
+}
+
+.bg-white {
+  background-color: #ffffff !important;
+}
+
+.text-slate-800 {
+  color: #0f172a !important;
+}
+
+.text-slate-600 {
+  color: #475569 !important;
+}
+
+.text-slate-500 {
+  color: #64748b !important;
+}
+
+.border-slate-50, .border-slate-100 {
+  border-color: #f1f5f9 !important;
+}
+
+.bg-slate-50 {
+  background-color: #f8fafc !important;
+}
+

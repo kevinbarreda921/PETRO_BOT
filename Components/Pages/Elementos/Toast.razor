@@ -1,54 +1,59 @@
-﻿@using PETRO_BOT.Services.Toast
+@using PETRO_BOT.Services.Toast
 @inject ToastService ToastService
 @implements IDisposable
 
-<div class="fixed top-5 right-5 z-[9999] flex flex-col gap-3">
+<div class="fixed bottom-5 right-5 z-[9999] flex flex-col gap-3">
     @if (Visible)
     {
         <div class="
             flex items-center gap-4
             min-w-[320px] max-w-[380px]
-            @GetBgColor()
-            shadow-2xl shadow-black/20
+            bg-white/95 backdrop-blur-2xl
+            border border-slate-200/80
+            @GetBorderColor()
+            shadow-2xl shadow-slate-900/10
             rounded-2xl
             px-5 py-4
             animate-toast-in">
 
-            @* Icono con fondo ligeramente más oscuro para dar profundidad *@
-            <div class="w-10 h-10 rounded-xl bg-black/10 flex items-center justify-center shrink-0">
+            <!-- Glowing Icon Badge -->
+            <div class="w-9 h-9 rounded-xl @GetIconBg() flex items-center justify-center shrink-0 shadow-sm">
                 @if (Type?.ToLower() == "success")
                 {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
                 }
                 else if (Type?.ToLower() == "error")
                 {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                 }
                 else if (Type?.ToLower() == "warning")
                 {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                 }
                 else
                 {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 }
             </div>
 
+            <!-- Content detail -->
             <div class="flex-1 min-w-0">
-                <p class="font-bold text-white text-[15px] leading-none">
+                <p class="font-black text-slate-850 text-[13px] uppercase tracking-wider">
                     @Title
                 </p>
-                <p class="text-white/90 text-sm mt-1.5 leading-tight font-medium">
+                <p class="text-slate-500 text-xs mt-1 leading-tight font-medium">
                     @Message
                 </p>
             </div>
 
+            <!-- Close cross -->
             <button @onclick="Close"
-                    class="text-white/60 hover:text-white transition-colors p-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    class="text-slate-400 hover:text-slate-700 transition-colors p-1 rounded-lg hover:bg-slate-50 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
+
         </div>
     }
 </div>
@@ -57,17 +62,16 @@
     @@keyframes toast-pop {
         0% {
             opacity: 0;
-            transform: scale(0.8) translateY(-20px);
+            transform: scale(0.9) translateY(15px) translateX(15px);
         }
-
         100% {
             opacity: 1;
-            transform: scale(1) translateY(0);
+            transform: scale(1) translateY(0) translateX(0);
         }
     }
 
     .animate-toast-in {
-        animation: toast-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        animation: toast-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 </style>
 
@@ -82,25 +86,43 @@
         ToastService.OnShow += ShowToast;
     }
 
-    private string GetBgColor() => Type?.ToLower() switch
+    private string GetBorderColor() => Type?.ToLower() switch
     {
-        "success" => "bg-emerald-500", // Verde vivo
-        "error" => "bg-rose-500",      // Rojo vivo
-        "warning" => "bg-amber-500",   // Amarillo/Naranja vivo
-        "info" => "bg-blue-500",       // Azul vivo
-        _ => "bg-slate-700"
+        "success" => "border-l-[4px] border-l-emerald-500 shadow-emerald-500/5",
+        "error" => "border-l-[4px] border-l-rose-500 shadow-rose-500/5",
+        "warning" => "border-l-[4px] border-l-amber-500 shadow-amber-500/5",
+        "info" => "border-l-[4px] border-l-blue-500 shadow-blue-500/5",
+        _ => "border-l-[4px] border-l-slate-400"
+    };
+
+    private string GetIconBg() => Type?.ToLower() switch
+    {
+        "success" => "bg-emerald-50 border border-emerald-100",
+        "error" => "bg-rose-50 border border-rose-100",
+        "warning" => "bg-amber-50 border border-amber-100",
+        "info" => "bg-blue-50 border border-blue-100",
+        _ => "bg-slate-100"
+    };
+
+    private string GetTitleEs(string type) => type?.ToLower() switch
+    {
+        "success" => "Éxito",
+        "error" => "Error",
+        "warning" => "Advertencia",
+        "info" => "Información",
+        _ => "Notificación"
     };
 
     private async void ShowToast(string message, string type)
     {
         Message = message;
         Type = type;
-        Title = type.ToUpper();
+        Title = GetTitleEs(type);
 
         Visible = true;
         await InvokeAsync(StateHasChanged);
 
-        await Task.Delay(3000);
+        await Task.Delay(3500);
 
         if (Visible) await Close();
     }

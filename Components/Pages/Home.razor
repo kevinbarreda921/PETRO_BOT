@@ -1,40 +1,378 @@
-﻿@page "/"
-
+@page "/"
 @using PETRO_BOT.Services.Toast
+@using PETRO_BOT.Components.Pages.Elementos
 @inject ToastService ToastService
 
-<div class="flex flex-col lg:flex-row gap-6 items-start">
-    <div class="w-full bg-white rounded-[35px] p-8 shadow-sm flex flex-col gap-6 relative z-30 border border-slate-50">
-        <h2 class="text-xs font-black text-slate-800 uppercase tracking-widest border-b border-slate-50 pb-4">Inicio</h2>
+<div class="flex flex-col gap-6 animate-new-row">
 
-        <div class="flex gap-3 p-10">
+    <!-- ============================================== -->
+    <!-- TOP ROW: KPI CARDS (THREE-COLUMN GRID) -->
+    <!-- ============================================== -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-       
+        <!-- Card 1: Total Portfolio Value -->
+        <div class="bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col justify-between hover:border-slate-300 hover:shadow-lg transition-all duration-300 group">
+            
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Total Portfolio Value</span>
+                    <h3 class="text-2xl md:text-3xl font-black text-slate-800 mt-1 select-all">$9,568.45</h3>
+                </div>
+                <button class="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-slate-800 group-hover:border-slate-300 transition-all cursor-pointer">
+                    <svg class="w-4 h-4 transform group-hover:rotate-45 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+
+            <!-- Sparkling Light Green SVG Sparkline Chart -->
+            <div class="h-20 w-full relative mb-4">
+                <svg class="w-full h-full" viewBox="0 0 100 30" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="sparkline-grad-light" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#10b981" stop-opacity="0.15"/>
+                            <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M 0 25 Q 15 12 30 18 T 60 8 T 90 22 T 100 15" fill="none" stroke="#10b981" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M 0 25 Q 15 12 30 18 T 60 8 T 90 22 T 100 15 L 100 30 L 0 30 Z" fill="url(#sparkline-grad-light)"/>
+                    <circle cx="70" cy="15" r="2.5" fill="#10b981" class="animate-ping"/>
+                    <circle cx="70" cy="15" r="1.5" fill="#ffffff" stroke="#10b981" stroke-width="1"/>
+                </svg>
+                <!-- Floating capsule value from mockup -->
+                <span class="absolute right-[20%] top-[10%] px-2.5 py-0.8 bg-[#0f172a] rounded-lg text-[9px] font-black text-white shadow-md">$9,678.45</span>
+            </div>
+
+            <!-- Quick Action circles from mockup -->
+            <div class="flex gap-2">
+                <button @onclick='() => ToastService.Info("Acción: Transferir dinero")' class="flex-1 bg-slate-50 border border-slate-200 text-[10px] font-black uppercase text-slate-700 hover:bg-[#1e293b] hover:text-white hover:border-[#1e293b] rounded-xl py-2.5 transition-all active:scale-95 cursor-pointer">Enviar</button>
+                <button @onclick='() => ToastService.Info("Acción: Recibir fondos")' class="flex-1 bg-slate-50 border border-slate-200 text-[10px] font-black uppercase text-slate-700 hover:bg-[#1e293b] hover:text-white hover:border-[#1e293b] rounded-xl py-2.5 transition-all active:scale-95 cursor-pointer">Recibir</button>
+                <button @onclick='() => ToastService.Info("Acción: Cambiar divisas")' class="w-10 h-10 shrink-0 bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all active:scale-95 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                </button>
+            </div>
 
         </div>
+
+        <!-- Card 2: Transaction Volume -->
+        <div class="bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col justify-between hover:border-slate-300 hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
+            
+            <div class="flex items-center justify-between mb-2">
+                <div>
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Transaction Volume</span>
+                    <span class="text-[10px] text-slate-500 font-semibold block mt-0.5">Jan 1 - Sep 13, 2026</span>
+                </div>
+                <button class="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-slate-800 group-hover:border-slate-300 transition-all cursor-pointer">
+                    <svg class="w-4 h-4 transform group-hover:rotate-45 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+
+            <!-- Beautiful Vertical Bar Chart from mockup -->
+            <div class="h-28 flex items-end justify-between gap-1.5 w-full relative pt-4 select-none px-2">
+                <!-- Floating tooltip from mockup -->
+                <div class="absolute left-1/2 top-4 -translate-x-1/2 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-xl flex items-center gap-2 z-10 border-l-4 border-l-emerald-500">
+                    <span class="text-xs font-black text-slate-800">$37,201.00</span>
+                    <span class="text-[8px] bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-md px-1.5 py-0.2 font-black">-11%</span>
+                </div>
+
+                @foreach (var val in new[] { 30, 45, 60, 25, 85, 95, 75, 40, 65, 50, 35, 20 })
+                {
+                    <div class="flex-1 flex flex-col items-center group/bar">
+                        <div class="w-full bg-slate-100 group-hover/bar:bg-slate-800 rounded-t-sm transition-all duration-300" style="height: @(val)px;"></div>
+                    </div>
+                }
+            </div>
+
+            <div class="flex items-center justify-between text-[8px] text-slate-400 font-black uppercase tracking-wider mt-2 border-t border-slate-100 pt-2 px-1">
+                <span>Jan</span>
+                <span>Mar</span>
+                <span>May</span>
+                <span>Jul</span>
+                <span>Sep</span>
+            </div>
+
+        </div>
+
+        <!-- Card 3: New Customers Tracker -->
+        <div class="bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col justify-between hover:border-slate-300 hover:shadow-lg transition-all duration-300 group relative">
+            
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">New Customers</span>
+                    <span class="text-[10px] text-slate-500 font-semibold block mt-0.5">Jan 1 - Sep 13, 2025</span>
+                </div>
+                <button class="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-slate-800 group-hover:border-slate-300 transition-all cursor-pointer">
+                    <svg class="w-4 h-4 transform group-hover:rotate-45 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+
+            <div class="mb-4">
+                <div class="flex items-baseline gap-2">
+                    <h3 class="text-2xl md:text-3xl font-black text-slate-800">21,120</h3>
+                    <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-lg px-1.5 py-0.5 text-[9px] font-black">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> +7.5%
+                    </span>
+                    <span class="text-[9px] text-slate-400 font-bold">+156</span>
+                </div>
+            </div>
+
+            <!-- Progress Block indicators from mockup -->
+            <div class="relative w-full flex items-end gap-1.5 h-16 pb-2">
+                <!-- Glowing indicator tooltip for selected block (e.g., Thursday) -->
+                <div class="absolute left-[54%] bottom-10 bg-[#0f172a] rounded-xl px-2.5 py-1.5 shadow-2xl flex flex-col items-center z-10 animate-bounce">
+                    <span class="text-[8px] font-black text-slate-400 uppercase">Thursday</span>
+                    <span class="text-xs font-black text-white">1,319</span>
+                </div>
+
+                @for (int i = 0; i < 7; i++)
+                {
+                    var isThur = i == 4;
+                    <div class="flex-1 flex flex-col items-center">
+                        @if (isThur)
+                        {
+                            <!-- Elegant green diagonal striped block from mockup -->
+                            <div class="w-full bg-[#10b981] shadow-lg shadow-emerald-500/10 rounded-lg relative overflow-hidden flex items-center justify-center cursor-pointer" style="height: 48px; background-image: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(255,255,255,0.15) 4px, rgba(255,255,255,0.15) 8px);"></div>
+                        }
+                        else
+                        {
+                            <div class="w-full bg-slate-100 hover:bg-slate-200 rounded-lg cursor-pointer transition-all" style="height: 18px;"></div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="flex items-center justify-between text-[8px] text-slate-400 font-black uppercase tracking-wider px-1">
+                <span>Mon</span>
+                <span>Tue</span>
+                <span>Wed</span>
+                <span>Thu</span>
+                <span>Fri</span>
+                <span>Sat</span>
+                <span>Sun</span>
+            </div>
+
+        </div>
+
     </div>
+
+    <!-- ============================================== -->
+    <!-- BOTTOM SECTION: BREAKDOWN AND TRANSACTION PERF -->
+    <!-- ============================================== -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+
+        <!-- Column Left: Portfolio Breakdown (List of channels) -->
+        <div class="lg:col-span-5 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col justify-between hover:border-slate-300 hover:shadow-lg transition-all duration-300">
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                    <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest">Portfolio Breakdown</h3>
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest cursor-pointer hover:text-slate-800">View All</span>
+                </div>
+
+                <!-- Transaction channels list matching the mockup -->
+                <div class="flex flex-col gap-3.5">
+
+                    <!-- Channel 1: Bitcoin -->
+                    <div class="flex items-center justify-between group/ch">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-slate-950 flex items-center justify-center text-white shrink-0 shadow-sm">
+                                <span class="text-xs font-black">₿</span>
+                            </div>
+                            <div>
+                                <span class="text-xs font-black text-slate-800 block">Bitcoin</span>
+                                <span class="text-[9px] text-slate-400 font-bold block mt-0.5">From Treasury Wallet</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-black text-slate-800 block">10 BTC</span>
+                            <span class="text-[9px] text-slate-400 font-bold block mt-0.5">$560,950 USD</span>
+                        </div>
+                    </div>
+
+                    <!-- Channel 2: Bank Transfer -->
+                    <div class="flex items-center justify-between group/ch">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-[#f1f5f9] flex items-center justify-center text-slate-700 shrink-0">
+                                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            </div>
+                            <div>
+                                <span class="text-xs font-black text-slate-800 block">Bank Transfer</span>
+                                <span class="text-[9px] text-slate-500 font-bold block mt-0.5">Incoming • Processing</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-black text-slate-800 block">$3,420.00</span>
+                            <span class="text-[9px] text-slate-400 font-bold block mt-0.5">Jan 24, 2025</span>
+                        </div>
+                    </div>
+
+                    <!-- Channel 3: Ethereum -->
+                    <div class="flex items-center justify-between group/ch">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-slate-950 flex items-center justify-center text-white shrink-0">
+                                <span class="text-xs font-black">Ξ</span>
+                            </div>
+                            <div>
+                                <span class="text-xs font-black text-slate-800 block">Ethereum</span>
+                                <span class="text-[9px] text-slate-400 font-bold block mt-0.5">From Client Account</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-black text-slate-800 block">3.25 ETH</span>
+                            <span class="text-[9px] text-slate-400 font-bold block mt-0.5">$8,920 USD</span>
+                        </div>
+                    </div>
+
+                    <!-- Channel 4: Card Payment -->
+                    <div class="flex items-center justify-between group/ch">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-[#f1f5f9] flex items-center justify-center text-slate-700 shrink-0">
+                                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                            </div>
+                            <div>
+                                <span class="text-xs font-black text-slate-800 block">Card Payment</span>
+                                <span class="text-[9px] text-slate-500 font-bold block mt-0.5">Via Visa • Completed</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-black text-rose-600 block">-$845.00</span>
+                            <span class="text-[9px] text-slate-400 font-bold block mt-0.5">Jan 24, 2025</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Column Right: Transaction Performance & CSS stacked chart -->
+        <div class="lg:col-span-7 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col justify-between hover:border-slate-300 hover:shadow-lg transition-all duration-300">
+            
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                    <div>
+                        <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest block">Transaction Performance</h3>
+                        <span class="text-[10px] text-slate-400 font-bold block mt-0.5">Processing activity across channels</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-700 hover:text-slate-900 transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span>20-27 Jan, 2026</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Transaction channels summary from mockup -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                    
+                    <div class="p-4 bg-slate-50 border border-slate-150 rounded-2xl flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                        </div>
+                        <div>
+                            <span class="text-[9px] font-black text-slate-400 uppercase block">Card Payments</span>
+                            <div class="flex items-baseline gap-1.5 mt-0.5">
+                                <span class="text-base font-black text-slate-800">$37,201.00</span>
+                                <span class="text-[8px] bg-rose-50 text-rose-600 border border-rose-100 rounded-md px-1.5 py-0.2 font-black">-11%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 border border-slate-150 rounded-2xl flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-slate-950 text-white flex items-center justify-center shrink-0">
+                            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        </div>
+                        <div>
+                            <span class="text-[9px] font-black text-slate-400 uppercase block">Digital Transfers</span>
+                            <div class="flex items-baseline gap-1.5 mt-0.5">
+                                <span class="text-base font-black text-slate-800">$4,799.00</span>
+                                <span class="text-[8px] bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-md px-1.5 py-0.2 font-black">+6%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Custom visual CSS bar stacks matching the mockup layout -->
+                <div class="flex flex-col gap-3">
+                    <span class="text-[9px] font-black text-slate-400 uppercase block">Daily Processing Ratios</span>
+                    
+                    <div class="space-y-2 select-none relative">
+                        
+                        <!-- Monday -->
+                        <div class="flex items-center gap-3">
+                            <span class="text-[9px] font-black text-slate-400 uppercase w-8">Mon</span>
+                            <div class="flex-1 h-5 flex rounded-lg overflow-hidden bg-slate-100">
+                                <div class="bg-slate-300 hover:bg-slate-400 transition-all" style="width: 35%;"></div>
+                                <div class="bg-[#f1f5f9]" style="width: 65%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Thursday with high contrast highlight capsules matching mockup -->
+                        <div class="flex items-center gap-3 relative">
+                            <span class="text-[9px] font-black text-slate-400 uppercase w-8">Thu</span>
+                            <div class="flex-1 h-5 flex rounded-lg overflow-hidden bg-slate-100 relative">
+                                <div class="bg-slate-350" style="width: 25%;"></div>
+                                
+                                <!-- Highlight striped capsule -->
+                                <div class="bg-[#10b981] relative overflow-hidden flex items-center justify-center cursor-pointer shadow-lg" style="width: 30%; background-image: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(255,255,255,0.15) 4px, rgba(255,255,255,0.15) 8px);"></div>
+                                <div class="bg-[#f1f5f9]" style="width: 45%;"></div>
+                            </div>
+                            
+                            <!-- Floating capsules from mockup -->
+                            <div class="absolute left-[35%] -top-8 bg-[#0f172a] rounded-lg px-2 py-0.8 text-[8px] font-black text-white shadow-lg">$598.00</div>
+                            <div class="absolute left-[35%] top-5 bg-[#0f172a] rounded-lg px-2 py-0.8 text-[8px] font-black text-white shadow-lg">$245.00</div>
+                        </div>
+
+                        <!-- Fri -->
+                        <div class="flex items-center gap-3">
+                            <span class="text-[9px] font-black text-slate-400 uppercase w-8">Fri</span>
+                            <div class="flex-1 h-5 flex rounded-lg overflow-hidden bg-slate-100">
+                                <div class="bg-slate-300 hover:bg-slate-400 transition-all" style="width: 15%;"></div>
+                                <div class="bg-[#f1f5f9]" style="width: 85%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ============================================== -->
+    <!-- FOOTER: INTERACTIVE TOAST TEST UTILITIES -->
+    <!-- ============================================== -->
+    <div class="bg-white border border-slate-200/60 rounded-[30px] p-6 mt-2 hover:border-slate-300 transition-all">
+        <h4 class="text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-100 pb-3 mb-4 flex items-center gap-2">
+            <span class="w-1.5 h-3 bg-slate-800 rounded-full"></span>
+            Utilidades de Prueba (Servicio de Notificaciones)
+        </h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <button @onclick="ShowSuccess" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all active:scale-[0.98] cursor-pointer">Mensaje Éxito</button>
+            <button @onclick="ShowError" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all active:scale-[0.98] cursor-pointer">Mensaje Error</button>
+            <button @onclick="ShowWarning" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all active:scale-[0.98] cursor-pointer">Mensaje Alerta</button>
+            <button @onclick="ShowInfo" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all active:scale-[0.98] cursor-pointer">Mensaje Info</button>
+        </div>
+    </div>
+
 </div>
 
 @code {
+    private void ShowSuccess()
+    {
+        ToastService.Success("Registro guardado correctamente.");
+    }
 
-private void ShowSuccess()
-{
-ToastService.Success("Registro guardado correctamente.");
-}
+    private void ShowError()
+    {
+        ToastService.Error("Ocurrió un error inesperado al procesar.");
+    }
 
-private void ShowError()
-{
-ToastService.Error("Ocurrió un error inesperado.");
-}
+    private void ShowWarning()
+    {
+        ToastService.Warning("Debes completar todos los campos del grifo.");
+    }
 
-private void ShowWarning()
-{
-ToastService.Warning("Debes completar los campos.");
-}
-
-private void ShowInfo()
-{
-ToastService.Info("Nueva actualización disponible.");
-}
-
+    private void ShowInfo()
+    {
+        ToastService.Info("Nueva actualización de Petro Bot disponible.");
+    }
 }
