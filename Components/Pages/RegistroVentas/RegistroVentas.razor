@@ -899,7 +899,7 @@
             string extensionPermitida = ".xlsx";
             archivosReporteDiario.Clear();
 
-            foreach (var archivo in e.GetMultipleFiles(20))
+            foreach (var archivo in e.GetMultipleFiles(1000))
             {
                 var extension = Path.GetExtension(archivo.Name).ToLower();
 
