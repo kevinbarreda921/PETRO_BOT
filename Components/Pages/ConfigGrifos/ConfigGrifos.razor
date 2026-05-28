@@ -9,6 +9,7 @@
 @using PETRO_BOT.Models.Configuracion
 @using System.IO
 @using System.Text.Json
+@using ExcelDataReader
 
 <div class="flex flex-col gap-6 animate-new-row">
 
@@ -77,16 +78,43 @@
                     <!-- Active Edit Board form -->
                     <div class="flex flex-col gap-6">
                         
-                        <!-- Header and action bar -->
+                                        <!-- Header and action bar -->
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-150 pb-4 gap-4">
-                            <div>
-                                <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider">@grifoSeleccionado.Nombre</h3>
-                                <p class="text-[10px] text-slate-500 font-bold uppercase mt-0.5">Modifica coordenadas y límites</p>
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Nombre del Grifo</label>
+                                <input type="text" @bind="grifoSeleccionado.Nombre" class="text-xs font-black text-slate-900 uppercase tracking-wider border border-slate-200 rounded-xl px-3 py-1.5 outline-none focus:border-slate-450 focus:bg-white bg-slate-50 w-full sm:w-60 transition-all font-bold" />
                             </div>
                             <div class="flex items-center gap-2">
+                                <InputFile id="fileUpload" OnChange="CargarPlantillaArchivo" accept=".xlsx" class="hidden" />
+                                <label for="fileUpload" class="px-3.5 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer flex items-center justify-center gap-1.5 shadow-sm">
+                                    <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                    <span>Cargar de plantilla</span>
+                                </label>
                                 <button @onclick="ConfirmarEliminarGrifo" class="px-3.5 py-2 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer">Eliminar</button>
                                 <button @onclick="CancelarEdicion" class="px-3.5 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-55 hover:text-slate-950 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer">Cancelar</button>
                                 <button @onclick="GuardarConfiguracion" class="px-4.5 py-2 bg-[#0f172a] text-white hover:bg-slate-800 rounded-xl text-[9px] font-black uppercase tracking-wider shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all select-none cursor-pointer">Guardar</button>
+                            </div>
+                        </div>
+
+                        <!-- Panel: Plantilla de Excel -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-[20px] p-5 shadow-sm">
+                            <h4 class="text-[9px] font-black text-slate-800 uppercase tracking-[0.15em] border-b border-slate-200 pb-2 mb-4 flex items-center gap-2">
+                                <span class="w-1.5 h-3 bg-emerald-500 rounded-full"></span> Plantilla de Importación
+                            </h4>
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div class="flex-1 flex flex-col gap-1.5">
+                                    <label class="text-[8px] font-black text-slate-500 uppercase tracking-wider">Archivo de Plantilla cargado</label>
+                                    <div class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 font-bold flex items-center gap-2 shadow-sm">
+                                        <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        <span class="truncate">@(string.IsNullOrWhiteSpace(grifoSeleccionado.Plantilla) ? "Ninguna plantilla cargada" : grifoSeleccionado.Plantilla)</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-end">
+                                    <button @onclick="AbrirModalVerPlantilla" disabled="@(string.IsNullOrWhiteSpace(grifoSeleccionado.Plantilla))" class="px-4 py-2.5 bg-[#0f172a] hover:bg-slate-800 text-white disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        <span>Ver Plantilla</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -272,6 +300,110 @@
     </div>
 }
 
+<!-- 3. MODAL VER PLANTILLA EXCEL -->
+@if (mostrarModalVerPlantilla)
+{
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[999] animate-modal-in">
+        <div class="fixed inset-0 z-[-1]" @onclick="CerrarModalVerPlantilla"></div>
+        <div class="bg-white border border-slate-200 w-full max-w-[96vw] rounded-[28px] shadow-2xl overflow-hidden flex flex-col hover:border-slate-350 transition-all duration-300 animate-modal-in" style="max-height: 90vh;">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-5 border-b border-slate-150 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center border border-emerald-200">
+                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Previsualización de Plantilla</h3>
+                        <span class="text-[9px] text-slate-450 font-bold block uppercase mt-0.5">Archivo: @plantillaExcelNombre</span>
+                    </div>
+                </div>
+                <button @onclick="CerrarModalVerPlantilla" class="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all cursor-pointer">
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <!-- Sheet Selector Tabs -->
+            <div class="px-6 py-3 border-b border-slate-100 bg-white flex items-center gap-3 overflow-hidden">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider shrink-0">Hojas de Trabajo:</span>
+                <div class="flex items-center gap-2 overflow-x-auto pb-1.5 custom-scrollbar flex-1 whitespace-nowrap scroll-smooth">
+                    @foreach (var sheet in plantillaExcelHojas)
+                    {
+                        var esHojaActiva = string.Equals(sheet, plantillaExcelHojaSeleccionada, StringComparison.OrdinalIgnoreCase);
+                        <button @onclick="() => CargarDatosHojaExcel(sheet)" 
+                                class="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer flex items-center gap-1.5 shrink-0 @(esHojaActiva ? "bg-emerald-600 text-white shadow-md scale-[1.01]" : "bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 border border-transparent")">
+                            <span class="w-1.5 h-1.5 rounded-full @(esHojaActiva ? "bg-white animate-pulse" : "bg-slate-400")"></span>
+                            <span>@sheet</span>
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <!-- Modal Body (Excel-like Grid) -->
+            <div class="p-6 overflow-hidden bg-slate-50/50 flex-1 flex flex-col">
+                @if (plantillaExcelFilas == null || !plantillaExcelFilas.Any())
+                {
+                    <div class="py-24 flex flex-col items-center justify-center gap-3">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                        <span class="text-[10px] font-black text-slate-450 uppercase tracking-[0.2em]">Cargando datos de Excel...</span>
+                    </div>
+                }
+                else
+                {
+                    var maxColCount = plantillaExcelFilas.Max(r => r.Count);
+                    
+                    <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white flex-1 flex flex-col">
+                        <div class="overflow-auto custom-scrollbar flex-1" style="max-height: calc(90vh - 220px);">
+                            <table class="w-full border-collapse text-left">
+                                <thead>
+                                    <tr class="bg-slate-100 select-none">
+                                        <!-- Corner cell -->
+                                        <th class="w-10 bg-slate-200 border-r border-b border-slate-300"></th>
+                                        @for (int c = 0; c < maxColCount; c++)
+                                        {
+                                            var letter = GetExcelColumnName(c);
+                                            <th class="px-3 py-1.5 text-center text-[9px] font-mono font-black text-slate-500 border-r border-b border-slate-300/80 min-w-[120px] bg-slate-100">
+                                                @letter
+                                            </th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int r = 0; r < plantillaExcelFilas.Count; r++)
+                                    {
+                                        var rowData = plantillaExcelFilas[r];
+                                        var displayRowNumber = r + 1;
+                                        <tr class="hover:bg-slate-50/40 border-b border-slate-200/70">
+                                            <td class="bg-slate-100 text-center text-[9px] font-mono font-black text-slate-450 border-r border-slate-300/80 select-none py-1.5 w-10">
+                                                @displayRowNumber
+                                            </td>
+                                            @for (int c = 0; c < maxColCount; c++)
+                                            {
+                                                var cellValue = c < rowData.Count ? rowData[c] : "";
+                                                <td class="px-3 py-1.5 text-xs text-slate-650 border-r border-slate-200 font-medium truncate min-w-[120px] max-w-[240px] hover:overflow-visible hover:whitespace-normal" title="@cellValue">
+                                                    @cellValue
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4.5 border-t border-slate-150 flex justify-end gap-2 bg-slate-50">
+                <button @onclick="CerrarModalVerPlantilla" class="px-5 py-2.5 bg-[#0f172a] hover:bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all select-none cursor-pointer">
+                    Cerrar Vista
+                </button>
+            </div>
+            
+        </div>
+    </div>
+}
+
 <style>
     .config-grid {
         display: grid !important;
@@ -293,6 +425,12 @@
 @code {
     private List<RegistroVentasGrifo> grifosList = new();
     private RegistroVentasGrifo? grifoSeleccionado = null;
+
+    private bool mostrarModalVerPlantilla = false;
+    private string plantillaExcelNombre = "";
+    private List<List<string>> plantillaExcelFilas = new();
+    private List<string> plantillaExcelHojas = new();
+    private string plantillaExcelHojaSeleccionada = "";
 
     private readonly string[] mapeoFilasKeys = {
         "Venta_GPL", "Venta_GNV", "Total_venta_acumulada", "Total_Tarjeta_de_Credito_Liquidos",
@@ -318,6 +456,7 @@
 
     protected override void OnInitialized()
     {
+        System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
         CargarConfiguracion();
     }
 
@@ -528,5 +667,158 @@
         if (grifoSeleccionado == null) return;
         grifoSeleccionado.ClientesCredito.RemoveAll(c => c.Id == id);
         ToastService.Success("Cliente removido temporalmente.");
+    }
+
+    private async Task CargarPlantillaArchivo(InputFileChangeEventArgs e)
+    {
+        if (grifoSeleccionado == null) return;
+        var file = e.File;
+        if (file != null)
+        {
+            try
+            {
+                string plantillasDir = Path.Combine(env.WebRootPath, "bd", "plantillas");
+                if (!Directory.Exists(plantillasDir))
+                {
+                    Directory.CreateDirectory(plantillasDir);
+                }
+
+                string ext = Path.GetExtension(file.Name);
+                if (ext.ToLower() != ".xlsx")
+                {
+                    ToastService.Error("Solo se permiten archivos Excel (.xlsx).");
+                    return;
+                }
+
+                string fileName = file.Name;
+                string filePath = Path.Combine(plantillasDir, fileName);
+
+                using (var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024))
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await stream.CopyToAsync(fileStream);
+                }
+
+                grifoSeleccionado.Plantilla = fileName;
+                ConfiguracionService.GuardarGrifoCompletoDB(grifoSeleccionado);
+                CargarConfiguracion();
+
+                ToastService.Success($"Plantilla '{fileName}' cargada y guardada exitosamente.");
+            }
+            catch (Exception ex)
+            {
+                ToastService.Error("Error al cargar la plantilla: " + ex.Message);
+            }
+        }
+    }
+
+    private void AbrirModalVerPlantilla()
+    {
+        if (grifoSeleccionado == null || string.IsNullOrWhiteSpace(grifoSeleccionado.Plantilla)) return;
+        
+        try
+        {
+            string plantillasDir = Path.Combine(env.WebRootPath, "bd", "plantillas");
+            string filePath = Path.Combine(plantillasDir, grifoSeleccionado.Plantilla);
+            if (!File.Exists(filePath))
+            {
+                ToastService.Error("El archivo de la plantilla no se encuentra en el servidor.");
+                return;
+            }
+
+            plantillaExcelNombre = grifoSeleccionado.Plantilla;
+            plantillaExcelHojas.Clear();
+
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var reader = ExcelReaderFactory.CreateOpenXmlReader(stream))
+            {
+                do
+                {
+                    plantillaExcelHojas.Add(reader.Name);
+                } while (reader.NextResult());
+            }
+
+            if (plantillaExcelHojas.Any())
+            {
+                CargarDatosHojaExcel(plantillaExcelHojas.First());
+            }
+
+            mostrarModalVerPlantilla = true;
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al abrir la plantilla: " + ex.Message);
+        }
+    }
+
+    private void CargarDatosHojaExcel(string sheetName)
+    {
+        if (grifoSeleccionado == null || string.IsNullOrWhiteSpace(grifoSeleccionado.Plantilla)) return;
+
+        try
+        {
+            string plantillasDir = Path.Combine(env.WebRootPath, "bd", "plantillas");
+            string filePath = Path.Combine(plantillasDir, grifoSeleccionado.Plantilla);
+
+            plantillaExcelHojaSeleccionada = sheetName;
+            plantillaExcelFilas.Clear();
+
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var reader = ExcelReaderFactory.CreateOpenXmlReader(stream))
+            {
+                bool found = false;
+                do
+                {
+                    if (string.Equals(reader.Name, sheetName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        found = true;
+                        break;
+                    }
+                } while (reader.NextResult());
+
+                if (found)
+                {
+                    int maxRows = 100;
+                    int currentRow = 0;
+                    while (reader.Read() && currentRow < maxRows)
+                    {
+                        var row = new List<string>();
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            var val = reader.GetValue(i);
+                            row.Add(val?.ToString() ?? "");
+                        }
+                        plantillaExcelFilas.Add(row);
+                        currentRow++;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al leer la hoja de Excel: " + ex.Message);
+        }
+    }
+
+    private void CerrarModalVerPlantilla()
+    {
+        mostrarModalVerPlantilla = false;
+        plantillaExcelFilas.Clear();
+    }
+
+    private string GetExcelColumnName(int columnNumber)
+    {
+        int dividend = columnNumber + 1;
+        string columnName = String.Empty;
+        int modulo;
+
+        while (dividend > 0)
+        {
+            modulo = (dividend - 1) % 26;
+            columnName = Convert.ToChar(65 + modulo).ToString() + columnName;
+            dividend = (int)((dividend - modulo) / 26);
+        }
+
+        return columnName;
     }
 }

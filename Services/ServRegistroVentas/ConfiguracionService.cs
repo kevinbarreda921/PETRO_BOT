@@ -72,7 +72,8 @@ namespace PETRO_BOT.Services.Services
             string createGrifosTable = @"
                 CREATE TABLE IF NOT EXISTS REGISTRO_VENTAS_GRIFOS (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Nombre TEXT UNIQUE NOT NULL
+                    Nombre TEXT UNIQUE NOT NULL,
+                    Plantilla TEXT
                 );";
 
             string createConfiguracionTable = @"
@@ -422,6 +423,29 @@ namespace PETRO_BOT.Services.Services
                         {
                             needsSchemaCreation = true;
                         }
+                        else
+                        {
+                            // Check if the Plantilla column exists in REGISTRO_VENTAS_GRIFOS
+                            using var colCmd2 = new SqliteCommand("PRAGMA table_info(REGISTRO_VENTAS_GRIFOS);", connection);
+                            using var reader2 = colCmd2.ExecuteReader();
+                            bool hasPlantillaColumn = false;
+                            while (reader2.Read())
+                            {
+                                string colName = reader2.GetString(1);
+                                if (colName.Equals("Plantilla", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    hasPlantillaColumn = true;
+                                    break;
+                                }
+                            }
+                            if (!hasPlantillaColumn)
+                            {
+                                // Alter table to add Plantilla column dynamically
+                                using var alterCmd = new SqliteCommand("ALTER TABLE REGISTRO_VENTAS_GRIFOS ADD COLUMN Plantilla TEXT;", connection);
+                                alterCmd.ExecuteNonQuery();
+                                Console.WriteLine("Columna 'Plantilla' agregada a REGISTRO_VENTAS_GRIFOS exitosamente.");
+                            }
+                        }
                     }
                 }
 
@@ -616,7 +640,8 @@ namespace PETRO_BOT.Services.Services
                                c.Col_Total_Tarjeta_de_Credito_GLP, c.Col_Total_Tarjeta_de_Credito_GNV, c.Col_ErrorMaquina,
                                c.Col_Recaudo_Cofide_GNV, c.Col_Gastos, c.Col_Ventas_con_transferencia, c.Col_DescuentoLiquidos,
                                c.Col_DescuentoGLP, c.Col_Hermes_monto_liquido, c.Col_Hermes_monto_GLP, c.Col_Hermes_monto_GNV1,
-                               c.Col_Hermes_monto_GNV2
+                               c.Col_Hermes_monto_GNV2,
+                               g.Plantilla
                         FROM REGISTRO_VENTAS_GRIFOS g
                         INNER JOIN REGISTRO_VENTAS_CONFIGURACION c ON g.Id = c.GrifoId
                         ORDER BY g.Nombre ASC;";
@@ -635,6 +660,7 @@ namespace PETRO_BOT.Services.Services
                             {
                                 Id = gId,
                                 Nombre = gNombre,
+                                Plantilla = reader.IsDBNull(36) ? "" : reader.GetString(36),
                                 Configuracion = new RegistroVentasConfiguracion
                                 {
                                     Id = reader.GetInt32(2),
@@ -724,23 +750,35 @@ namespace PETRO_BOT.Services.Services
             using var transaction = connection.BeginTransaction();
             try
             {
-                // 1. Insert or ignore Grifo to get or create it
-                string insertGrifo = "INSERT OR IGNORE INTO REGISTRO_VENTAS_GRIFOS (Nombre) VALUES (@Nombre);";
-                using (var cmd = new SqliteCommand(insertGrifo, connection, transaction))
+                // 1. If Id exists, update name and Plantilla. Else, insert new grifo.
+                long grifoId = grifo.Id;
+                if (grifo.Id > 0)
                 {
-                    cmd.Parameters.AddWithValue("@Nombre", grifo.Nombre.Trim().ToUpper());
-                    cmd.ExecuteNonQuery();
+                    string updateGrifo = "UPDATE REGISTRO_VENTAS_GRIFOS SET Nombre = @Nombre, Plantilla = @Plantilla WHERE Id = @Id;";
+                    using (var cmd = new SqliteCommand(updateGrifo, connection, transaction))
+                    {
+                        cmd.Parameters.AddWithValue("@Nombre", grifo.Nombre.Trim().ToUpper());
+                        cmd.Parameters.AddWithValue("@Plantilla", grifo.Plantilla ?? "");
+                        cmd.Parameters.AddWithValue("@Id", grifo.Id);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
-
-                // Get Grifo ID
-                long grifoId = 0;
-                using (var cmd = new SqliteCommand("SELECT Id FROM REGISTRO_VENTAS_GRIFOS WHERE Nombre = @Nombre;", connection, transaction))
+                else
                 {
-                    cmd.Parameters.AddWithValue("@Nombre", grifo.Nombre.Trim().ToUpper());
-                    grifoId = (long)(cmd.ExecuteScalar() ?? 0L);
-                }
+                    string insertGrifo = "INSERT INTO REGISTRO_VENTAS_GRIFOS (Nombre, Plantilla) VALUES (@Nombre, @Plantilla);";
+                    using (var cmd = new SqliteCommand(insertGrifo, connection, transaction))
+                    {
+                        cmd.Parameters.AddWithValue("@Nombre", grifo.Nombre.Trim().ToUpper());
+                        cmd.Parameters.AddWithValue("@Plantilla", grifo.Plantilla ?? "");
+                        cmd.ExecuteNonQuery();
+                    }
 
-                grifo.Id = (int)grifoId;
+                    using (var cmd = new SqliteCommand("SELECT last_insert_rowid();", connection, transaction))
+                    {
+                        grifoId = (long)(cmd.ExecuteScalar() ?? 0L);
+                    }
+                    grifo.Id = (int)grifoId;
+                }
 
                 // 2. Insert or replace Configuration for this GrifoId
                 string insertConfig = @"

@@ -35,6 +35,7 @@ namespace PETRO_BOT.Models.Configuracion
     {
         public int Id { get; set; }
         public string Nombre { get; set; } = "";
+        public string Plantilla { get; set; } = "";
         public RegistroVentasConfiguracion Configuracion { get; set; } = new();
         public List<RegistroVentasClienteCredito> ClientesCredito { get; set; } = new();
     }
