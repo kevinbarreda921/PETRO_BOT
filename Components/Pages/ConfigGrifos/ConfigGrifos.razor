@@ -31,12 +31,12 @@
                 <!-- Custom station rows in Mockup style -->
                 <div class="flex flex-col gap-3 overflow-y-auto custom-scrollbar flex-1 pr-1">
                     @{ int idx = 1; }
-                    @foreach (var grifo in grifosConfig)
+                    @foreach (var grifo in grifosList)
                     {
-                        var gName = grifo.Key;
-                        var esSeleccionado = gName == grifoSeleccionadoName;
+                        var gName = grifo.Nombre;
+                        var esSeleccionado = grifoSeleccionado != null && grifo.Id == grifoSeleccionado.Id;
                         var currentIdx = idx++;
-                        <div @onclick="() => SeleccionarGrifo(gName)" 
+                        <div @onclick="() => SeleccionarGrifo(grifo.Id)" 
                              class="flex items-center justify-between group/ch p-3 rounded-2xl border transition-all cursor-pointer @(esSeleccionado ? "bg-[#0f172a] border-[#0f172a] text-white shadow-lg scale-[1.01]" : "bg-transparent border-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900")">
                             
                             <div class="flex items-center gap-3">
@@ -63,7 +63,7 @@
         <div class="lg:col-span-8 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col hover:border-slate-300 hover:shadow-lg transition-all duration-300 overflow-y-auto custom-scrollbar" style="height: calc(100vh - 160px);">
             <div class="flex flex-col h-full">
                 
-                @if (string.IsNullOrEmpty(grifoSeleccionadoName))
+                @if (grifoSeleccionado == null)
                 {
                     <div class="py-24 flex flex-col items-center justify-center gap-4">
                         <div class="bg-slate-50 p-6 rounded-full border border-slate-200 text-slate-400 shadow-sm">
@@ -80,12 +80,12 @@
                         <!-- Header and action bar -->
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-150 pb-4 gap-4">
                             <div>
-                                <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider">@grifoSeleccionadoName</h3>
+                                <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider">@grifoSeleccionado.Nombre</h3>
                                 <p class="text-[10px] text-slate-500 font-bold uppercase mt-0.5">Modifica coordenadas y límites</p>
                             </div>
                             <div class="flex items-center gap-2">
                                 <button @onclick="ConfirmarEliminarGrifo" class="px-3.5 py-2 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer">Eliminar</button>
-                                <button @onclick="CancelarEdicion" class="px-3.5 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-950 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer">Cancelar</button>
+                                <button @onclick="CancelarEdicion" class="px-3.5 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-55 hover:text-slate-950 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer">Cancelar</button>
                                 <button @onclick="GuardarConfiguracion" class="px-4.5 py-2 bg-[#0f172a] text-white hover:bg-slate-800 rounded-xl text-[9px] font-black uppercase tracking-wider shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all select-none cursor-pointer">Guardar</button>
                             </div>
                         </div>
@@ -98,19 +98,19 @@
                             <div class="config-grid">
                                 <div class="flex flex-col gap-1">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">Columna Fecha</label>
-                                    <input type="text" @bind="lecturaConfig.ColumnaFecha" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(lecturaConfig.ColumnaFecha >= 0  ? "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;" : "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;")" />
+                                    <input type="number" @bind="grifoSeleccionado.Configuracion.ColumnaFecha" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(grifoSeleccionado.Configuracion.ColumnaFecha >= 0  ? "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;" : "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;")" />
                                 </div>
                                 <div class="flex flex-col gap-1">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">Columna Totales</label>
-                                    <input type="text" @bind="lecturaConfig.ColumnaTotales" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(lecturaConfig.ColumnaTotales >= 0  ? "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;" : "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;")" />
+                                    <input type="number" @bind="grifoSeleccionado.Configuracion.ColumnaTotales" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(grifoSeleccionado.Configuracion.ColumnaTotales >= 0  ? "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;" : "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;")" />
                                 </div>
                                 <div class="flex flex-col gap-1">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">Columna Crédito Nombre</label>
-                                    <input type="text" @bind="lecturaConfig.ColumnaCreditoNombre" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(lecturaConfig.ColumnaCreditoNombre >= 0  ? "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;" : "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;")" />
+                                    <input type="number" @bind="grifoSeleccionado.Configuracion.ColumnaCreditoNombre" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(grifoSeleccionado.Configuracion.ColumnaCreditoNombre >= 0  ? "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;" : "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;")" />
                                 </div>
                                 <div class="flex flex-col gap-1">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">Columna Crédito Monto</label>
-                                    <input type="text" @bind="lecturaConfig.ColumnaCreditoMonto" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(lecturaConfig.ColumnaCreditoMonto >= 0  ? "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;" : "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;")" />
+                                    <input type="number" @bind="grifoSeleccionado.Configuracion.ColumnaCreditoMonto" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(grifoSeleccionado.Configuracion.ColumnaCreditoMonto >= 0  ? "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;" : "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;")" />
                                 </div>
                             </div>
 
@@ -121,7 +121,12 @@
                                 {
                                     <div class="flex flex-col gap-1">
                                         <label class="text-[8px] font-black text-slate-500 uppercase truncate" title="@prop">@prop</label>
-                                        <input type="text" @bind="mapeoFilasTemp[prop]" class="w-full rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(string.IsNullOrWhiteSpace(mapeoFilasTemp[prop]) ? "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;" : "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;")" placeholder="N/A" />
+                                        <input type="text" 
+                                               value="@GetConfigValue(prop, false)" 
+                                               @onchange="@(e => SetConfigValue(prop, false, e.Value?.ToString() ?? ""))" 
+                                               class="w-full rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none transition-all duration-300" 
+                                               style="text-align: center; border-width: 1px; border-style: solid; @(string.IsNullOrWhiteSpace(GetConfigValue(prop, false)) ? "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;" : "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;")" 
+                                               placeholder="N/A" />
                                     </div>
                                 }
                             </div>
@@ -137,7 +142,12 @@
                                 {
                                     <div class="flex flex-col gap-1">
                                         <label class="text-[8px] font-black text-slate-500 uppercase truncate" title="@col">@col</label>
-                                        <input type="text" @bind="columnasEscrituraTemp[col]" class="w-full rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(string.IsNullOrWhiteSpace(columnasEscrituraTemp[col]) ? "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;" : "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;")" placeholder="Columna" />
+                                        <input type="text" 
+                                               value="@GetConfigValue(col, true)" 
+                                               @onchange="@(e => SetConfigValue(col, true, e.Value?.ToString() ?? ""))" 
+                                               class="w-full rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none transition-all duration-300" 
+                                               style="text-align: center; border-width: 1px; border-style: solid; @(string.IsNullOrWhiteSpace(GetConfigValue(col, true)) ? "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;" : "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;")" 
+                                               placeholder="Columna" />
                                     </div>
                                 }
                             </div>
@@ -161,7 +171,7 @@
                                         </tr>
                                     </thead>
                                     <tbody class="text-xs">
-                                        @if (clientesCreditoTemp == null || !clientesCreditoTemp.Any())
+                                        @if (grifoSeleccionado.ClientesCredito == null || !grifoSeleccionado.ClientesCredito.Any())
                                         {
                                             <tr>
                                                 <td colspan="3" class="py-6 text-center text-slate-500 italic font-semibold">Sin clientes registrados.</td>
@@ -169,16 +179,16 @@
                                         }
                                         else
                                         {
-                                            @foreach (var cliente in clientesCreditoTemp)
+                                            @foreach (var cliente in grifoSeleccionado.ClientesCredito)
                                             {
-                                                var col = cliente.Key;
-                                                var name = cliente.Value;
+                                                var col = cliente.Columna;
+                                                var name = cliente.ClienteNombre;
                                                 <tr class="border-b border-slate-200/60 hover:bg-slate-100/60">
                                                     <td class="py-3 font-bold text-slate-850 font-mono font-black">@col</td>
                                                     <td class="py-3 text-slate-700 font-bold">@name</td>
                                                     <td class="py-3 text-right flex items-center justify-end gap-2 pr-4">
-                                                        <button @onclick="() => AbrirModalEditarCliente(col, name)" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 hover:text-slate-900 hover:border-slate-350 font-black text-[9px] uppercase select-none cursor-pointer">Editar</button>
-                                                        <button @onclick="() => EliminarCliente(col)" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-750 border border-rose-200 font-black text-[9px] uppercase select-none cursor-pointer">Eliminar</button>
+                                                        <button @onclick="() => AbrirModalEditarCliente(cliente.Id, col, name)" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 hover:text-slate-900 hover:border-slate-350 font-black text-[9px] uppercase select-none cursor-pointer">Editar</button>
+                                                        <button @onclick="() => EliminarCliente(cliente.Id)" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-750 border border-rose-200 font-black text-[9px] uppercase select-none cursor-pointer">Eliminar</button>
                                                     </td>
                                                 </tr>
                                             }
@@ -281,22 +291,17 @@
 </style>
 
 @code {
-    private Dictionary<string, GrifoConfig> grifosConfig = new();
-    private string grifoSeleccionadoName = "";
-    
-    private LecturaConfig lecturaConfig = new();
-    private Dictionary<string, string> mapeoFilasTemp = new();
-    private Dictionary<string, string> columnasEscrituraTemp = new();
-    private Dictionary<string, string> clientesCreditoTemp = new();
+    private List<RegistroVentasGrifo> grifosList = new();
+    private RegistroVentasGrifo? grifoSeleccionado = null;
 
     private readonly string[] mapeoFilasKeys = {
-        "Venta_GLP", "Venta_GNV", "Total_venta_acumulada", "Total_Tarjeta_de_Credito_Liquidos",
+        "Venta_GPL", "Venta_GNV", "Total_venta_acumulada", "Total_Tarjeta_de_Credito_Liquidos",
         "Total_Tarjeta_de_Credito_GLP", "Total_Tarjeta_de_Credito_GNV", "ErrorMaquina",
         "Recaudo_Cofide_GNV", "Gastos", "Ventas_con_transferencia"
     };
 
     private readonly string[] columnasEscrituraKeys = {
-        "Venta_GLP", "Venta_GNV", "Total_venta_acumulada", "Total_Tarjeta_de_Credito_Liquidos",
+        "Venta_GPL", "Venta_GNV", "Total_venta_acumulada", "Total_Tarjeta_de_Credito_Liquidos",
         "Total_Tarjeta_de_Credito_GLP", "Total_Tarjeta_de_Credito_GNV", "ErrorMaquina",
         "Recaudo_Cofide_GNV", "Gastos", "Ventas_con_transferencia", "DescuentoLiquidos",
         "DescuentoGLP", "Hermes_monto_liquido", "Hermes_monto_GLP", "Hermes_monto_GNV1", "Hermes_monto_GNV2"
@@ -307,7 +312,7 @@
 
     private bool mostrarModalCliente = false;
     private bool isEditingClient = false;
-    private string oldClienteColumna = "";
+    private int editingClienteId = 0;
     private string nuevoClienteColumna = "";
     private string nuevoClienteNombre = "";
 
@@ -318,116 +323,56 @@
 
     private void CargarConfiguracion()
     {
-        grifosConfig = new Dictionary<string, GrifoConfig>(ConfiguracionService.ConfigGlobal.Grifos);
+        grifosList = ConfiguracionService.ObtenerGrifosDB();
+        if (grifoSeleccionado != null)
+        {
+            var fresh = grifosList.Find(g => g.Id == grifoSeleccionado.Id);
+            if (fresh != null)
+            {
+                grifoSeleccionado = fresh;
+            }
+        }
+    }
+
+    private string GetConfigValue(string propName, bool isCol)
+    {
+        if (grifoSeleccionado == null) return "";
+        string dbFieldName = (isCol ? "Col_" : "Fila_") + propName;
+        var prop = typeof(RegistroVentasConfiguracion).GetProperty(dbFieldName);
+        return (prop?.GetValue(grifoSeleccionado.Configuracion) as string) ?? "";
+    }
+
+    private void SetConfigValue(string propName, bool isCol, string val)
+    {
+        if (grifoSeleccionado == null) return;
+        string dbFieldName = (isCol ? "Col_" : "Fila_") + propName;
+        var prop = typeof(RegistroVentasConfiguracion).GetProperty(dbFieldName);
+        prop?.SetValue(grifoSeleccionado.Configuracion, val ?? "");
     }
 
     private void CancelarEdicion()
     {
-        grifoSeleccionadoName = "";
+        CargarConfiguracion();
+        grifoSeleccionado = null;
         ToastService.Success("Edición cancelada.");
     }
 
-    private void SeleccionarGrifo(string name)
+    private void SeleccionarGrifo(int id)
     {
-        grifoSeleccionadoName = name;
-        var config = grifosConfig[name];
-        
-        lecturaConfig = new LecturaConfig
-        {
-            ColumnaFecha = config.Lectura?.ColumnaFecha ?? 14,
-            ColumnaTotales = config.Lectura?.ColumnaTotales ?? 15,
-            ColumnaCreditoNombre = config.Lectura?.ColumnaCreditoNombre ?? 0,
-            ColumnaCreditoMonto = config.Lectura?.ColumnaCreditoMonto ?? 6,
-            ColumnaVariaCombusNombre = config.Lectura?.ColumnaVariaCombusNombre ?? 16,
-            ColumnaVariaCombusMonto = config.Lectura?.ColumnaVariaCombusMonto ?? 18,
-            ColumnaTablaHermes = config.Lectura?.ColumnaTablaHermes ?? 14
-        };
-
-        mapeoFilasTemp = new Dictionary<string, string>();
-        foreach (var key in mapeoFilasKeys)
-        {
-            mapeoFilasTemp[key] = "";
-        }
-
-        if (config.Lectura?.MapeoFilas != null)
-        {
-            foreach (var kvp in config.Lectura.MapeoFilas)
-            {
-                string rowNumber = kvp.Key.Trim();
-                string propName = kvp.Value;
-                if (!string.IsNullOrEmpty(rowNumber) && mapeoFilasTemp.ContainsKey(propName))
-                {
-                    mapeoFilasTemp[propName] = rowNumber;
-                }
-            }
-        }
-
-        columnasEscrituraTemp = new Dictionary<string, string>();
-        foreach (var key in columnasEscrituraKeys)
-        {
-            columnasEscrituraTemp[key] = "";
-        }
-
-        if (config.Escritura?.Columnas != null)
-        {
-            foreach (var kvp in config.Escritura.Columnas)
-            {
-                if (columnasEscrituraTemp.ContainsKey(kvp.Key))
-                {
-                    columnasEscrituraTemp[kvp.Key] = kvp.Value;
-                }
-            }
-        }
-
-        clientesCreditoTemp = config.FilasClientesCreditos != null 
-            ? new Dictionary<string, string>(config.FilasClientesCreditos) 
-            : new Dictionary<string, string>();
+        CargarConfiguracion();
+        grifoSeleccionado = grifosList.Find(g => g.Id == id);
     }
 
     private void GuardarConfiguracion()
     {
-        if (string.IsNullOrEmpty(grifoSeleccionadoName)) return;
-
-        var grifo = grifosConfig[grifoSeleccionadoName];
-        
-        var mapeoFilasOutput = new Dictionary<string, string>();
-        int spaceCount = 0;
-        foreach (var kvp in mapeoFilasTemp)
-        {
-            string rowNumber = kvp.Value?.Trim() ?? "";
-            string propName = kvp.Key;
-            if (!string.IsNullOrEmpty(rowNumber))
-            {
-                mapeoFilasOutput[rowNumber] = propName;
-            }
-            else
-            {
-                string emptyKey = new string(' ', spaceCount);
-                mapeoFilasOutput[emptyKey] = propName;
-                spaceCount++;
-            }
-        }
-
-        lecturaConfig.MapeoFilas = mapeoFilasOutput;
-        grifo.Lectura = lecturaConfig;
-
-        grifo.Escritura ??= new EscrituraConfig();
-        grifo.Escritura.Columnas = new Dictionary<string, string>(columnasEscrituraTemp);
-
-        grifo.FilasClientesCreditos = new Dictionary<string, string>(clientesCreditoTemp);
+        if (grifoSeleccionado == null) return;
 
         try
         {
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            string pathJson = Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\Json\JsonRegistroVentas\", "config_grifos.json"));
-            
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string jsonText = JsonSerializer.Serialize(new { Grifos = grifosConfig }, options);
-            File.WriteAllText(pathJson, jsonText);
-            
-            ConfiguracionService.ConfigGlobal.Grifos = grifosConfig;
-            ToastService.Success($"Configuración de {grifoSeleccionadoName} guardada correctamente.");
-            grifoSeleccionadoName = "";
+            ConfiguracionService.GuardarGrifoCompletoDB(grifoSeleccionado);
+            CargarConfiguracion();
+            ToastService.Success($"Configuración de {grifoSeleccionado.Nombre} guardada correctamente.");
+            grifoSeleccionado = null;
         }
         catch (Exception ex)
         {
@@ -455,54 +400,42 @@
         }
 
         string grifoNameUpper = nuevoGrifoNombre.Trim().ToUpper();
-        if (grifosConfig.ContainsKey(grifoNameUpper))
+        if (grifosList.Exists(g => g.Nombre.Equals(grifoNameUpper, StringComparison.OrdinalIgnoreCase)))
         {
             ToastService.Error("Este grifo ya existe en la configuración.");
             return;
         }
 
-        var nuevoGrifo = new GrifoConfig
+        var nuevoGrifo = new RegistroVentasGrifo
         {
-            Lectura = new LecturaConfig
-            {
-                ColumnaFecha = 14,
-                ColumnaTotales = 15,
-                ColumnaCreditoNombre = 0,
-                ColumnaCreditoMonto = 6,
-                ColumnaVariaCombusNombre = 16,
-                ColumnaVariaCombusMonto = 18,
-                ColumnaTablaHermes = 14,
-                MapeoFilas = new Dictionary<string, string>()
-            },
-            Escritura = new EscrituraConfig
-            {
-                Columnas = new Dictionary<string, string>()
-            },
-            FilasClientesCreditos = new Dictionary<string, string>()
+            Nombre = grifoNameUpper,
+            Configuracion = new RegistroVentasConfiguracion()
         };
 
-        for (int i = 0; i < mapeoFilasKeys.Length; i++)
+        try
         {
-            nuevoGrifo.Lectura.MapeoFilas[new string(' ', i)] = mapeoFilasKeys[i];
+            ConfiguracionService.GuardarGrifoCompletoDB(nuevoGrifo);
+            CargarConfiguracion();
+            mostrarModalNuevoGrifo = false;
+            
+            var created = grifosList.Find(g => g.Nombre.Equals(grifoNameUpper, StringComparison.OrdinalIgnoreCase));
+            if (created != null)
+            {
+                SeleccionarGrifo(created.Id);
+            }
+            ToastService.Success($"Grifo {grifoNameUpper} creado correctamente.");
         }
-
-        foreach (var key in columnasEscrituraKeys)
+        catch (Exception ex)
         {
-            nuevoGrifo.Escritura.Columnas[key] = "";
+            ToastService.Error("Error al crear el grifo: " + ex.Message);
         }
-
-        grifosConfig[grifoNameUpper] = nuevoGrifo;
-        mostrarModalNuevoGrifo = false;
-        
-        SeleccionarGrifo(grifoNameUpper);
-        ToastService.Success($"Grifo {grifoNameUpper} creado correctamente.");
     }
 
     private async Task ConfirmarEliminarGrifo()
     {
-        if (string.IsNullOrEmpty(grifoSeleccionadoName)) return;
+        if (grifoSeleccionado == null) return;
 
-        bool confirm = await JSRuntime.InvokeAsync<bool>("confirm", $"¿Estás seguro de que deseas eliminar permanentemente el grifo {grifoSeleccionadoName}?");
+        bool confirm = await JSRuntime.InvokeAsync<bool>("confirm", $"¿Estás seguro de que deseas eliminar permanentemente el grifo {grifoSeleccionado.Nombre}?");
         if (confirm)
         {
             EliminarGrifoActual();
@@ -511,20 +444,13 @@
 
     private void EliminarGrifoActual()
     {
-        string name = grifoSeleccionadoName;
+        if (grifoSeleccionado == null) return;
+        string name = grifoSeleccionado.Nombre;
         try
         {
-            grifosConfig.Remove(name);
-            grifoSeleccionadoName = "";
-
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            string pathJson = Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\Json\JsonRegistroVentas\", "config_grifos.json"));
-            
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string jsonText = JsonSerializer.Serialize(new { Grifos = grifosConfig }, options);
-            File.WriteAllText(pathJson, jsonText);
-            
-            ConfiguracionService.ConfigGlobal.Grifos = grifosConfig;
+            ConfiguracionService.EliminarGrifoPorIdDB(grifoSeleccionado.Id);
+            CargarConfiguracion();
+            grifoSeleccionado = null;
             ToastService.Success($"El grifo {name} ha sido eliminado.");
         }
         catch (Exception ex)
@@ -541,10 +467,10 @@
         mostrarModalCliente = true;
     }
 
-    private void AbrirModalEditarCliente(string col, string name)
+    private void AbrirModalEditarCliente(int id, string col, string name)
     {
         isEditingClient = true;
-        oldClienteColumna = col;
+        editingClienteId = id;
         nuevoClienteColumna = col;
         nuevoClienteNombre = name;
         mostrarModalCliente = true;
@@ -557,6 +483,8 @@
 
     private void GuardarCliente()
     {
+        if (grifoSeleccionado == null) return;
+
         if (string.IsNullOrWhiteSpace(nuevoClienteColumna) || string.IsNullOrWhiteSpace(nuevoClienteNombre))
         {
             ToastService.Error("Completa todos los campos obligatorios.");
@@ -568,30 +496,37 @@
 
         if (isEditingClient)
         {
-            if (colUpper != oldClienteColumna)
+            var cli = grifoSeleccionado.ClientesCredito.Find(c => c.Id == editingClienteId);
+            if (cli != null)
             {
-                clientesCreditoTemp.Remove(oldClienteColumna);
+                cli.Columna = colUpper;
+                cli.ClienteNombre = nameTrim;
             }
-            clientesCreditoTemp[colUpper] = nameTrim;
             ToastService.Success("Cliente editado temporalmente.");
         }
         else
         {
-            if (clientesCreditoTemp.ContainsKey(colUpper))
+            if (grifoSeleccionado.ClientesCredito.Exists(c => c.Columna.Equals(colUpper, StringComparison.OrdinalIgnoreCase)))
             {
                 ToastService.Error($"La columna {colUpper} ya está asignada a un cliente.");
                 return;
             }
-            clientesCreditoTemp[colUpper] = nameTrim;
+            grifoSeleccionado.ClientesCredito.Add(new RegistroVentasClienteCredito
+            {
+                GrifoId = grifoSeleccionado.Id,
+                Columna = colUpper,
+                ClienteNombre = nameTrim
+            });
             ToastService.Success("Cliente agregado temporalmente.");
         }
 
         mostrarModalCliente = false;
     }
 
-    private void EliminarCliente(string col)
+    private void EliminarCliente(int id)
     {
-        clientesCreditoTemp.Remove(col);
-        ToastService.Success($"Cliente de la columna {col} removido.");
+        if (grifoSeleccionado == null) return;
+        grifoSeleccionado.ClientesCredito.RemoveAll(c => c.Id == id);
+        ToastService.Success("Cliente removido temporalmente.");
     }
 }
