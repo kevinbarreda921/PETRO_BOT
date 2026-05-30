@@ -81,6 +81,7 @@ namespace PETRO_BOT.Services.Services
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     GrifoId INTEGER NOT NULL,
                     ColumnaFecha INTEGER NOT NULL,
+                    FilaFecha INTEGER NOT NULL DEFAULT 3,
                     ColumnaTotales INTEGER NOT NULL,
                     ColumnaCreditoNombre INTEGER NOT NULL,
                     ColumnaCreditoMonto INTEGER NOT NULL,
@@ -246,7 +247,7 @@ namespace PETRO_BOT.Services.Services
                 // 2. Insert or replace Configuration for this GrifoId
                 string insertConfig = @"
                     INSERT INTO REGISTRO_VENTAS_CONFIGURACION (
-                        GrifoId, ColumnaFecha, ColumnaTotales, ColumnaCreditoNombre, 
+                        GrifoId, ColumnaFecha, FilaFecha, ColumnaTotales, ColumnaCreditoNombre, 
                         ColumnaCreditoMonto, ColumnaVariaCombusNombre, ColumnaVariaCombusMonto, ColumnaTablaHermes,
                         -- Rows
                         Fila_Venta_GPL, Fila_Venta_GNV, Fila_Total_venta_acumulada, Fila_Total_Tarjeta_de_Credito_Liquidos,
@@ -259,7 +260,7 @@ namespace PETRO_BOT.Services.Services
                         Col_DescuentoGLP, Col_Hermes_monto_liquido, Col_Hermes_monto_GLP, Col_Hermes_monto_GNV1,
                         Col_Hermes_monto_GNV2
                     ) VALUES (
-                        @GrifoId, @ColumnaFecha, @ColumnaTotales, @ColumnaCreditoNombre, 
+                        @GrifoId, @ColumnaFecha, @FilaFecha, @ColumnaTotales, @ColumnaCreditoNombre, 
                         @ColumnaCreditoMonto, @ColumnaVariaCombusNombre, @ColumnaVariaCombusMonto, @ColumnaTablaHermes,
                         -- Rows
                         @Fila_Venta_GPL, @Fila_Venta_GNV, @Fila_Total_venta_acumulada, @Fila_Total_Tarjeta_de_Credito_Liquidos,
@@ -284,6 +285,7 @@ namespace PETRO_BOT.Services.Services
                 {
                     cmd.Parameters.AddWithValue("@GrifoId", grifoId);
                     cmd.Parameters.AddWithValue("@ColumnaFecha", config.Lectura?.ColumnaFecha ?? 14);
+                    cmd.Parameters.AddWithValue("@FilaFecha", config.Lectura?.FilaFecha ?? 3);
                     cmd.Parameters.AddWithValue("@ColumnaTotales", config.Lectura?.ColumnaTotales ?? 15);
                     cmd.Parameters.AddWithValue("@ColumnaCreditoNombre", config.Lectura?.ColumnaCreditoNombre ?? 0);
                     cmd.Parameters.AddWithValue("@ColumnaCreditoMonto", config.Lectura?.ColumnaCreditoMonto ?? 6);
@@ -445,6 +447,27 @@ namespace PETRO_BOT.Services.Services
                                 alterCmd.ExecuteNonQuery();
                                 Console.WriteLine("Columna 'Plantilla' agregada a REGISTRO_VENTAS_GRIFOS exitosamente.");
                             }
+
+                            // Check if the FilaFecha column exists in REGISTRO_VENTAS_CONFIGURACION
+                            using var colCmd3 = new SqliteCommand("PRAGMA table_info(REGISTRO_VENTAS_CONFIGURACION);", connection);
+                            using var reader3 = colCmd3.ExecuteReader();
+                            bool hasFilaFecha = false;
+                            while (reader3.Read())
+                            {
+                                string colName = reader3.GetString(1);
+                                if (colName.Equals("FilaFecha", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    hasFilaFecha = true;
+                                    break;
+                                }
+                            }
+                            if (!hasFilaFecha)
+                            {
+                                // Alter table to add FilaFecha column dynamically
+                                using var alterCmd = new SqliteCommand("ALTER TABLE REGISTRO_VENTAS_CONFIGURACION ADD COLUMN FilaFecha INTEGER NOT NULL DEFAULT 3;", connection);
+                                alterCmd.ExecuteNonQuery();
+                                Console.WriteLine("Columna 'FilaFecha' agregada a REGISTRO_VENTAS_CONFIGURACION exitosamente.");
+                            }
                         }
                     }
                 }
@@ -494,7 +517,8 @@ namespace PETRO_BOT.Services.Services
                                c.Col_Total_Tarjeta_de_Credito_GLP, c.Col_Total_Tarjeta_de_Credito_GNV, c.Col_ErrorMaquina,
                                c.Col_Recaudo_Cofide_GNV, c.Col_Gastos, c.Col_Ventas_con_transferencia, c.Col_DescuentoLiquidos,
                                c.Col_DescuentoGLP, c.Col_Hermes_monto_liquido, c.Col_Hermes_monto_GLP, c.Col_Hermes_monto_GNV1,
-                               c.Col_Hermes_monto_GNV2
+                               c.Col_Hermes_monto_GNV2,
+                               c.FilaFecha
                         FROM REGISTRO_VENTAS_GRIFOS g
                         INNER JOIN REGISTRO_VENTAS_CONFIGURACION c ON g.Id = c.GrifoId
                         ORDER BY g.Nombre ASC;";
@@ -514,6 +538,7 @@ namespace PETRO_BOT.Services.Services
                                 Lectura = new LecturaConfig
                                 {
                                     ColumnaFecha = reader.GetInt32(2),
+                                    FilaFecha = reader.IsDBNull(35) ? 3 : reader.GetInt32(35),
                                     ColumnaTotales = reader.GetInt32(3),
                                     ColumnaCreditoNombre = reader.GetInt32(4),
                                     ColumnaCreditoMonto = reader.GetInt32(5),
@@ -641,7 +666,8 @@ namespace PETRO_BOT.Services.Services
                                c.Col_Recaudo_Cofide_GNV, c.Col_Gastos, c.Col_Ventas_con_transferencia, c.Col_DescuentoLiquidos,
                                c.Col_DescuentoGLP, c.Col_Hermes_monto_liquido, c.Col_Hermes_monto_GLP, c.Col_Hermes_monto_GNV1,
                                c.Col_Hermes_monto_GNV2,
-                               g.Plantilla
+                               g.Plantilla,
+                               c.FilaFecha
                         FROM REGISTRO_VENTAS_GRIFOS g
                         INNER JOIN REGISTRO_VENTAS_CONFIGURACION c ON g.Id = c.GrifoId
                         ORDER BY g.Nombre ASC;";
@@ -666,6 +692,7 @@ namespace PETRO_BOT.Services.Services
                                     Id = reader.GetInt32(2),
                                     GrifoId = gId,
                                     ColumnaFecha = reader.GetInt32(3),
+                                    FilaFecha = reader.IsDBNull(37) ? 3 : reader.GetInt32(37),
                                     ColumnaTotales = reader.GetInt32(4),
                                     ColumnaCreditoNombre = reader.GetInt32(5),
                                     ColumnaCreditoMonto = reader.GetInt32(6),
@@ -783,7 +810,7 @@ namespace PETRO_BOT.Services.Services
                 // 2. Insert or replace Configuration for this GrifoId
                 string insertConfig = @"
                     INSERT INTO REGISTRO_VENTAS_CONFIGURACION (
-                        GrifoId, ColumnaFecha, ColumnaTotales, ColumnaCreditoNombre, 
+                        GrifoId, ColumnaFecha, FilaFecha, ColumnaTotales, ColumnaCreditoNombre, 
                         ColumnaCreditoMonto, ColumnaVariaCombusNombre, ColumnaVariaCombusMonto, ColumnaTablaHermes,
                         -- Rows
                         Fila_Venta_GPL, Fila_Venta_GNV, Fila_Total_venta_acumulada, Fila_Total_Tarjeta_de_Credito_Liquidos,
@@ -796,7 +823,7 @@ namespace PETRO_BOT.Services.Services
                         Col_DescuentoGLP, Col_Hermes_monto_liquido, Col_Hermes_monto_GLP, Col_Hermes_monto_GNV1,
                         Col_Hermes_monto_GNV2
                     ) VALUES (
-                        @GrifoId, @ColumnaFecha, @ColumnaTotales, @ColumnaCreditoNombre, 
+                        @GrifoId, @ColumnaFecha, @FilaFecha, @ColumnaTotales, @ColumnaCreditoNombre, 
                         @ColumnaCreditoMonto, @ColumnaVariaCombusNombre, @ColumnaVariaCombusMonto, @ColumnaTablaHermes,
                         -- Rows
                         @Fila_Venta_GPL, @Fila_Venta_GNV, @Fila_Total_venta_acumulada, @Fila_Total_Tarjeta_de_Credito_Liquidos,
@@ -821,6 +848,7 @@ namespace PETRO_BOT.Services.Services
                 {
                     cmd.Parameters.AddWithValue("@GrifoId", grifoId);
                     cmd.Parameters.AddWithValue("@ColumnaFecha", c.ColumnaFecha);
+                    cmd.Parameters.AddWithValue("@FilaFecha", c.FilaFecha);
                     cmd.Parameters.AddWithValue("@ColumnaTotales", c.ColumnaTotales);
                     cmd.Parameters.AddWithValue("@ColumnaCreditoNombre", c.ColumnaCreditoNombre);
                     cmd.Parameters.AddWithValue("@ColumnaCreditoMonto", c.ColumnaCreditoMonto);

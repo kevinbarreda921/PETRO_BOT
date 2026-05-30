@@ -103,19 +103,22 @@ namespace PETRO_BOT.Services.Services
 
                         while (reader.Read())
                         {
-                            if (filaActual == 3)
+                            if (filaActual == configGrifo.FilaFecha)
                             {
                                 int colLetraTotales = configGrifo.ColumnaFecha;
-                                var fecha_hoja = reader.GetValue(colLetraTotales);
-                                if (fecha_hoja != null)
+                                if (colLetraTotales >= 0)
                                 {
-                                    if (fecha_hoja is DateTime dt) registro.Dia = dt.ToString("d/MM/yyyy");
-                                    else if (DateTime.TryParse(fecha_hoja.ToString(), out DateTime parsedDate)) registro.Dia = parsedDate.ToString("d/MM/yyyy");
-                                    else
+                                    var fecha_hoja = reader.GetValue(colLetraTotales);
+                                    if (fecha_hoja != null)
                                     {
-                                        string rawFecha = fecha_hoja.ToString() ?? "";
-                                        int indexSpace = rawFecha.IndexOf(" 00:00");
-                                        registro.Dia = indexSpace != -1 ? rawFecha.Substring(0, indexSpace) : rawFecha.Trim();
+                                        if (fecha_hoja is DateTime dt) registro.Dia = dt.ToString("d/MM/yyyy");
+                                        else if (DateTime.TryParse(fecha_hoja.ToString(), out DateTime parsedDate)) registro.Dia = parsedDate.ToString("d/MM/yyyy");
+                                        else
+                                        {
+                                            string rawFecha = fecha_hoja.ToString() ?? "";
+                                            int indexSpace = rawFecha.IndexOf(" 00:00");
+                                            registro.Dia = indexSpace != -1 ? rawFecha.Substring(0, indexSpace) : rawFecha.Trim();
+                                        }
                                     }
                                 }
                             }
@@ -423,19 +426,22 @@ namespace PETRO_BOT.Services.Services
                         string fechaHojaDetectada = "";
                         while (reader.Read())
                         {
-                            if (filaCheck == 3)
+                            if (filaCheck == configGrifo.FilaFecha)
                             {
                                 int colLetraTotales = configGrifo.ColumnaFecha;
-                                var fecha_hoja = reader.GetValue(colLetraTotales);
-                                if (fecha_hoja != null)
+                                if (colLetraTotales >= 0)
                                 {
-                                    if (fecha_hoja is DateTime dt) fechaHojaDetectada = dt.ToString("d/MM/yyyy");
-                                    else if (DateTime.TryParse(fecha_hoja.ToString(), out DateTime parsedDate)) fechaHojaDetectada = parsedDate.ToString("d/MM/yyyy");
-                                    else
+                                    var fecha_hoja = reader.GetValue(colLetraTotales);
+                                    if (fecha_hoja != null)
                                     {
-                                        string rawFecha = fecha_hoja.ToString() ?? "";
-                                        int indexSpace = rawFecha.IndexOf(" 00:00");
-                                        fechaHojaDetectada = indexSpace != -1 ? rawFecha.Substring(0, indexSpace) : rawFecha.Trim();
+                                        if (fecha_hoja is DateTime dt) fechaHojaDetectada = dt.ToString("d/MM/yyyy");
+                                        else if (DateTime.TryParse(fecha_hoja.ToString(), out DateTime parsedDate)) fechaHojaDetectada = parsedDate.ToString("d/MM/yyyy");
+                                        else
+                                        {
+                                            string rawFecha = fecha_hoja.ToString() ?? "";
+                                            int indexSpace = rawFecha.IndexOf(" 00:00");
+                                            fechaHojaDetectada = indexSpace != -1 ? rawFecha.Substring(0, indexSpace) : rawFecha.Trim();
+                                        }
                                     }
                                 }
                                 break;

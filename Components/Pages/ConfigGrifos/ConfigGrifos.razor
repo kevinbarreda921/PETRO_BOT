@@ -126,7 +126,18 @@
                             <div class="config-grid">
                                 <div class="flex flex-col gap-1">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">Columna Fecha</label>
-                                    <input type="number" @bind="grifoSeleccionado.Configuracion.ColumnaFecha" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(grifoSeleccionado.Configuracion.ColumnaFecha >= 0  ? "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;" : "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;")" />
+                                    <div class="relative flex items-center">
+                                        <button @onclick="ActivarSeleccionColumnaFecha" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(grifoSeleccionado.Configuracion.ColumnaFecha >= 0 && grifoSeleccionado.Configuracion.FilaFecha >= 1 ? "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;" : "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;")">
+                                            <span>@(grifoSeleccionado.Configuracion.ColumnaFecha >= 0 && grifoSeleccionado.Configuracion.FilaFecha >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaFecha) + grifoSeleccionado.Configuracion.FilaFecha + " (Col: " + grifoSeleccionado.Configuracion.ColumnaFecha + ", Fila: " + grifoSeleccionado.Configuracion.FilaFecha + ")" : "Sin Valor")</span>
+                                            <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        </button>
+                                        @if (grifoSeleccionado.Configuracion.ColumnaFecha >= 0 && grifoSeleccionado.Configuracion.FilaFecha >= 1)
+                                        {
+                                            <button @onclick="LimpiarColumnaFecha" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            </button>
+                                        }
+                                    </div>
                                 </div>
                                 <div class="flex flex-col gap-1">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">Columna Totales</label>
@@ -341,6 +352,29 @@
 
             <!-- Modal Body (Excel-like Grid) -->
             <div class="p-6 overflow-hidden bg-slate-50/50 flex-1 flex flex-col">
+                @if (campoSeleccionandoModal == "ColumnaFecha")
+                {
+                    <div class="mb-4 bg-emerald-55 border border-emerald-200/80 rounded-2xl p-4 flex items-center justify-between shadow-sm animate-modal-in" style="background-color: #f0fdf4;">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 border border-emerald-200 animate-pulse">
+                                <span class="text-emerald-755 text-xs font-black">●</span>
+                            </div>
+                            <div>
+                                <span class="text-[9px] font-black text-emerald-800 uppercase tracking-widest block">Modo Selección Activo</span>
+                                <span class="text-[10px] text-emerald-650 font-bold block mt-0.5">Haga clic sobre una celda para establecerla como "Columna/Fila Fecha".</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button @onclick="() => SeleccionarCeldaDesdePlantilla(-1, -1)" type="button" class="px-3.5 py-2 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm select-none">
+                                Eliminar Valor / Sin Asignar
+                            </button>
+                            <button @onclick="CerrarModalVerPlantilla" type="button" class="px-3.5 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm select-none">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                }
+
                 @if (plantillaExcelFilas == null || !plantillaExcelFilas.Any())
                 {
                     <div class="py-24 flex flex-col items-center justify-center gap-3">
@@ -379,10 +413,39 @@
                                             </td>
                                             @for (int c = 0; c < maxColCount; c++)
                                             {
-                                                var cellValue = c < rowData.Count ? rowData[c] : "";
-                                                <td class="px-3 py-1.5 text-xs text-slate-650 border-r border-slate-200 font-medium truncate min-w-[120px] max-w-[240px] hover:overflow-visible hover:whitespace-normal" title="@cellValue">
-                                                    @cellValue
-                                                </td>
+                                                var localCol = c;
+                                                var cellValue = localCol < rowData.Count ? rowData[localCol] : "";
+                                                if (campoSeleccionandoModal == "ColumnaFecha")
+                                                {
+                                                    var localRow = r;
+                                                    var esSeleccionado = (localCol == grifoSeleccionado?.Configuracion.ColumnaFecha && localRow == (grifoSeleccionado?.Configuracion.FilaFecha - 1));
+                                                    <td @onclick="() => SeleccionarCeldaDesdePlantilla(localRow, localCol)"
+                                                        class="px-3 py-1.5 text-xs border-r font-black transition-all select-none cursor-pointer text-center relative overflow-visible @(esSeleccionado ? "bg-[#0f172a] text-white border border-solid border-[#0f172a] shadow-lg scale-[1.02] z-10 cell-selected" : "bg-emerald-50/45 text-emerald-800 hover:bg-emerald-100/70 border border-dashed border-emerald-200/50 hover:border-emerald-500 hover:scale-[1.01]")"
+                                                        title="Haga clic para seleccionar esta celda como Fecha (Fila y Columna)">
+                                                        @if (esSeleccionado)
+                                                        {
+                                                            <div class="relative w-full h-full flex items-center justify-center overflow-visible">
+                                                                <span>@cellValue</span>
+                                                                <div class="absolute bottom-full left-1/2 px-2.5 py-1 bg-[#0f172a] text-white text-[9px] font-black uppercase tracking-wider rounded-lg shadow-xl z-[9999] whitespace-nowrap pointer-events-none select-none flex items-center gap-1 border border-slate-700 premium-tooltip-breath">
+                                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                                                    <span>Celda Fecha (@(GetExcelColumnName(localCol))@(localRow + 1))</span>
+                                                                    <!-- Down Arrow -->
+                                                                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-[5px] border-solid border-transparent border-t-[#0f172a]"></div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            @cellValue
+                                                        }
+                                                    </td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="px-3 py-1.5 text-xs text-slate-650 border-r border-slate-200 font-medium truncate min-w-[120px] max-w-[240px] hover:overflow-visible hover:whitespace-normal" title="@cellValue">
+                                                        @cellValue
+                                                    </td>
+                                                }
                                             }
                                         </tr>
                                     }
@@ -419,6 +482,32 @@
         text-transform: uppercase !important;
         display: block !important;
         max-width: 100% !important;
+    }
+    @@keyframes pulse-breath {
+        0%, 100% {
+            opacity: 0.20;
+            transform: translate(-50%, -6px) scale(0.95);
+        }
+        50% {
+            opacity: 1;
+            transform: translate(-50%, -20px) scale(1.02);
+        }
+    }
+    .premium-tooltip-breath {
+        animation: pulse-breath 2.5s ease-in-out infinite !important;
+    }
+    
+    /* Interactive hover cell styles with minimalist border animation */
+    table tbody tr td:not(:first-child) {
+        position: relative !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    table tbody tr td:not(:first-child):not(.cell-selected):hover {
+        box-shadow: inset 0 0 0 2px #0f172a !important;
+        background-color: rgba(15, 23, 42, 0.03) !important;
+        color: #0f172a !important;
+        transform: scale(1.015) !important;
+        z-index: 5 !important;
     }
 </style>
 
@@ -800,10 +889,56 @@
         }
     }
 
+    private string campoSeleccionandoModal = "";
+
+    private void ActivarSeleccionColumnaFecha()
+    {
+        if (grifoSeleccionado == null) return;
+        if (string.IsNullOrWhiteSpace(grifoSeleccionado.Plantilla))
+        {
+            ToastService.Error("Carga primero un archivo de plantilla Excel para poder seleccionar visualmente.");
+            return;
+        }
+
+        campoSeleccionandoModal = "ColumnaFecha";
+        AbrirModalVerPlantilla();
+    }
+
+    private void LimpiarColumnaFecha()
+    {
+        if (grifoSeleccionado == null) return;
+        grifoSeleccionado.Configuracion.ColumnaFecha = -1; // -1 represents empty/no value
+        grifoSeleccionado.Configuracion.FilaFecha = -1;    // -1 represents empty/no value
+        ToastService.Success("Celda Fecha removida (sin asignar). Recuerda Guardar los cambios.");
+    }
+
+    private void SeleccionarCeldaDesdePlantilla(int rowIndex, int colIndex)
+    {
+        if (grifoSeleccionado == null) return;
+
+        if (campoSeleccionandoModal == "ColumnaFecha")
+        {
+            grifoSeleccionado.Configuracion.ColumnaFecha = colIndex;
+            grifoSeleccionado.Configuracion.FilaFecha = rowIndex + 1; // 1-based index
+            if (colIndex >= 0 && rowIndex >= 0)
+            {
+                string colLetter = GetExcelColumnName(colIndex);
+                int rowNum = rowIndex + 1;
+                ToastService.Success($"Celda de Fecha establecida en {colLetter}{rowNum} (Columna: {colIndex}, Fila: {rowNum}). Recuerda Guardar los cambios.");
+            }
+            else
+            {
+                ToastService.Success("Celda de Fecha establecida sin valor. Recuerda Guardar los cambios.");
+            }
+            CerrarModalVerPlantilla();
+        }
+    }
+
     private void CerrarModalVerPlantilla()
     {
         mostrarModalVerPlantilla = false;
         plantillaExcelFilas.Clear();
+        campoSeleccionandoModal = "";
     }
 
     private string GetExcelColumnName(int columnNumber)

@@ -17,6 +17,7 @@ namespace PETRO_BOT.Models.Configuracion
     public class LecturaConfig
     {
         public int ColumnaFecha { get; set; } = 14;
+        public int FilaFecha { get; set; } = 3;
         public int ColumnaTotales { get; set; } = 15;
         public int ColumnaCreditoNombre { get; set; } = 0;
         public int ColumnaCreditoMonto { get; set; } = 6;
@@ -47,6 +48,7 @@ namespace PETRO_BOT.Models.Configuracion
         
         // Reading general columns
         public int ColumnaFecha { get; set; } = 14;
+        public int FilaFecha { get; set; } = 3;
         public int ColumnaTotales { get; set; } = 15;
         public int ColumnaCreditoNombre { get; set; } = 0;
         public int ColumnaCreditoMonto { get; set; } = 6;
