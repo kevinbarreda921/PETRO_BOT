@@ -117,7 +117,7 @@ namespace PETRO_BOT.Services.Services
                 }
                 else
                 {
-                    LoggerService.Error(grifoObjetivo, archivo, $"El cliente '{nombreLimpio}' no existe en la configuración JSON");
+                    LoggerService.Error(grifoObjetivo, archivo, $"El cliente '{nombreLimpio}' no existe en la configuración de la Base de Datos");
                 }
             }
         }

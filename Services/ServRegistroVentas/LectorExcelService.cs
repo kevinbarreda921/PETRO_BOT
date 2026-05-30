@@ -34,7 +34,8 @@ namespace PETRO_BOT.Services.Services
                 .Where(p => p.CanWrite)
                 .ToDictionary(p => p.Name, p => p, StringComparer.Ordinal);
 
-            var listadoClavesGrifos = ConfiguracionService.ConfigGlobal.Grifos.Keys.ToList();
+            var grifosList = ConfiguracionService.ObtenerGrifosDB();
+            var listadoClavesGrifos = grifosList.Select(g => g.Nombre).ToList();
 
             Parallel.ForEach(archivos, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, (ruta) =>
             {
@@ -54,14 +55,31 @@ namespace PETRO_BOT.Services.Services
                     
                     nombreGrifoDetectadoStr = nombreGrifoDetectado;
 
-                    var configGrifoRoot = ConfiguracionService.ConfigGlobal.Grifos[nombreGrifoDetectado];
-                    var configGrifo = configGrifoRoot.Lectura;
+                    var grifoDB = grifosList.FirstOrDefault(g => g.Nombre.Equals(nombreGrifoDetectado, StringComparison.OrdinalIgnoreCase));
+                    if (grifoDB == null) return;
 
-                    if (configGrifo == null) return;
+                    var configGrifo = grifoDB.Configuracion;
 
-                    var filasDeseadas = new HashSet<int>(configGrifo.MapeoFilas.Keys
-                        .Where(k => int.TryParse(k, out _))
-                        .Select(int.Parse));
+                    var mapeoFilas = new Dictionary<int, string>();
+                    void AddFila(string filaStr, string propName)
+                    {
+                        if (int.TryParse(filaStr, out int filaNum) && filaNum > 0)
+                        {
+                            mapeoFilas[filaNum] = propName;
+                        }
+                    }
+                    AddFila(configGrifo.Fila_Venta_GPL, "Venta_GPL");
+                    AddFila(configGrifo.Fila_Venta_GNV, "Venta_GNV");
+                    AddFila(configGrifo.Fila_Total_venta_acumulada, "Total_venta_acumulada");
+                    AddFila(configGrifo.Fila_Total_Tarjeta_de_Credito_Liquidos, "Total_Tarjeta_de_Credito_Liquidos");
+                    AddFila(configGrifo.Fila_Total_Tarjeta_de_Credito_GLP, "Total_Tarjeta_de_Credito_GLP");
+                    AddFila(configGrifo.Fila_Total_Tarjeta_de_Credito_GNV, "Total_Tarjeta_de_Credito_GNV");
+                    AddFila(configGrifo.Fila_ErrorMaquina, "ErrorMaquina");
+                    AddFila(configGrifo.Fila_Recaudo_Cofide_GNV, "Recaudo_Cofide_GNV");
+                    AddFila(configGrifo.Fila_Gastos, "Gastos");
+                    AddFila(configGrifo.Fila_Ventas_con_transferencia, "Ventas_con_transferencia");
+
+                    var filasDeseadas = new HashSet<int>(mapeoFilas.Keys);
 
                     ArchivoGrifo nuevoGrifo = new ArchivoGrifo(nombreGrifoDetectado, Path.GetFileName(ruta));
 
@@ -115,7 +133,7 @@ namespace PETRO_BOT.Services.Services
                                     decimal.TryParse(cleanStr, out numValor);
                                 }
 
-                                if (configGrifo.MapeoFilas.TryGetValue(filaActual.ToString(), out string? nombrePropiedad))
+                                if (mapeoFilas.TryGetValue(filaActual, out string? nombrePropiedad))
                                 {
                                     if (cachePropiedades.TryGetValue(nombrePropiedad, out PropertyInfo? propiedad))
                                     {
@@ -345,7 +363,8 @@ namespace PETRO_BOT.Services.Services
                 .Where(p => p.CanWrite)
                 .ToDictionary(p => p.Name, p => p, StringComparer.Ordinal);
 
-            var listadoClavesGrifos = ConfiguracionService.ConfigGlobal.Grifos.Keys.ToList();
+            var grifosList = ConfiguracionService.ObtenerGrifosDB();
+            var listadoClavesGrifos = grifosList.Select(g => g.Nombre).ToList();
 
             Parallel.ForEach(archivos, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, (ruta) =>
             {
@@ -365,14 +384,31 @@ namespace PETRO_BOT.Services.Services
                     
                     nombreGrifoDetectadoStr = nombreGrifoDetectado;
 
-                    var configGrifoRoot = ConfiguracionService.ConfigGlobal.Grifos[nombreGrifoDetectado];
-                    var configGrifo = configGrifoRoot.Lectura;
+                    var grifoDB = grifosList.FirstOrDefault(g => g.Nombre.Equals(nombreGrifoDetectado, StringComparison.OrdinalIgnoreCase));
+                    if (grifoDB == null) return;
 
-                    if (configGrifo == null) return;
+                    var configGrifo = grifoDB.Configuracion;
 
-                    var filasDeseadas = new HashSet<int>(configGrifo.MapeoFilas.Keys
-                        .Where(k => int.TryParse(k, out _))
-                        .Select(int.Parse));
+                    var mapeoFilas = new Dictionary<int, string>();
+                    void AddFila(string filaStr, string propName)
+                    {
+                        if (int.TryParse(filaStr, out int filaNum) && filaNum > 0)
+                        {
+                            mapeoFilas[filaNum] = propName;
+                        }
+                    }
+                    AddFila(configGrifo.Fila_Venta_GPL, "Venta_GPL");
+                    AddFila(configGrifo.Fila_Venta_GNV, "Venta_GNV");
+                    AddFila(configGrifo.Fila_Total_venta_acumulada, "Total_venta_acumulada");
+                    AddFila(configGrifo.Fila_Total_Tarjeta_de_Credito_Liquidos, "Total_Tarjeta_de_Credito_Liquidos");
+                    AddFila(configGrifo.Fila_Total_Tarjeta_de_Credito_GLP, "Total_Tarjeta_de_Credito_GLP");
+                    AddFila(configGrifo.Fila_Total_Tarjeta_de_Credito_GNV, "Total_Tarjeta_de_Credito_GNV");
+                    AddFila(configGrifo.Fila_ErrorMaquina, "ErrorMaquina");
+                    AddFila(configGrifo.Fila_Recaudo_Cofide_GNV, "Recaudo_Cofide_GNV");
+                    AddFila(configGrifo.Fila_Gastos, "Gastos");
+                    AddFila(configGrifo.Fila_Ventas_con_transferencia, "Ventas_con_transferencia");
+
+                    var filasDeseadas = new HashSet<int>(mapeoFilas.Keys);
 
                     using var stream = new FileStream(ruta, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, FileOptions.SequentialScan);
                     using var reader = ExcelReaderFactory.CreateOpenXmlReader(stream);
@@ -441,7 +477,7 @@ namespace PETRO_BOT.Services.Services
                                         decimal.TryParse(cleanStr, out numValor);
                                     }
 
-                                    if (configGrifo.MapeoFilas.TryGetValue(filaActual.ToString(), out string? nombrePropiedad))
+                                    if (mapeoFilas.TryGetValue(filaActual, out string? nombrePropiedad))
                                     {
                                         if (cachePropiedades.TryGetValue(nombrePropiedad, out PropertyInfo? propiedad))
                                         {
