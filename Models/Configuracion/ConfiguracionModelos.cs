@@ -56,29 +56,38 @@ namespace PETRO_BOT.Models.Configuracion
         public int ColumnaVariaCombusMonto { get; set; } = 18;
         public int ColumnaTablaHermes { get; set; } = 14;
 
-        // Reading row mappings
+        // Sequential column and row mapping pairs
+        public string Col_Venta_GPL { get; set; } = "";
         public string Fila_Venta_GPL { get; set; } = "";
+        
+        public string Col_Venta_GNV { get; set; } = "";
         public string Fila_Venta_GNV { get; set; } = "";
+        
+        public string Col_Total_venta_acumulada { get; set; } = "";
         public string Fila_Total_venta_acumulada { get; set; } = "";
+        
+        public string Col_Total_Tarjeta_de_Credito_Liquidos { get; set; } = "";
         public string Fila_Total_Tarjeta_de_Credito_Liquidos { get; set; } = "";
+        
+        public string Col_Total_Tarjeta_de_Credito_GLP { get; set; } = "";
         public string Fila_Total_Tarjeta_de_Credito_GLP { get; set; } = "";
+        
+        public string Col_Total_Tarjeta_de_Credito_GNV { get; set; } = "";
         public string Fila_Total_Tarjeta_de_Credito_GNV { get; set; } = "";
+        
+        public string Col_ErrorMaquina { get; set; } = "";
         public string Fila_ErrorMaquina { get; set; } = "";
+        
+        public string Col_Recaudo_Cofide_GNV { get; set; } = "";
         public string Fila_Recaudo_Cofide_GNV { get; set; } = "";
+        
+        public string Col_Gastos { get; set; } = "";
         public string Fila_Gastos { get; set; } = "";
+        
+        public string Col_Ventas_con_transferencia { get; set; } = "";
         public string Fila_Ventas_con_transferencia { get; set; } = "";
 
-        // Writing column mappings
-        public string Col_Venta_GPL { get; set; } = "";
-        public string Col_Venta_GNV { get; set; } = "";
-        public string Col_Total_venta_acumulada { get; set; } = "";
-        public string Col_Total_Tarjeta_de_Credito_Liquidos { get; set; } = "";
-        public string Col_Total_Tarjeta_de_Credito_GLP { get; set; } = "";
-        public string Col_Total_Tarjeta_de_Credito_GNV { get; set; } = "";
-        public string Col_ErrorMaquina { get; set; } = "";
-        public string Col_Recaudo_Cofide_GNV { get; set; } = "";
-        public string Col_Gastos { get; set; } = "";
-        public string Col_Ventas_con_transferencia { get; set; } = "";
+        // Writing only columns
         public string Col_DescuentoLiquidos { get; set; } = "";
         public string Col_DescuentoGLP { get; set; } = "";
         public string Col_Hermes_monto_liquido { get; set; } = "";

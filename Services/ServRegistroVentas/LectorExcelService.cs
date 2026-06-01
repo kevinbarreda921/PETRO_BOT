@@ -60,12 +60,31 @@ namespace PETRO_BOT.Services.Services
 
                     var configGrifo = grifoDB.Configuracion;
 
-                    var mapeoFilas = new Dictionary<int, string>();
-                    void AddFila(string filaStr, string propName)
+                    var mapeoFilas = new Dictionary<int, (string PropName, int ColIndex)>();
+                    void AddFila(string coordStr, string propName)
                     {
-                        if (int.TryParse(filaStr, out int filaNum) && filaNum > 0)
+                        if (string.IsNullOrWhiteSpace(coordStr)) return;
+                        
+                        int rowNum = -1;
+                        int colNum = configGrifo.ColumnaTotales;
+                        
+                        if (coordStr.Contains(","))
                         {
-                            mapeoFilas[filaNum] = propName;
+                            var parts = coordStr.Split(',');
+                            if (parts.Length == 2 && int.TryParse(parts[0], out int c) && int.TryParse(parts[1], out int r))
+                            {
+                                colNum = c;
+                                rowNum = r;
+                            }
+                        }
+                        else if (int.TryParse(coordStr, out int r))
+                        {
+                            rowNum = r;
+                        }
+                        
+                        if (rowNum > 0)
+                        {
+                            mapeoFilas[rowNum] = (propName, colNum);
                         }
                     }
                     AddFila(configGrifo.Fila_Venta_GPL, "Venta_GPL");
@@ -125,10 +144,10 @@ namespace PETRO_BOT.Services.Services
 
                             if (filaActual > 129) break;
 
-                            if (filasDeseadas.Contains(filaActual))
+                            if (mapeoFilas.TryGetValue(filaActual, out var mapping))
                             {
-                                int colLetraTotales = configGrifo.ColumnaTotales;
-                                var valor = reader.GetValue(colLetraTotales);
+                                int colNum = mapping.ColIndex;
+                                var valor = colNum >= 0 ? reader.GetValue(colNum) : null;
                                 decimal numValor = 0;
                                 if (valor != null)
                                 {
@@ -136,12 +155,9 @@ namespace PETRO_BOT.Services.Services
                                     decimal.TryParse(cleanStr, out numValor);
                                 }
 
-                                if (mapeoFilas.TryGetValue(filaActual, out string? nombrePropiedad))
+                                if (cachePropiedades.TryGetValue(mapping.PropName, out PropertyInfo? propiedad))
                                 {
-                                    if (cachePropiedades.TryGetValue(nombrePropiedad, out PropertyInfo? propiedad))
-                                    {
-                                        propiedad.SetValue(registro, numValor);
-                                    }
+                                    propiedad.SetValue(registro, numValor);
                                 }
                             }
 
@@ -392,12 +408,31 @@ namespace PETRO_BOT.Services.Services
 
                     var configGrifo = grifoDB.Configuracion;
 
-                    var mapeoFilas = new Dictionary<int, string>();
-                    void AddFila(string filaStr, string propName)
+                    var mapeoFilas = new Dictionary<int, (string PropName, int ColIndex)>();
+                    void AddFila(string coordStr, string propName)
                     {
-                        if (int.TryParse(filaStr, out int filaNum) && filaNum > 0)
+                        if (string.IsNullOrWhiteSpace(coordStr)) return;
+                        
+                        int rowNum = -1;
+                        int colNum = configGrifo.ColumnaTotales;
+                        
+                        if (coordStr.Contains(","))
                         {
-                            mapeoFilas[filaNum] = propName;
+                            var parts = coordStr.Split(',');
+                            if (parts.Length == 2 && int.TryParse(parts[0], out int c) && int.TryParse(parts[1], out int r))
+                            {
+                                colNum = c;
+                                rowNum = r;
+                            }
+                        }
+                        else if (int.TryParse(coordStr, out int r))
+                        {
+                            rowNum = r;
+                        }
+                        
+                        if (rowNum > 0)
+                        {
+                            mapeoFilas[rowNum] = (propName, colNum);
                         }
                     }
                     AddFila(configGrifo.Fila_Venta_GPL, "Venta_GPL");
@@ -472,10 +507,10 @@ namespace PETRO_BOT.Services.Services
                             {
                                 if (filaActual > 129) break;
 
-                                if (filasDeseadas.Contains(filaActual))
+                                if (mapeoFilas.TryGetValue(filaActual, out var mapping))
                                 {
-                                    int colLetraTotales = configGrifo.ColumnaTotales;
-                                    var valor = reader.GetValue(colLetraTotales);
+                                    int colNum = mapping.ColIndex;
+                                    var valor = colNum >= 0 ? reader.GetValue(colNum) : null;
                                     decimal numValor = 0;
                                     if (valor != null)
                                     {
@@ -483,12 +518,9 @@ namespace PETRO_BOT.Services.Services
                                         decimal.TryParse(cleanStr, out numValor);
                                     }
 
-                                    if (mapeoFilas.TryGetValue(filaActual, out string? nombrePropiedad))
+                                    if (cachePropiedades.TryGetValue(mapping.PropName, out PropertyInfo? propiedad))
                                     {
-                                        if (cachePropiedades.TryGetValue(nombrePropiedad, out PropertyInfo? propiedad))
-                                        {
-                                            propiedad.SetValue(registro, numValor);
-                                        }
+                                        propiedad.SetValue(registro, numValor);
                                     }
                                 }
 

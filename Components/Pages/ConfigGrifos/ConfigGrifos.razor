@@ -160,12 +160,18 @@
                                 {
                                     <div class="flex flex-col gap-1">
                                         <label class="text-[8px] font-black text-slate-500 uppercase truncate" title="@prop">@prop</label>
-                                        <input type="text" 
-                                               value="@GetConfigValue(prop, false)" 
-                                               @onchange="@(e => SetConfigValue(prop, false, e.Value?.ToString() ?? ""))" 
-                                               class="w-full rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none transition-all duration-300" 
-                                               style="text-align: center; border-width: 1px; border-style: solid; @(string.IsNullOrWhiteSpace(GetConfigValue(prop, false)) ? "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;" : "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;")" 
-                                               placeholder="N/A" />
+                                        <div class="relative flex items-center">
+                                            <button @onclick="() => ActivarSeleccionFila(prop)" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(!string.IsNullOrWhiteSpace(GetConfigValue(prop, false)) ? "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;" : "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;")">
+                                                <span>@GetConfigLabel(prop, false)</span>
+                                                <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                            </button>
+                                            @if (!string.IsNullOrWhiteSpace(GetConfigValue(prop, false)))
+                                            {
+                                                <button @onclick="() => LimpiarFila(prop)" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                </button>
+                                            }
+                                        </div>
                                     </div>
                                 }
                             </div>
@@ -374,6 +380,28 @@
                         </div>
                     </div>
                 }
+                else if (mapeoFilasKeys.Contains(campoSeleccionandoModal))
+                {
+                    <div class="mb-4 bg-emerald-55 border border-emerald-200/80 rounded-2xl p-4 flex items-center justify-between shadow-sm animate-modal-in" style="background-color: #f0fdf4;">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 border border-emerald-200 animate-pulse">
+                                <span class="text-emerald-755 text-xs font-black">●</span>
+                            </div>
+                            <div>
+                                <span class="text-[9px] font-black text-emerald-800 uppercase tracking-widest block">Modo Selección de Fila Activo</span>
+                                <span class="text-[10px] text-emerald-650 font-bold block mt-0.5">Haga clic sobre cualquier celda de la fila deseada para establecerla como Fila de <strong>@campoSeleccionandoModal</strong>.</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button @onclick="() => SeleccionarCeldaFilaDesdePlantilla(-1, -1)" type="button" class="px-3.5 py-2 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm select-none">
+                                Eliminar Valor / Sin Asignar
+                            </button>
+                            <button @onclick="CerrarModalVerPlantilla" type="button" class="px-3.5 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm select-none">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                }
 
                 @if (plantillaExcelFilas == null || !plantillaExcelFilas.Any())
                 {
@@ -429,6 +457,44 @@
                                                                 <div class="absolute bottom-full left-1/2 px-2.5 py-1 bg-[#0f172a] text-white text-[9px] font-black uppercase tracking-wider rounded-lg shadow-xl z-[9999] whitespace-nowrap pointer-events-none select-none flex items-center gap-1 border border-slate-700 premium-tooltip-breath">
                                                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                                                     <span>Celda Fecha (@(GetExcelColumnName(localCol))@(localRow + 1))</span>
+                                                                    <!-- Down Arrow -->
+                                                                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-[5px] border-solid border-transparent border-t-[#0f172a]"></div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            @cellValue
+                                                        }
+                                                    </td>
+                                                }
+                                                else if (mapeoFilasKeys.Contains(campoSeleccionandoModal))
+                                                {
+                                                    var localRow = r;
+                                                    bool esSeleccionado = false;
+                                                    string currentVal = GetConfigValue(campoSeleccionandoModal, false);
+                                                    if (currentVal.Contains(","))
+                                                    {
+                                                        var parts = currentVal.Split(',');
+                                                        if (parts.Length == 2 && int.TryParse(parts[0], out int savedCol) && int.TryParse(parts[1], out int savedRow))
+                                                        {
+                                                            esSeleccionado = (localRow == (savedRow - 1) && localCol == savedCol);
+                                                        }
+                                                    }
+                                                    else if (int.TryParse(currentVal, out int savedRow))
+                                                    {
+                                                        esSeleccionado = (localRow == (savedRow - 1) && localCol == (grifoSeleccionado?.Configuracion.ColumnaTotales ?? 15));
+                                                    }
+                                                    <td @onclick="() => SeleccionarCeldaFilaDesdePlantilla(localRow, localCol)"
+                                                        class="px-3 py-1.5 text-xs border-r font-black transition-all select-none cursor-pointer text-center relative overflow-visible @(esSeleccionado ? "bg-[#0f172a] text-white border border-solid border-[#0f172a] shadow-lg scale-[1.02] z-10 cell-selected" : "bg-emerald-50/45 text-emerald-800 hover:bg-emerald-100/70 border border-dashed border-emerald-200/50 hover:border-emerald-500 hover:scale-[1.01]")"
+                                                        title="Haga clic para seleccionar esta celda para @campoSeleccionandoModal">
+                                                        @if (esSeleccionado)
+                                                        {
+                                                            <div class="relative w-full h-full flex items-center justify-center overflow-visible">
+                                                                <span>@cellValue</span>
+                                                                <div class="absolute bottom-full left-1/2 px-2.5 py-1 bg-[#0f172a] text-white text-[9px] font-black uppercase tracking-wider rounded-lg shadow-xl z-[9999] whitespace-nowrap pointer-events-none select-none flex items-center gap-1 border border-slate-700 premium-tooltip-breath">
+                                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                                                    <span>Celda @(GetExcelColumnName(localCol))@(localRow + 1) (@campoSeleccionandoModal)</span>
                                                                     <!-- Down Arrow -->
                                                                     <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-[5px] border-solid border-transparent border-t-[#0f172a]"></div>
                                                                 </div>
@@ -568,6 +634,41 @@
         string dbFieldName = (isCol ? "Col_" : "Fila_") + propName;
         var prop = typeof(RegistroVentasConfiguracion).GetProperty(dbFieldName);
         return (prop?.GetValue(grifoSeleccionado.Configuracion) as string) ?? "";
+    }
+
+    private string GetConfigLabel(string propName, bool isCol)
+    {
+        string val = GetConfigValue(propName, isCol);
+        if (string.IsNullOrWhiteSpace(val)) return "Sin Valor";
+        
+        if (!isCol) // Row configurations
+        {
+            int colIndex = grifoSeleccionado?.Configuracion.ColumnaTotales ?? 15;
+            int rowIndex = -1;
+            
+            if (val.Contains(","))
+            {
+                var parts = val.Split(',');
+                if (parts.Length == 2 && int.TryParse(parts[0], out int c) && int.TryParse(parts[1], out int r))
+                {
+                    colIndex = c;
+                    rowIndex = r;
+                }
+            }
+            else if (int.TryParse(val, out int r))
+            {
+                rowIndex = r;
+            }
+            
+            if (colIndex >= 0 && rowIndex >= 1)
+            {
+                string colLetter = GetExcelColumnName(colIndex);
+                return $"{colLetter}{rowIndex} (Col: {colIndex}, Fila: {rowIndex})";
+            }
+            
+            return $"Fila {val}"; // legacy fallback
+        }
+        return val; // columns
     }
 
     private void SetConfigValue(string propName, bool isCol, string val)
@@ -929,6 +1030,47 @@
             else
             {
                 ToastService.Success("Celda de Fecha establecida sin valor. Recuerda Guardar los cambios.");
+            }
+            CerrarModalVerPlantilla();
+        }
+    }
+
+    private void ActivarSeleccionFila(string propName)
+    {
+        if (grifoSeleccionado == null) return;
+        if (string.IsNullOrWhiteSpace(grifoSeleccionado.Plantilla))
+        {
+            ToastService.Error("Carga primero un archivo de plantilla Excel para poder seleccionar visualmente.");
+            return;
+        }
+
+        campoSeleccionandoModal = propName;
+        AbrirModalVerPlantilla();
+    }
+
+    private void LimpiarFila(string propName)
+    {
+        if (grifoSeleccionado == null) return;
+        SetConfigValue(propName, false, "");
+        ToastService.Success($"Fila para {propName} removida. Recuerda Guardar los cambios.");
+    }
+
+    private void SeleccionarCeldaFilaDesdePlantilla(int rowIndex, int colIndex)
+    {
+        if (grifoSeleccionado == null || string.IsNullOrWhiteSpace(campoSeleccionandoModal)) return;
+
+        if (mapeoFilasKeys.Contains(campoSeleccionandoModal))
+        {
+            if (rowIndex >= 0)
+            {
+                int rowNum = rowIndex + 1;
+                SetConfigValue(campoSeleccionandoModal, false, rowNum.ToString());
+                ToastService.Success($"Fila para {campoSeleccionandoModal} establecida en la Fila {rowNum}. Recuerda Guardar los cambios.");
+            }
+            else
+            {
+                SetConfigValue(campoSeleccionandoModal, false, "");
+                ToastService.Success($"Fila para {campoSeleccionandoModal} desasignada. Recuerda Guardar los cambios.");
             }
             CerrarModalVerPlantilla();
         }
