@@ -216,6 +216,53 @@ namespace PETRO_BOT.Services.Services
             return "";
         }
 
+        private static string GetExcelColumnName(int columnNumber)
+        {
+            if (columnNumber < 0) return "";
+            int dividend = columnNumber + 1;
+            string columnName = string.Empty;
+            int modulo;
+
+            while (dividend > 0)
+            {
+                modulo = (dividend - 1) % 26;
+                columnName = Convert.ToChar(65 + modulo).ToString() + columnName;
+                dividend = (int)((dividend - modulo) / 26);
+            }
+
+            return columnName;
+        }
+
+        private static int GetExcelColumnIndex(string columnName)
+        {
+            if (string.IsNullOrEmpty(columnName)) return -1;
+            columnName = columnName.Trim().ToUpper();
+            
+            if (int.TryParse(columnName, out int val))
+            {
+                return val;
+            }
+
+            int index = 0;
+            for (int i = 0; i < columnName.Length; i++)
+            {
+                char c = columnName[i];
+                if (c < 'A' || c > 'Z') return -1;
+                index *= 26;
+                index += (c - 'A' + 1);
+            }
+            return index - 1;
+        }
+
+        private static int ParseColumnDbValue(object dbValue, int defaultValue = -1)
+        {
+            if (dbValue == null || dbValue == DBNull.Value) return defaultValue;
+            string strVal = dbValue.ToString() ?? "";
+            if (string.IsNullOrWhiteSpace(strVal)) return defaultValue;
+            if (int.TryParse(strVal, out int val)) return val;
+            return GetExcelColumnIndex(strVal);
+        }
+
         private static void GuardarGrifoConfigInterno(string nombreGrifo, GrifoConfig config, SqliteConnection connection)
         {
             nombreGrifo = nombreGrifo.Trim().ToUpper();
@@ -298,14 +345,14 @@ namespace PETRO_BOT.Services.Services
                 using (var cmd = new SqliteCommand(insertConfig, connection, transaction))
                 {
                     cmd.Parameters.AddWithValue("@GrifoId", grifoId);
-                    cmd.Parameters.AddWithValue("@ColumnaFecha", config.Lectura?.ColumnaFecha ?? 14);
+                    cmd.Parameters.AddWithValue("@ColumnaFecha", GetExcelColumnName(config.Lectura?.ColumnaFecha ?? 14));
                     cmd.Parameters.AddWithValue("@FilaFecha", config.Lectura?.FilaFecha ?? 3);
-                    cmd.Parameters.AddWithValue("@ColumnaTotales", config.Lectura?.ColumnaTotales ?? 15);
-                    cmd.Parameters.AddWithValue("@ColumnaCreditoNombre", config.Lectura?.ColumnaCreditoNombre ?? 0);
-                    cmd.Parameters.AddWithValue("@ColumnaCreditoMonto", config.Lectura?.ColumnaCreditoMonto ?? 6);
-                    cmd.Parameters.AddWithValue("@ColumnaVariaCombusNombre", config.Lectura?.ColumnaVariaCombusNombre ?? 16);
-                    cmd.Parameters.AddWithValue("@ColumnaVariaCombusMonto", config.Lectura?.ColumnaVariaCombusMonto ?? 18);
-                    cmd.Parameters.AddWithValue("@ColumnaTablaHermes", config.Lectura?.ColumnaTablaHermes ?? 14);
+                    cmd.Parameters.AddWithValue("@ColumnaTotales", GetExcelColumnName(config.Lectura?.ColumnaTotales ?? 15));
+                    cmd.Parameters.AddWithValue("@ColumnaCreditoNombre", GetExcelColumnName(config.Lectura?.ColumnaCreditoNombre ?? 0));
+                    cmd.Parameters.AddWithValue("@ColumnaCreditoMonto", GetExcelColumnName(config.Lectura?.ColumnaCreditoMonto ?? 6));
+                    cmd.Parameters.AddWithValue("@ColumnaVariaCombusNombre", GetExcelColumnName(config.Lectura?.ColumnaVariaCombusNombre ?? 16));
+                    cmd.Parameters.AddWithValue("@ColumnaVariaCombusMonto", GetExcelColumnName(config.Lectura?.ColumnaVariaCombusMonto ?? 18));
+                    cmd.Parameters.AddWithValue("@ColumnaTablaHermes", GetExcelColumnName(config.Lectura?.ColumnaTablaHermes ?? 14));
                     
                     var m = config.Lectura?.MapeoFilas;
                     var c = config.Escritura?.Columnas;
@@ -555,14 +602,14 @@ namespace PETRO_BOT.Services.Services
                             {
                                 Lectura = new LecturaConfig
                                 {
-                                    ColumnaFecha = reader.GetInt32(2),
+                                    ColumnaFecha = ParseColumnDbValue(reader.GetValue(2), 14),
                                     FilaFecha = reader.IsDBNull(9) ? 3 : reader.GetInt32(9),
-                                    ColumnaTotales = reader.GetInt32(3),
-                                    ColumnaCreditoNombre = reader.GetInt32(4),
-                                    ColumnaCreditoMonto = reader.GetInt32(5),
-                                    ColumnaVariaCombusNombre = reader.GetInt32(6),
-                                    ColumnaVariaCombusMonto = reader.GetInt32(7),
-                                    ColumnaTablaHermes = reader.GetInt32(8),
+                                    ColumnaTotales = ParseColumnDbValue(reader.GetValue(3), 15),
+                                    ColumnaCreditoNombre = ParseColumnDbValue(reader.GetValue(4), 0),
+                                    ColumnaCreditoMonto = ParseColumnDbValue(reader.GetValue(5), 6),
+                                    ColumnaVariaCombusNombre = ParseColumnDbValue(reader.GetValue(6), 16),
+                                    ColumnaVariaCombusMonto = ParseColumnDbValue(reader.GetValue(7), 18),
+                                    ColumnaTablaHermes = ParseColumnDbValue(reader.GetValue(8), 14),
                                     MapeoFilas = new Dictionary<string, string>()
                                 },
                                 Escritura = new EscrituraConfig
@@ -713,14 +760,14 @@ namespace PETRO_BOT.Services.Services
                                 {
                                     Id = reader.GetInt32(2),
                                     GrifoId = gId,
-                                    ColumnaFecha = reader.GetInt32(3),
+                                    ColumnaFecha = ParseColumnDbValue(reader.GetValue(3), 14),
                                     FilaFecha = reader.IsDBNull(10) ? 3 : reader.GetInt32(10),
-                                    ColumnaTotales = reader.GetInt32(4),
-                                    ColumnaCreditoNombre = reader.GetInt32(5),
-                                    ColumnaCreditoMonto = reader.GetInt32(6),
-                                    ColumnaVariaCombusNombre = reader.GetInt32(7),
-                                    ColumnaVariaCombusMonto = reader.GetInt32(8),
-                                    ColumnaTablaHermes = reader.GetInt32(9),
+                                    ColumnaTotales = ParseColumnDbValue(reader.GetValue(4), 15),
+                                    ColumnaCreditoNombre = ParseColumnDbValue(reader.GetValue(5), 0),
+                                    ColumnaCreditoMonto = ParseColumnDbValue(reader.GetValue(6), 6),
+                                    ColumnaVariaCombusNombre = ParseColumnDbValue(reader.GetValue(7), 16),
+                                    ColumnaVariaCombusMonto = ParseColumnDbValue(reader.GetValue(8), 18),
+                                    ColumnaTablaHermes = ParseColumnDbValue(reader.GetValue(9), 14),
                                     
                                     // Sequential column and row mapping pairs
                                     Col_Venta_GPL = reader.IsDBNull(11) ? "" : reader.GetString(11),
@@ -883,14 +930,14 @@ namespace PETRO_BOT.Services.Services
                 using (var cmd = new SqliteCommand(insertConfig, connection, transaction))
                 {
                     cmd.Parameters.AddWithValue("@GrifoId", grifoId);
-                    cmd.Parameters.AddWithValue("@ColumnaFecha", c.ColumnaFecha);
+                    cmd.Parameters.AddWithValue("@ColumnaFecha", GetExcelColumnName(c.ColumnaFecha));
                     cmd.Parameters.AddWithValue("@FilaFecha", c.FilaFecha);
-                    cmd.Parameters.AddWithValue("@ColumnaTotales", c.ColumnaTotales);
-                    cmd.Parameters.AddWithValue("@ColumnaCreditoNombre", c.ColumnaCreditoNombre);
-                    cmd.Parameters.AddWithValue("@ColumnaCreditoMonto", c.ColumnaCreditoMonto);
-                    cmd.Parameters.AddWithValue("@ColumnaVariaCombusNombre", c.ColumnaVariaCombusNombre);
-                    cmd.Parameters.AddWithValue("@ColumnaVariaCombusMonto", c.ColumnaVariaCombusMonto);
-                    cmd.Parameters.AddWithValue("@ColumnaTablaHermes", c.ColumnaTablaHermes);
+                    cmd.Parameters.AddWithValue("@ColumnaTotales", GetExcelColumnName(c.ColumnaTotales));
+                    cmd.Parameters.AddWithValue("@ColumnaCreditoNombre", GetExcelColumnName(c.ColumnaCreditoNombre));
+                    cmd.Parameters.AddWithValue("@ColumnaCreditoMonto", GetExcelColumnName(c.ColumnaCreditoMonto));
+                    cmd.Parameters.AddWithValue("@ColumnaVariaCombusNombre", GetExcelColumnName(c.ColumnaVariaCombusNombre));
+                    cmd.Parameters.AddWithValue("@ColumnaVariaCombusMonto", GetExcelColumnName(c.ColumnaVariaCombusMonto));
+                    cmd.Parameters.AddWithValue("@ColumnaTablaHermes", GetExcelColumnName(c.ColumnaTablaHermes));
                     
                     cmd.Parameters.AddWithValue("@Col_Venta_GPL", c.Col_Venta_GPL ?? "");
                     cmd.Parameters.AddWithValue("@Fila_Venta_GPL", c.Fila_Venta_GPL ?? "");
