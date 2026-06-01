@@ -76,45 +76,40 @@
                 else
                 {
                     <!-- Active Edit Board form -->
-                    <div class="flex flex-col gap-6">
+                    <div class="flex flex-col gap-6 flex-1 min-h-0">
                         
-                                        <!-- Header and action bar -->
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-150 pb-4 gap-4">
-                            <div class="flex flex-col gap-1">
-                                <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Nombre del Grifo</label>
-                                <input type="text" @bind="grifoSeleccionado.Nombre" class="text-xs font-black text-slate-900 uppercase tracking-wider border border-slate-200 rounded-xl px-3 py-1.5 outline-none focus:border-slate-450 focus:bg-white bg-slate-50 w-full sm:w-60 transition-all font-bold" />
+                                        <!-- Header and action bar in ONE row -->
+                        <div class="flex flex-col md:flex-row flex-wrap md:items-center justify-between border-b border-slate-150 pb-4 gap-3 w-full">
+                            <!-- Left: Nombre del Grifo Inline -->
+                            <div class="flex items-center gap-2 shrink-0 justify-center md:justify-start w-full md:w-auto">
+                                <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest shrink-0">Grifo:</label>
+                                <input type="text" @bind="grifoSeleccionado.Nombre" class="text-xs font-black text-slate-900 uppercase tracking-wider border border-slate-200 rounded-xl px-3 py-1.5 outline-none focus:border-slate-450 focus:bg-white bg-slate-50 w-32 sm:w-40 transition-all font-bold shrink-0" />
                             </div>
-                            <div class="flex items-center gap-2">
-                                <InputFile id="fileUpload" OnChange="CargarPlantillaArchivo" accept=".xlsx" class="hidden" />
-                                <label for="fileUpload" class="px-3.5 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer flex items-center justify-center gap-1.5 shadow-sm">
-                                    <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                    <span>Cargar de plantilla</span>
-                                </label>
-                                <button @onclick="ConfirmarEliminarGrifo" class="px-3.5 py-2 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer">Eliminar</button>
-                                <button @onclick="CancelarEdicion" class="px-3.5 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-55 hover:text-slate-950 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer">Cancelar</button>
-                                <button @onclick="GuardarConfiguracion" class="px-4.5 py-2 bg-[#0f172a] text-white hover:bg-slate-800 rounded-xl text-[9px] font-black uppercase tracking-wider shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all select-none cursor-pointer">Guardar</button>
-                            </div>
-                        </div>
 
-                        <!-- Panel: Plantilla de Excel -->
-                        <div class="bg-slate-50 border border-slate-200 rounded-[20px] p-5 shadow-sm">
-                            <h4 class="text-[9px] font-black text-slate-800 uppercase tracking-[0.15em] border-b border-slate-200 pb-2 mb-4 flex items-center gap-2">
-                                <span class="w-1.5 h-3 bg-emerald-500 rounded-full"></span> Plantilla de Importación
-                            </h4>
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div class="flex-1 flex flex-col gap-1.5">
-                                    <label class="text-[8px] font-black text-slate-500 uppercase tracking-wider">Archivo de Plantilla cargado</label>
-                                    <div class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 font-bold flex items-center gap-2 shadow-sm">
-                                        <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                        <span class="truncate">@(string.IsNullOrWhiteSpace(grifoSeleccionado.Plantilla) ? "Ninguna plantilla cargada" : grifoSeleccionado.Plantilla)</span>
-                                    </div>
-                                </div>
-                                <div class="flex items-end">
-                                    <button @onclick="AbrirModalVerPlantilla" disabled="@(string.IsNullOrWhiteSpace(grifoSeleccionado.Plantilla))" class="px-4 py-2.5 bg-[#0f172a] hover:bg-slate-800 text-white disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer flex items-center gap-1.5 shadow-sm">
-                                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                        <span>Ver Plantilla</span>
+                            <!-- Middle: Plantilla compact pill -->
+                            <div class="flex flex-row items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl p-1 px-3 shadow-sm min-w-0 max-w-full sm:max-w-md w-full md:w-auto justify-center md:justify-start md:ml-auto">
+                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0"></span>
+                                <span class="text-[10px] font-bold text-slate-700 truncate max-w-[80px] sm:max-w-[200px]" title="@grifoSeleccionado.Plantilla">
+                                    @(string.IsNullOrWhiteSpace(grifoSeleccionado.Plantilla) ? "Ninguna cargada" : grifoSeleccionado.Plantilla)
+                                </span>
+                                <div class="flex items-center gap-1 shrink-0 ml-1">
+                                    <InputFile id="fileUpload" OnChange="CargarPlantillaArchivo" accept=".xlsx" class="hidden" />
+                                    <label for="fileUpload" class="px-3 py-1.5 bg-[#0f172a] hover:bg-slate-800 text-white rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer flex items-center justify-center gap-1.5 shadow-sm shrink-0">
+                                        <svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                        <span>Cargar</span>
+                                    </label>
+                                    <button @onclick="AbrirModalVerPlantilla" disabled="@(string.IsNullOrWhiteSpace(grifoSeleccionado.Plantilla))" class="px-3 py-1.5 bg-[#0f172a] hover:bg-slate-800 text-white disabled:bg-slate-250 disabled:text-slate-400 disabled:cursor-not-allowed rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer flex items-center justify-center gap-1.5 shadow-sm shrink-0">
+                                        <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        <span>Ver</span>
                                     </button>
                                 </div>
+                            </div>
+
+                            <!-- Right: General buttons -->
+                            <div class="flex flex-row flex-wrap items-center gap-1.5 shrink-0 justify-center w-full md:w-auto">
+                                <button @onclick="ConfirmarEliminarGrifo" class="px-3 py-1.5 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer shrink-0">Eliminar</button>
+                                <button @onclick="CancelarEdicion" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-55 hover:text-slate-950 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer shrink-0">Cancelar</button>
+                                <button @onclick="GuardarConfiguracion" class="px-4 py-1.5 bg-[#0f172a] text-white hover:bg-slate-800 rounded-xl text-[9px] font-black uppercase tracking-wider shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all select-none cursor-pointer shrink-0">Guardar</button>
                             </div>
                         </div>
 
@@ -127,7 +122,7 @@
                                 <div class="flex flex-col gap-1">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">Columna Fecha</label>
                                     <div class="relative flex items-center">
-                                        <button @onclick="ActivarSeleccionColumnaFecha" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(grifoSeleccionado.Configuracion.ColumnaFecha >= 0 && grifoSeleccionado.Configuracion.FilaFecha >= 1 ? "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;" : "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;")">
+                                        <button @onclick="ActivarSeleccionColumnaFecha" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(grifoSeleccionado.Configuracion.ColumnaFecha >= 0 && grifoSeleccionado.Configuracion.FilaFecha >= 1 ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")">
                                             <span>@(grifoSeleccionado.Configuracion.ColumnaFecha >= 0 && grifoSeleccionado.Configuracion.FilaFecha >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaFecha) + grifoSeleccionado.Configuracion.FilaFecha + " (Col: " + grifoSeleccionado.Configuracion.ColumnaFecha + ", Fila: " + grifoSeleccionado.Configuracion.FilaFecha + ")" : "Sin Valor")</span>
                                             <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                         </button>
@@ -141,27 +136,27 @@
                                 </div>
                                 <div class="flex flex-col gap-1">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">Columna Totales</label>
-                                    <input type="number" @bind="grifoSeleccionado.Configuracion.ColumnaTotales" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(grifoSeleccionado.Configuracion.ColumnaTotales >= 0  ? "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;" : "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;")" />
+                                    <input type="number" @bind="grifoSeleccionado.Configuracion.ColumnaTotales" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(grifoSeleccionado.Configuracion.ColumnaTotales >= 0  ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" />
                                 </div>
                                 <div class="flex flex-col gap-1">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">Columna Crédito Nombre</label>
-                                    <input type="number" @bind="grifoSeleccionado.Configuracion.ColumnaCreditoNombre" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(grifoSeleccionado.Configuracion.ColumnaCreditoNombre >= 0  ? "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;" : "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;")" />
+                                    <input type="number" @bind="grifoSeleccionado.Configuracion.ColumnaCreditoNombre" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(grifoSeleccionado.Configuracion.ColumnaCreditoNombre >= 0  ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" />
                                 </div>
                                 <div class="flex flex-col gap-1">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">Columna Crédito Monto</label>
-                                    <input type="number" @bind="grifoSeleccionado.Configuracion.ColumnaCreditoMonto" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(grifoSeleccionado.Configuracion.ColumnaCreditoMonto >= 0  ? "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;" : "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;")" />
+                                    <input type="number" @bind="grifoSeleccionado.Configuracion.ColumnaCreditoMonto" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(grifoSeleccionado.Configuracion.ColumnaCreditoMonto >= 0  ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" />
                                 </div>
                             </div>
 
                             <!-- Row maps -->
                             <h5 class="text-[8px] font-black text-slate-500 uppercase tracking-widest border-t border-slate-200 pt-4 mt-4 mb-2.5">Mapeo de Filas (Excel)</h5>
-                            <div class="config-grid">
+                            <div class="config-grid-4">
                                 @foreach (var prop in mapeoFilasKeys)
                                 {
                                     <div class="flex flex-col gap-1">
                                         <label class="text-[8px] font-black text-slate-500 uppercase truncate" title="@prop">@prop</label>
                                         <div class="relative flex items-center">
-                                            <button @onclick="() => ActivarSeleccionFila(prop)" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(!string.IsNullOrWhiteSpace(GetConfigValue(prop, false)) ? "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;" : "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;")">
+                                            <button @onclick="() => ActivarSeleccionFila(prop)" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(!string.IsNullOrWhiteSpace(GetConfigValue(prop, false)) ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@GetConfigLabelFull(prop)">
                                                 <span>@GetConfigLabel(prop, false)</span>
                                                 <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                             </button>
@@ -191,7 +186,7 @@
                                                value="@GetConfigValue(col, true)" 
                                                @onchange="@(e => SetConfigValue(col, true, e.Value?.ToString() ?? ""))" 
                                                class="w-full rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none transition-all duration-300" 
-                                               style="text-align: center; border-width: 1px; border-style: solid; @(string.IsNullOrWhiteSpace(GetConfigValue(col, true)) ? "background-color: rgba(244, 63, 94, 0.08) !important; border-color: rgba(244, 63, 94, 0.25) !important; color: #f43f5e !important;" : "background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important; color: #10b981 !important;")" 
+                                               style="text-align: center; border-width: 1px; border-style: solid; @(string.IsNullOrWhiteSpace(GetConfigValue(col, true)) ? "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;" : "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;")" 
                                                placeholder="Columna" />
                                     </div>
                                 }
@@ -199,27 +194,27 @@
                         </div>
 
                         <!-- Panel: Authorized clients -->
-                        <div class="bg-slate-50 border border-slate-200 rounded-[20px] p-5 shadow-sm mb-6">
+                        <div class="bg-slate-50 border border-slate-200 rounded-[20px] p-5 shadow-sm flex flex-col flex-grow flex-1 min-h-[220px] mb-2">
                             <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-3.5">
                                 <h4 class="text-[9px] font-black text-slate-800 uppercase tracking-[0.15em] flex items-center gap-2">
                                     <span class="w-1.5 h-3 bg-[#0f172a] rounded-full"></span> Clientes Autorizados
                                 </h4>
-                                <button @onclick="AbrirModalAgregarCliente" class="bg-[#0f172a] text-white hover:bg-slate-800 px-3.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer">Agregar</button>
+                                <button @onclick="AbrirModalAgregarCliente" class="bg-[#0f172a] hover:bg-slate-800 text-white px-3.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer shadow-sm hover:scale-[1.01] active:scale-[0.98]">Agregar</button>
                             </div>
-                            <div class="overflow-y-auto custom-scrollbar" style="max-height: 220px; padding-right: 4px;">
+                            <div class="overflow-auto custom-scrollbar bg-[#0f172a] border border-slate-800 rounded-2xl px-4 pb-4 pt-0 shadow-lg" style="flex: 1; min-height: 150px; padding-right: 4px;">
                                 <table class="w-full text-left">
-                                    <thead>
-                                        <tr class="text-slate-500 text-[8px] uppercase tracking-wider border-b border-slate-200">
-                                            <th class="pb-2 font-black">Columna</th>
-                                            <th class="pb-2 font-black">Cliente / Razon Social</th>
-                                            <th class="pb-2 font-black text-right pr-4">Acción</th>
+                                    <thead class="sticky top-0 bg-[#0f172a] z-10">
+                                        <tr class="text-xs font-black uppercase tracking-wider border-b border-slate-800" style="color: #ffffff !important;">
+                                            <th class="py-3 bg-[#0f172a]" style="color: #ffffff !important;">Columna</th>
+                                            <th class="py-3 bg-[#0f172a]" style="color: #ffffff !important;">Cliente / Razon Social</th>
+                                            <th class="py-3 text-right pr-4 bg-[#0f172a]" style="color: #ffffff !important;">Acción</th>
                                         </tr>
                                     </thead>
                                     <tbody class="text-xs">
                                         @if (grifoSeleccionado.ClientesCredito == null || !grifoSeleccionado.ClientesCredito.Any())
                                         {
                                             <tr>
-                                                <td colspan="3" class="py-6 text-center text-slate-500 italic font-semibold">Sin clientes registrados.</td>
+                                                <td colspan="3" class="py-6 text-center text-slate-400 italic font-semibold">Sin clientes registrados.</td>
                                             </tr>
                                         }
                                         else
@@ -228,12 +223,18 @@
                                             {
                                                 var col = cliente.Columna;
                                                 var name = cliente.ClienteNombre;
-                                                <tr class="border-b border-slate-200/60 hover:bg-slate-100/60">
-                                                    <td class="py-3 font-bold text-slate-850 font-mono font-black">@col</td>
-                                                    <td class="py-3 text-slate-700 font-bold">@name</td>
+                                                <tr class="border-b border-slate-850 hover:bg-slate-900/40 transition-all duration-200">
+                                                    <td class="py-3 font-bold text-white font-mono font-black">@col</td>
+                                                    <td class="py-3 text-slate-200 font-bold">@name</td>
                                                     <td class="py-3 text-right flex items-center justify-end gap-2 pr-4">
-                                                        <button @onclick="() => AbrirModalEditarCliente(cliente.Id, col, name)" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 hover:text-slate-900 hover:border-slate-350 font-black text-[9px] uppercase select-none cursor-pointer">Editar</button>
-                                                        <button @onclick="() => EliminarCliente(cliente.Id)" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-750 border border-rose-200 font-black text-[9px] uppercase select-none cursor-pointer">Eliminar</button>
+                                                        <button @onclick="() => AbrirModalEditarCliente(cliente.Id, col, name)" class="bg-white hover:bg-slate-100 text-slate-900 text-[9px] font-black uppercase tracking-wider rounded-xl px-2.5 py-1.5 border border-slate-200 shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 cursor-pointer">
+                                                            <svg class="w-3 h-3 text-slate-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                            <span>Editar</span>
+                                                        </button>
+                                                        <button @onclick="() => EliminarCliente(cliente.Id)" class="bg-rose-600 hover:bg-rose-700 text-white text-[9px] font-black uppercase tracking-wider rounded-xl px-2.5 py-1.5 shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 cursor-pointer">
+                                                            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                            <span>Eliminar</span>
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             }
@@ -416,7 +417,7 @@
                     
                     <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white flex-1 flex flex-col">
                         <div class="overflow-auto custom-scrollbar flex-1" style="max-height: calc(90vh - 220px);">
-                            <table class="w-full border-collapse text-left">
+                            <table class="w-full border-collapse text-left excel-preview-table">
                                 <thead>
                                     <tr class="bg-slate-100 select-none">
                                         <!-- Corner cell -->
@@ -549,6 +550,36 @@
         display: block !important;
         max-width: 100% !important;
     }
+    .config-grid-4 {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+    @@media (min-width: 480px) {
+        .config-grid-4 {
+            grid-template-columns: repeat(2, 1fr) !important;
+        }
+    }
+    @@media (min-width: 1100px) {
+        .config-grid-4 {
+            grid-template-columns: repeat(3, 1fr) !important;
+        }
+    }
+    @@media (min-width: 1400px) {
+        .config-grid-4 {
+            grid-template-columns: repeat(4, 1fr) !important;
+        }
+    }
+    .config-grid-4 .flex-col label {
+        font-size: 8px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        text-transform: uppercase !important;
+        display: block !important;
+        max-width: 100% !important;
+    }
     @@keyframes pulse-breath {
         0%, 100% {
             opacity: 0.20;
@@ -563,12 +594,12 @@
         animation: pulse-breath 2.5s ease-in-out infinite !important;
     }
     
-    /* Interactive hover cell styles with minimalist border animation */
-    table tbody tr td:not(:first-child) {
+    /* Interactive hover cell styles with minimalist border animation scoped only to the Excel template preview */
+    .excel-preview-table tbody tr td:not(:first-child) {
         position: relative !important;
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
-    table tbody tr td:not(:first-child):not(.cell-selected):hover {
+    .excel-preview-table tbody tr td:not(:first-child):not(.cell-selected):hover {
         box-shadow: inset 0 0 0 2px #0f172a !important;
         background-color: rgba(15, 23, 42, 0.03) !important;
         color: #0f172a !important;
@@ -663,12 +694,43 @@
             if (colIndex >= 0 && rowIndex >= 1)
             {
                 string colLetter = GetExcelColumnName(colIndex);
-                return $"{colLetter}{rowIndex} (Col: {colIndex}, Fila: {rowIndex})";
+                return $"{colLetter}{rowIndex}";
             }
             
             return $"Fila {val}"; // legacy fallback
         }
         return val; // columns
+    }
+
+    private string GetConfigLabelFull(string propName)
+    {
+        string val = GetConfigValue(propName, false);
+        if (string.IsNullOrWhiteSpace(val)) return "Sin Asignar";
+        
+        int colIndex = grifoSeleccionado?.Configuracion.ColumnaTotales ?? 15;
+        int rowIndex = -1;
+        
+        if (val.Contains(","))
+        {
+            var parts = val.Split(',');
+            if (parts.Length == 2 && int.TryParse(parts[0], out int c) && int.TryParse(parts[1], out int r))
+            {
+                colIndex = c;
+                rowIndex = r;
+            }
+        }
+        else if (int.TryParse(val, out int r))
+        {
+            rowIndex = r;
+        }
+        
+        if (colIndex >= 0 && rowIndex >= 1)
+        {
+            string colLetter = GetExcelColumnName(colIndex);
+            return $"{colLetter}{rowIndex} (Columna: {colIndex}, Fila: {rowIndex})";
+        }
+        
+        return $"Fila {val}";
     }
 
     private void SetConfigValue(string propName, bool isCol, string val)
