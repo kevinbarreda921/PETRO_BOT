@@ -152,7 +152,7 @@ namespace PETRO_BOT.Services.Services
                                 }
                             }
 
-                            if (filaActual > 129) break;
+                            if (filaActual > configGrifo.FilaFinal) break;
 
                             if (mapeoFilas.TryGetValue(filaActual, out var mapping))
                             {
@@ -171,7 +171,7 @@ namespace PETRO_BOT.Services.Services
                                 }
                             }
 
-                            if (!leyendoClientes && flagclientecredito == 0 && filaActual >= 10 && filaActual <= 30)
+                            if (!leyendoClientes && flagclientecredito == 0 && filaActual >= configGrifo.FilaCreditosNombre && filaActual <= configGrifo.FilaCreditosNombre + 10)
                             {
                                 int colLetraCreditoNombre = configGrifo.ColumnaCreditoNombre;
                                 var valorNombre = reader.GetValue(colLetraCreditoNombre);
@@ -525,7 +525,7 @@ namespace PETRO_BOT.Services.Services
 
                             while (reader.Read())
                             {
-                                if (filaActual > 129) break;
+                                if (filaActual > configGrifo.FilaFinal) break;
 
                                 if (mapeoFilas.TryGetValue(filaActual, out var mapping))
                                 {
@@ -544,7 +544,7 @@ namespace PETRO_BOT.Services.Services
                                     }
                                 }
 
-                                if (!leyendoClientes && flagclientecredito == 0 && filaActual >= 10 && filaActual <= 30)
+                                if (!leyendoClientes && flagclientecredito == 0 && filaActual >= configGrifo.FilaCreditosNombre && filaActual <= configGrifo.FilaCreditosNombre + 10)
                                 {
                                     int colLetraCreditoNombre = configGrifo.ColumnaCreditoNombre;
                                     var valorNombre = reader.GetValue(colLetraCreditoNombre);

@@ -23,6 +23,9 @@ namespace PETRO_BOT.Models.Configuracion
         public int ColumnaVariaCombusNombre { get; set; } = 16;
         public int ColumnaVariaCombusMonto { get; set; } = 18;
         public int ColumnaTablaHermes { get; set; } = 14;
+        public int FilaFinal { get; set; } = 129;
+        public int FilaCreditosNombre { get; set; } = 10;
+        public int FilaCreditosMonto { get; set; } = 10;
         public Dictionary<string, string> MapeoFilas { get; set; } = new();
     }
 
@@ -53,6 +56,9 @@ namespace PETRO_BOT.Models.Configuracion
         public int ColumnaVariaCombusNombre { get; set; } = 16;
         public int ColumnaVariaCombusMonto { get; set; } = 18;
         public int ColumnaTablaHermes { get; set; } = 14;
+        public int FilaFinal { get; set; } = 129;
+        public int FilaCreditosNombre { get; set; } = 10;
+        public int FilaCreditosMonto { get; set; } = 10;
 
         // Sequential column and row mapping pairs
         public string Col_Venta_GPL { get; set; } = "";
