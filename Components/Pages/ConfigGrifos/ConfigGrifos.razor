@@ -134,10 +134,7 @@
                                         }
                                     </div>
                                 </div>
-                                <div class="flex flex-col gap-1">
-                                    <label class="text-[8px] font-black text-slate-500 uppercase">Columna Totales</label>
-                                    <input type="number" @bind="grifoSeleccionado.Configuracion.ColumnaTotales" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(grifoSeleccionado.Configuracion.ColumnaTotales >= 0  ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" />
-                                </div>
+
                                 <div class="flex flex-col gap-1">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">Columna Crédito Nombre</label>
                                     <input type="number" @bind="grifoSeleccionado.Configuracion.ColumnaCreditoNombre" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300" style="text-align: center; border-width: 1px; border-style: solid; @(grifoSeleccionado.Configuracion.ColumnaCreditoNombre >= 0  ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" />
@@ -473,18 +470,25 @@
                                                     var localRow = r;
                                                     bool esSeleccionado = false;
                                                     string currentVal = GetConfigValue(campoSeleccionandoModal, false);
-                                                    if (currentVal.Contains(","))
+                                                    string currentCol = GetConfigValue(campoSeleccionandoModal, true);
+                                                    
+                                                    int savedRow = -1;
+                                                    int savedCol = -1;
+                                                    
+                                                    if (!string.IsNullOrWhiteSpace(currentCol) && int.TryParse(currentVal, out savedRow))
+                                                    {
+                                                        savedCol = ConfiguracionService.GetExcelColumnIndex(currentCol);
+                                                        esSeleccionado = (localRow == (savedRow - 1) && localCol == savedCol);
+                                                    }
+                                                    else if (currentVal.Contains(","))
                                                     {
                                                         var parts = currentVal.Split(',');
-                                                        if (parts.Length == 2 && int.TryParse(parts[0], out int savedCol) && int.TryParse(parts[1], out int savedRow))
+                                                        if (parts.Length == 2 && int.TryParse(parts[0], out savedCol) && int.TryParse(parts[1], out savedRow))
                                                         {
                                                             esSeleccionado = (localRow == (savedRow - 1) && localCol == savedCol);
                                                         }
                                                     }
-                                                    else if (int.TryParse(currentVal, out int savedRow))
-                                                    {
-                                                        esSeleccionado = (localRow == (savedRow - 1) && localCol == (grifoSeleccionado?.Configuracion.ColumnaTotales ?? 15));
-                                                    }
+
                                                     <td @onclick="() => SeleccionarCeldaFilaDesdePlantilla(localRow, localCol)"
                                                         class="px-3 py-1.5 text-xs border-r font-black transition-all select-none cursor-pointer text-center relative overflow-visible @(esSeleccionado ? "bg-[#0f172a] text-white border border-solid border-[#0f172a] shadow-lg scale-[1.02] z-10 cell-selected" : "bg-emerald-50/45 text-emerald-800 hover:bg-emerald-100/70 border border-dashed border-emerald-200/50 hover:border-emerald-500 hover:scale-[1.01]")"
                                                         title="Haga clic para seleccionar esta celda para @campoSeleccionandoModal">
@@ -644,6 +648,15 @@
         transform: scale(1.015) !important;
         z-index: 5 !important;
     }
+    
+    /* Spreadsheet style header highlighting on cell hover */
+    .excel-preview-table .header-highlight,
+    .excel-preview-table tbody tr td.header-highlight,
+    .excel-preview-table thead tr th.header-highlight {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+        transition: all 0.12s ease-in-out !important;
+    }
 </style>
 
 @code {
@@ -730,7 +743,7 @@
         
         if (!isCol) // Row configurations
         {
-            int colIndex = grifoSeleccionado?.Configuracion.ColumnaTotales ?? 15;
+            int colIndex = -1;
             int rowIndex = -1;
             
             if (val.Contains(","))
@@ -745,6 +758,15 @@
             else if (int.TryParse(val, out int r))
             {
                 rowIndex = r;
+                string customCol = GetConfigValue(propName, true);
+                if (!string.IsNullOrWhiteSpace(customCol))
+                {
+                    int parsedCol = ConfiguracionService.GetExcelColumnIndex(customCol);
+                    if (parsedCol >= 0)
+                    {
+                        colIndex = parsedCol;
+                    }
+                }
             }
             
             if (colIndex >= 0 && rowIndex >= 1)
@@ -763,7 +785,7 @@
         string val = GetConfigValue(propName, false);
         if (string.IsNullOrWhiteSpace(val)) return "Sin Asignar";
         
-        int colIndex = grifoSeleccionado?.Configuracion.ColumnaTotales ?? 15;
+        int colIndex = -1;
         int rowIndex = -1;
         
         if (val.Contains(","))
@@ -778,6 +800,15 @@
         else if (int.TryParse(val, out int r))
         {
             rowIndex = r;
+            string customCol = GetConfigValue(propName, true);
+            if (!string.IsNullOrWhiteSpace(customCol))
+            {
+                int parsedCol = ConfiguracionService.GetExcelColumnIndex(customCol);
+                if (parsedCol >= 0)
+                {
+                    colIndex = parsedCol;
+                }
+            }
         }
         
         if (colIndex >= 0 && rowIndex >= 1)
@@ -1171,8 +1202,9 @@
     private void LimpiarFila(string propName)
     {
         if (grifoSeleccionado == null) return;
+        SetConfigValue(propName, true, "");
         SetConfigValue(propName, false, "");
-        ToastService.Success($"Fila para {propName} removida. Recuerda Guardar los cambios.");
+        ToastService.Success($"Fila y Columna para {propName} removidas. Recuerda Guardar los cambios.");
     }
 
     private void SeleccionarCeldaFilaDesdePlantilla(int rowIndex, int colIndex)
@@ -1181,14 +1213,17 @@
 
         if (mapeoFilasKeys.Contains(campoSeleccionandoModal))
         {
-            if (rowIndex >= 0)
+            if (rowIndex >= 0 && colIndex >= 0)
             {
                 int rowNum = rowIndex + 1;
+                string colLetter = GetExcelColumnName(colIndex);
+                SetConfigValue(campoSeleccionandoModal, true, colLetter);
                 SetConfigValue(campoSeleccionandoModal, false, rowNum.ToString());
-                ToastService.Success($"Fila para {campoSeleccionandoModal} establecida en la Fila {rowNum}. Recuerda Guardar los cambios.");
+                ToastService.Success($"Fila y Columna para {campoSeleccionandoModal} establecidas en {colLetter}{rowNum}. Recuerda Guardar los cambios.");
             }
             else
             {
+                SetConfigValue(campoSeleccionandoModal, true, "");
                 SetConfigValue(campoSeleccionandoModal, false, "");
                 ToastService.Success($"Fila para {campoSeleccionandoModal} desasignada. Recuerda Guardar los cambios.");
             }

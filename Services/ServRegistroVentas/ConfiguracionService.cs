@@ -82,7 +82,6 @@ namespace PETRO_BOT.Services.Services
                     GrifoId INTEGER NOT NULL,
                     ColumnaFecha INTEGER NOT NULL,
                     FilaFecha INTEGER NOT NULL DEFAULT 3,
-                    ColumnaTotales INTEGER NOT NULL,
                     ColumnaCreditoNombre INTEGER NOT NULL,
                     ColumnaCreditoMonto INTEGER NOT NULL,
                     ColumnaVariaCombusNombre INTEGER NOT NULL,
@@ -216,7 +215,7 @@ namespace PETRO_BOT.Services.Services
             return "";
         }
 
-        private static string GetExcelColumnName(int columnNumber)
+        public static string GetExcelColumnName(int columnNumber)
         {
             if (columnNumber < 0) return "";
             int dividend = columnNumber + 1;
@@ -233,7 +232,7 @@ namespace PETRO_BOT.Services.Services
             return columnName;
         }
 
-        private static int GetExcelColumnIndex(string columnName)
+        public static int GetExcelColumnIndex(string columnName)
         {
             if (string.IsNullOrEmpty(columnName)) return -1;
             columnName = columnName.Trim().ToUpper();
@@ -294,7 +293,7 @@ namespace PETRO_BOT.Services.Services
                 // 2. Insert or replace Configuration for this GrifoId
                 string insertConfig = @"
                     INSERT INTO REGISTRO_VENTAS_CONFIGURACION (
-                        GrifoId, ColumnaFecha, FilaFecha, ColumnaTotales, ColumnaCreditoNombre, 
+                        GrifoId, ColumnaFecha, FilaFecha, ColumnaCreditoNombre, 
                         ColumnaCreditoMonto, ColumnaVariaCombusNombre, ColumnaVariaCombusMonto, ColumnaTablaHermes,
                         
                         -- Sequential column and row mapping pairs
@@ -314,7 +313,7 @@ namespace PETRO_BOT.Services.Services
                         Col_Hermes_monto_liquido, Col_Hermes_monto_GLP,
                         Col_Hermes_monto_GNV1, Col_Hermes_monto_GNV2
                     ) VALUES (
-                        @GrifoId, @ColumnaFecha, @FilaFecha, @ColumnaTotales, @ColumnaCreditoNombre, 
+                        @GrifoId, @ColumnaFecha, @FilaFecha, @ColumnaCreditoNombre, 
                         @ColumnaCreditoMonto, @ColumnaVariaCombusNombre, @ColumnaVariaCombusMonto, @ColumnaTablaHermes,
                         
                         -- Pairs
@@ -347,7 +346,6 @@ namespace PETRO_BOT.Services.Services
                     cmd.Parameters.AddWithValue("@GrifoId", grifoId);
                     cmd.Parameters.AddWithValue("@ColumnaFecha", GetExcelColumnName(config.Lectura?.ColumnaFecha ?? 14));
                     cmd.Parameters.AddWithValue("@FilaFecha", config.Lectura?.FilaFecha ?? 3);
-                    cmd.Parameters.AddWithValue("@ColumnaTotales", GetExcelColumnName(config.Lectura?.ColumnaTotales ?? 15));
                     cmd.Parameters.AddWithValue("@ColumnaCreditoNombre", GetExcelColumnName(config.Lectura?.ColumnaCreditoNombre ?? 0));
                     cmd.Parameters.AddWithValue("@ColumnaCreditoMonto", GetExcelColumnName(config.Lectura?.ColumnaCreditoMonto ?? 6));
                     cmd.Parameters.AddWithValue("@ColumnaVariaCombusNombre", GetExcelColumnName(config.Lectura?.ColumnaVariaCombusNombre ?? 16));
@@ -566,7 +564,7 @@ namespace PETRO_BOT.Services.Services
 
                     // 1. Read all Grifos and their configuration using an INNER JOIN
                     string queryGrifos = @"
-                        SELECT g.Nombre, g.Id, c.ColumnaFecha, c.ColumnaTotales, c.ColumnaCreditoNombre, 
+                        SELECT g.Nombre, g.Id, c.ColumnaFecha, NULL AS ColumnaTotales, c.ColumnaCreditoNombre, 
                                c.ColumnaCreditoMonto, c.ColumnaVariaCombusNombre, c.ColumnaVariaCombusMonto, 
                                c.ColumnaTablaHermes, c.FilaFecha,
                                -- Sequential column and row mapping pairs (10 to 29)
@@ -604,7 +602,6 @@ namespace PETRO_BOT.Services.Services
                                 {
                                     ColumnaFecha = ParseColumnDbValue(reader.GetValue(2), 14),
                                     FilaFecha = reader.IsDBNull(9) ? 3 : reader.GetInt32(9),
-                                    ColumnaTotales = ParseColumnDbValue(reader.GetValue(3), 15),
                                     ColumnaCreditoNombre = ParseColumnDbValue(reader.GetValue(4), 0),
                                     ColumnaCreditoMonto = ParseColumnDbValue(reader.GetValue(5), 6),
                                     ColumnaVariaCombusNombre = ParseColumnDbValue(reader.GetValue(6), 16),
@@ -718,7 +715,7 @@ namespace PETRO_BOT.Services.Services
 
                     // 1. Read all Grifos and their configuration using an INNER JOIN
                     string queryGrifos = @"
-                        SELECT g.Id, g.Nombre, c.Id, c.ColumnaFecha, c.ColumnaTotales, c.ColumnaCreditoNombre, 
+                        SELECT g.Id, g.Nombre, c.Id, c.ColumnaFecha, NULL AS ColumnaTotales, c.ColumnaCreditoNombre, 
                                c.ColumnaCreditoMonto, c.ColumnaVariaCombusNombre, c.ColumnaVariaCombusMonto, 
                                c.ColumnaTablaHermes, c.FilaFecha,
                                -- Sequential column and row mapping pairs (11 to 30)
@@ -762,7 +759,6 @@ namespace PETRO_BOT.Services.Services
                                     GrifoId = gId,
                                     ColumnaFecha = ParseColumnDbValue(reader.GetValue(3), 14),
                                     FilaFecha = reader.IsDBNull(10) ? 3 : reader.GetInt32(10),
-                                    ColumnaTotales = ParseColumnDbValue(reader.GetValue(4), 15),
                                     ColumnaCreditoNombre = ParseColumnDbValue(reader.GetValue(5), 0),
                                     ColumnaCreditoMonto = ParseColumnDbValue(reader.GetValue(6), 6),
                                     ColumnaVariaCombusNombre = ParseColumnDbValue(reader.GetValue(7), 16),
@@ -879,7 +875,7 @@ namespace PETRO_BOT.Services.Services
                 // 2. Insert or replace Configuration for this GrifoId
                 string insertConfig = @"
                     INSERT INTO REGISTRO_VENTAS_CONFIGURACION (
-                        GrifoId, ColumnaFecha, FilaFecha, ColumnaTotales, ColumnaCreditoNombre, 
+                        GrifoId, ColumnaFecha, FilaFecha, ColumnaCreditoNombre, 
                         ColumnaCreditoMonto, ColumnaVariaCombusNombre, ColumnaVariaCombusMonto, ColumnaTablaHermes,
                         
                         -- Sequential column and row mapping pairs
@@ -899,7 +895,7 @@ namespace PETRO_BOT.Services.Services
                         Col_Hermes_monto_liquido, Col_Hermes_monto_GLP,
                         Col_Hermes_monto_GNV1, Col_Hermes_monto_GNV2
                     ) VALUES (
-                        @GrifoId, @ColumnaFecha, @FilaFecha, @ColumnaTotales, @ColumnaCreditoNombre, 
+                        @GrifoId, @ColumnaFecha, @FilaFecha, @ColumnaCreditoNombre, 
                         @ColumnaCreditoMonto, @ColumnaVariaCombusNombre, @ColumnaVariaCombusMonto, @ColumnaTablaHermes,
                         
                         -- Pairs
@@ -932,7 +928,6 @@ namespace PETRO_BOT.Services.Services
                     cmd.Parameters.AddWithValue("@GrifoId", grifoId);
                     cmd.Parameters.AddWithValue("@ColumnaFecha", GetExcelColumnName(c.ColumnaFecha));
                     cmd.Parameters.AddWithValue("@FilaFecha", c.FilaFecha);
-                    cmd.Parameters.AddWithValue("@ColumnaTotales", GetExcelColumnName(c.ColumnaTotales));
                     cmd.Parameters.AddWithValue("@ColumnaCreditoNombre", GetExcelColumnName(c.ColumnaCreditoNombre));
                     cmd.Parameters.AddWithValue("@ColumnaCreditoMonto", GetExcelColumnName(c.ColumnaCreditoMonto));
                     cmd.Parameters.AddWithValue("@ColumnaVariaCombusNombre", GetExcelColumnName(c.ColumnaVariaCombusNombre));

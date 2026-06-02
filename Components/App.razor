@@ -45,6 +45,45 @@
                 });
             }
         };
+
+        // Excel Hover Header and Row Highlighter (Spreadsheet Freeze Panes Helper)
+        document.addEventListener('mouseover', function (e) {
+            const cell = e.target.closest('.excel-preview-table tbody td');
+            if (!cell) return;
+            
+            const cellIndex = cell.cellIndex;
+            if (cellIndex === 0) return; // Ignore first column (row numbers) itself
+            
+            const row = cell.closest('tr');
+            if (!row) return;
+            
+            const table = row.closest('.excel-preview-table');
+            if (!table) return;
+            
+            // 1. Highlight column header (th in thead)
+            const ths = table.querySelectorAll('thead th');
+            if (ths[cellIndex]) {
+                ths[cellIndex].classList.add('header-highlight');
+            }
+            
+            // 2. Highlight row header (first td in tr)
+            const firstCell = row.cells[0];
+            if (firstCell) {
+                firstCell.classList.add('header-highlight');
+            }
+        });
+
+        document.addEventListener('mouseout', function (e) {
+            const cell = e.target.closest('.excel-preview-table tbody td');
+            if (!cell) return;
+            
+            const table = cell.closest('.excel-preview-table');
+            if (!table) return;
+            
+            table.querySelectorAll('.header-highlight').forEach(el => {
+                el.classList.remove('header-highlight');
+            });
+        });
     </script>
 </body>
 

@@ -61,42 +61,52 @@ namespace PETRO_BOT.Services.Services
                     var configGrifo = grifoDB.Configuracion;
 
                     var mapeoFilas = new Dictionary<int, (string PropName, int ColIndex)>();
-                    void AddFila(string coordStr, string propName)
+                    void AddFila(string colStr, string rowStr, string propName)
                     {
-                        if (string.IsNullOrWhiteSpace(coordStr)) return;
+                        if (string.IsNullOrWhiteSpace(rowStr)) return;
                         
                         int rowNum = -1;
-                        int colNum = configGrifo.ColumnaTotales;
+                        int colNum = -1;
                         
-                        if (coordStr.Contains(","))
-                        {
-                            var parts = coordStr.Split(',');
-                            if (parts.Length == 2 && int.TryParse(parts[0], out int c) && int.TryParse(parts[1], out int r))
-                            {
-                                colNum = c;
-                                rowNum = r;
-                            }
-                        }
-                        else if (int.TryParse(coordStr, out int r))
+                        if (int.TryParse(rowStr, out int r))
                         {
                             rowNum = r;
                         }
+                        else if (rowStr.Contains(","))
+                        {
+                            var parts = rowStr.Split(',');
+                            if (parts.Length == 2 && int.TryParse(parts[0], out int c) && int.TryParse(parts[1], out int row))
+                            {
+                                colNum = c;
+                                rowNum = row;
+                            }
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(colStr))
+                        {
+                            int parsedCol = ConfiguracionService.GetExcelColumnIndex(colStr);
+                            if (parsedCol >= 0)
+                            {
+                                colNum = parsedCol;
+                            }
+                        }
                         
-                        if (rowNum > 0)
+
+                        if (rowNum > 0 && colNum >= 0)
                         {
                             mapeoFilas[rowNum] = (propName, colNum);
                         }
                     }
-                    AddFila(configGrifo.Fila_Venta_GPL, "Venta_GPL");
-                    AddFila(configGrifo.Fila_Venta_GNV, "Venta_GNV");
-                    AddFila(configGrifo.Fila_Total_venta_acumulada, "Total_venta_acumulada");
-                    AddFila(configGrifo.Fila_Total_Tarjeta_de_Credito_Liquidos, "Total_Tarjeta_de_Credito_Liquidos");
-                    AddFila(configGrifo.Fila_Total_Tarjeta_de_Credito_GLP, "Total_Tarjeta_de_Credito_GLP");
-                    AddFila(configGrifo.Fila_Total_Tarjeta_de_Credito_GNV, "Total_Tarjeta_de_Credito_GNV");
-                    AddFila(configGrifo.Fila_ErrorMaquina, "ErrorMaquina");
-                    AddFila(configGrifo.Fila_Recaudo_Cofide_GNV, "Recaudo_Cofide_GNV");
-                    AddFila(configGrifo.Fila_Gastos, "Gastos");
-                    AddFila(configGrifo.Fila_Ventas_con_transferencia, "Ventas_con_transferencia");
+                    AddFila(configGrifo.Col_Venta_GPL, configGrifo.Fila_Venta_GPL, "Venta_GPL");
+                    AddFila(configGrifo.Col_Venta_GNV, configGrifo.Fila_Venta_GNV, "Venta_GNV");
+                    AddFila(configGrifo.Col_Total_venta_acumulada, configGrifo.Fila_Total_venta_acumulada, "Total_venta_acumulada");
+                    AddFila(configGrifo.Col_Total_Tarjeta_de_Credito_Liquidos, configGrifo.Fila_Total_Tarjeta_de_Credito_Liquidos, "Total_Tarjeta_de_Credito_Liquidos");
+                    AddFila(configGrifo.Col_Total_Tarjeta_de_Credito_GLP, configGrifo.Fila_Total_Tarjeta_de_Credito_GLP, "Total_Tarjeta_de_Credito_GLP");
+                    AddFila(configGrifo.Col_Total_Tarjeta_de_Credito_GNV, configGrifo.Fila_Total_Tarjeta_de_Credito_GNV, "Total_Tarjeta_de_Credito_GNV");
+                    AddFila(configGrifo.Col_ErrorMaquina, configGrifo.Fila_ErrorMaquina, "ErrorMaquina");
+                    AddFila(configGrifo.Col_Recaudo_Cofide_GNV, configGrifo.Fila_Recaudo_Cofide_GNV, "Recaudo_Cofide_GNV");
+                    AddFila(configGrifo.Col_Gastos, configGrifo.Fila_Gastos, "Gastos");
+                    AddFila(configGrifo.Col_Ventas_con_transferencia, configGrifo.Fila_Ventas_con_transferencia, "Ventas_con_transferencia");
 
                     var filasDeseadas = new HashSet<int>(mapeoFilas.Keys);
 
@@ -409,42 +419,52 @@ namespace PETRO_BOT.Services.Services
                     var configGrifo = grifoDB.Configuracion;
 
                     var mapeoFilas = new Dictionary<int, (string PropName, int ColIndex)>();
-                    void AddFila(string coordStr, string propName)
+                    void AddFila(string colStr, string rowStr, string propName)
                     {
-                        if (string.IsNullOrWhiteSpace(coordStr)) return;
+                        if (string.IsNullOrWhiteSpace(rowStr)) return;
                         
                         int rowNum = -1;
-                        int colNum = configGrifo.ColumnaTotales;
+                        int colNum = -1;
                         
-                        if (coordStr.Contains(","))
-                        {
-                            var parts = coordStr.Split(',');
-                            if (parts.Length == 2 && int.TryParse(parts[0], out int c) && int.TryParse(parts[1], out int r))
-                            {
-                                colNum = c;
-                                rowNum = r;
-                            }
-                        }
-                        else if (int.TryParse(coordStr, out int r))
+                        if (int.TryParse(rowStr, out int r))
                         {
                             rowNum = r;
                         }
+                        else if (rowStr.Contains(","))
+                        {
+                            var parts = rowStr.Split(',');
+                            if (parts.Length == 2 && int.TryParse(parts[0], out int c) && int.TryParse(parts[1], out int row))
+                            {
+                                colNum = c;
+                                rowNum = row;
+                            }
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(colStr))
+                        {
+                            int parsedCol = ConfiguracionService.GetExcelColumnIndex(colStr);
+                            if (parsedCol >= 0)
+                            {
+                                colNum = parsedCol;
+                            }
+                        }
                         
-                        if (rowNum > 0)
+
+                        if (rowNum > 0 && colNum >= 0)
                         {
                             mapeoFilas[rowNum] = (propName, colNum);
                         }
                     }
-                    AddFila(configGrifo.Fila_Venta_GPL, "Venta_GPL");
-                    AddFila(configGrifo.Fila_Venta_GNV, "Venta_GNV");
-                    AddFila(configGrifo.Fila_Total_venta_acumulada, "Total_venta_acumulada");
-                    AddFila(configGrifo.Fila_Total_Tarjeta_de_Credito_Liquidos, "Total_Tarjeta_de_Credito_Liquidos");
-                    AddFila(configGrifo.Fila_Total_Tarjeta_de_Credito_GLP, "Total_Tarjeta_de_Credito_GLP");
-                    AddFila(configGrifo.Fila_Total_Tarjeta_de_Credito_GNV, "Total_Tarjeta_de_Credito_GNV");
-                    AddFila(configGrifo.Fila_ErrorMaquina, "ErrorMaquina");
-                    AddFila(configGrifo.Fila_Recaudo_Cofide_GNV, "Recaudo_Cofide_GNV");
-                    AddFila(configGrifo.Fila_Gastos, "Gastos");
-                    AddFila(configGrifo.Fila_Ventas_con_transferencia, "Ventas_con_transferencia");
+                    AddFila(configGrifo.Col_Venta_GPL, configGrifo.Fila_Venta_GPL, "Venta_GPL");
+                    AddFila(configGrifo.Col_Venta_GNV, configGrifo.Fila_Venta_GNV, "Venta_GNV");
+                    AddFila(configGrifo.Col_Total_venta_acumulada, configGrifo.Fila_Total_venta_acumulada, "Total_venta_acumulada");
+                    AddFila(configGrifo.Col_Total_Tarjeta_de_Credito_Liquidos, configGrifo.Fila_Total_Tarjeta_de_Credito_Liquidos, "Total_Tarjeta_de_Credito_Liquidos");
+                    AddFila(configGrifo.Col_Total_Tarjeta_de_Credito_GLP, configGrifo.Fila_Total_Tarjeta_de_Credito_GLP, "Total_Tarjeta_de_Credito_GLP");
+                    AddFila(configGrifo.Col_Total_Tarjeta_de_Credito_GNV, configGrifo.Fila_Total_Tarjeta_de_Credito_GNV, "Total_Tarjeta_de_Credito_GNV");
+                    AddFila(configGrifo.Col_ErrorMaquina, configGrifo.Fila_ErrorMaquina, "ErrorMaquina");
+                    AddFila(configGrifo.Col_Recaudo_Cofide_GNV, configGrifo.Fila_Recaudo_Cofide_GNV, "Recaudo_Cofide_GNV");
+                    AddFila(configGrifo.Col_Gastos, configGrifo.Fila_Gastos, "Gastos");
+                    AddFila(configGrifo.Col_Ventas_con_transferencia, configGrifo.Fila_Ventas_con_transferencia, "Ventas_con_transferencia");
 
                     var filasDeseadas = new HashSet<int>(mapeoFilas.Keys);
 
