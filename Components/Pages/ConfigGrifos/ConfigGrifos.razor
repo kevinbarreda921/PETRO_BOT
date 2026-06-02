@@ -149,7 +149,6 @@
                             </div>
 
                             <!-- Row maps -->
-                            <h5 class="text-[8px] font-black text-slate-500 uppercase tracking-widest border-t border-slate-200 pt-4 mt-4 mb-2.5">Mapeo de Filas (Excel)</h5>
                             <div class="config-grid-4">
                                 @foreach (var prop in mapeoFilasKeys)
                                 {
@@ -416,7 +415,7 @@
                     var maxColCount = plantillaExcelFilas.Max(r => r.Count);
                     
                     <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white flex-1 flex flex-col">
-                        <div class="overflow-auto custom-scrollbar flex-1" style="max-height: calc(90vh - 220px);">
+                        <div id="excelPreviewContainer" class="overflow-auto custom-scrollbar flex-1" style="max-height: calc(90vh - 220px);">
                             <table class="w-full border-collapse text-left excel-preview-table">
                                 <thead>
                                     <tr class="bg-slate-100 select-none">
@@ -594,6 +593,45 @@
         animation: pulse-breath 2.5s ease-in-out infinite !important;
     }
     
+    /* Excel Table Sticky Headers and Columns (Freeze Panes) */
+    .excel-preview-table {
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+    }
+    
+    /* Sticky Top Headers (A, B, C...) */
+    .excel-preview-table thead tr th {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 20 !important;
+        background-color: #f8fafc !important; /* bg-slate-50 equivalent */
+        border-bottom: 2px solid #cbd5e1 !important; /* border-slate-300 */
+        border-right: 1px solid #cbd5e1 !important;
+    }
+    
+    /* Sticky Left Columns (1, 2, 3...) */
+    .excel-preview-table tbody tr td:first-child {
+        position: sticky !important;
+        left: 0 !important;
+        z-index: 10 !important;
+        background-color: #f1f5f9 !important; /* bg-slate-100 equivalent */
+        border-right: 2px solid #cbd5e1 !important; /* border-slate-300 */
+        border-bottom: 1px solid #e2e8f0 !important;
+        font-weight: 900 !important;
+        color: #475569 !important; /* slate-600 */
+    }
+    
+    /* Sticky Corner Cell (top-left empty header) */
+    .excel-preview-table thead tr th:first-child {
+        position: sticky !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 30 !important; /* highest priority corner cell */
+        background-color: #e2e8f0 !important; /* bg-slate-200 equivalent */
+        border-right: 2px solid #cbd5e1 !important; /* border-slate-300 */
+        border-bottom: 2px solid #cbd5e1 !important;
+    }
+    
     /* Interactive hover cell styles with minimalist border animation scoped only to the Excel template preview */
     .excel-preview-table tbody tr td:not(:first-child) {
         position: relative !important;
@@ -611,6 +649,7 @@
 @code {
     private List<RegistroVentasGrifo> grifosList = new();
     private RegistroVentasGrifo? grifoSeleccionado = null;
+    private bool _shouldScrollSelectedCell = false;
 
     private bool mostrarModalVerPlantilla = false;
     private string plantillaExcelNombre = "";
@@ -644,6 +683,23 @@
     {
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
         CargarConfiguracion();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldScrollSelectedCell)
+        {
+            _shouldScrollSelectedCell = false;
+            await Task.Delay(250); // Give the modal animations and rendering enough time to stabilize
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("scrollSelectedCellIntoView");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error triggering scrollSelectedCellIntoView: " + ex.Message);
+            }
+        }
     }
 
     private void CargarConfiguracion()
@@ -996,6 +1052,7 @@
             }
 
             mostrarModalVerPlantilla = true;
+            _shouldScrollSelectedCell = true;
         }
         catch (Exception ex)
         {
@@ -1045,6 +1102,7 @@
                     }
                 }
             }
+            _shouldScrollSelectedCell = true;
         }
         catch (Exception ex)
         {

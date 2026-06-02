@@ -21,6 +21,31 @@
     <ReconnectModal />
     <script src="@Assets["_framework/blazor.web.js"]"></script>
     <script src="/js/menu/menu.js"></script>
+    <script>
+        window.scrollSelectedCellIntoView = function () {
+            const container = document.getElementById('excelPreviewContainer');
+            const selected = container ? container.querySelector('.cell-selected') : null;
+            if (container && selected) {
+                const containerRect = container.getBoundingClientRect();
+                const selectedRect = selected.getBoundingClientRect();
+                
+                const scrollLeft = container.scrollLeft + (selectedRect.left - containerRect.left) - (containerRect.width / 2) + (selectedRect.width / 2);
+                const scrollTop = container.scrollTop + (selectedRect.top - containerRect.top) - (containerRect.height / 2) + (selectedRect.height / 2);
+                
+                container.scrollTo({
+                    left: scrollLeft,
+                    top: scrollTop,
+                    behavior: 'smooth'
+                });
+            } else if (container) {
+                container.scrollTo({
+                    left: 0,
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+        };
+    </script>
 </body>
 
 </html>
