@@ -519,9 +519,8 @@ namespace PETRO_BOT.Services.Services
                         bool hasNewSequentialColumns = false;
                         while (reader.Read())
                         {
-                            int cid = reader.GetInt32(0);
                             string colName = reader.GetString(1);
-                            if (cid == 10 && colName.Equals("Col_Venta_GPL", StringComparison.OrdinalIgnoreCase))
+                            if (colName.Equals("Col_Venta_GPL", StringComparison.OrdinalIgnoreCase))
                             {
                                 hasNewSequentialColumns = true;
                                 break;
