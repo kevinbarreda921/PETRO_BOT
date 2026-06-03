@@ -174,7 +174,7 @@
                                 @foreach (var prop in mapeoFilasKeys)
                                 {
                                     <div class="flex flex-col gap-1">
-                                        <label class="text-[8px] font-black text-slate-500 uppercase truncate" title="@prop">@prop</label>
+                                        <label class="text-[8px] font-black text-slate-500 uppercase truncate" title="@prop">@GetFriendlyLabel(prop)</label>
                                         <div class="relative flex items-center">
                                             <button @onclick="() => ActivarSeleccionFila(prop)" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(!string.IsNullOrWhiteSpace(GetConfigValue(prop, false)) ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@GetConfigLabelFull(prop)">
                                                 <span>@GetConfigLabel(prop, false)</span>
@@ -218,7 +218,7 @@
                                 @foreach (var col in columnasEscrituraKeys)
                                 {
                                     <div class="flex flex-col gap-1">
-                                        <label class="text-[8px] font-black text-slate-500 uppercase truncate" title="@col">@col</label>
+                                        <label class="text-[8px] font-black text-slate-500 uppercase truncate" title="@col">@GetFriendlyLabel(col)</label>
                                         <input type="text" 
                                                value="@GetConfigValue(col, true)" 
                                                @onchange="@(e => SetConfigValue(col, true, e.Value?.ToString() ?? ""))" 
@@ -693,7 +693,7 @@
 <style>
     .config-grid {
         display: grid !important;
-        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)) !important;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
         gap: 12px !important;
         width: 100% !important;
     }
@@ -708,24 +708,9 @@
     }
     .config-grid-7 {
         display: grid !important;
-        grid-template-columns: 1fr !important;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
         gap: 12px !important;
         width: 100% !important;
-    }
-    @@media (min-width: 480px) {
-        .config-grid-7 {
-            grid-template-columns: repeat(2, 1fr) !important;
-        }
-    }
-    @@media (min-width: 768px) {
-        .config-grid-7 {
-            grid-template-columns: repeat(3, 1fr) !important;
-        }
-    }
-    @@media (min-width: 1024px) {
-        .config-grid-7 {
-            grid-template-columns: repeat(4, 1fr) !important;
-        }
     }
     @@media (min-width: 1400px) {
         .config-grid-7 {
@@ -1182,7 +1167,7 @@
         {
             try
             {
-                string plantillasDir = Path.Combine(env.WebRootPath, "bd", "plantillas");
+                string plantillasDir = Path.Combine(env.WebRootPath, "bd", "RegistroVentas", "Plantillas");
                 if (!Directory.Exists(plantillasDir))
                 {
                     Directory.CreateDirectory(plantillasDir);
@@ -1223,7 +1208,7 @@
         
         try
         {
-            string plantillasDir = Path.Combine(env.WebRootPath, "bd", "plantillas");
+            string plantillasDir = Path.Combine(env.WebRootPath, "bd", "RegistroVentas", "Plantillas");
             string filePath = Path.Combine(plantillasDir, grifoSeleccionado.Plantilla);
             if (!File.Exists(filePath))
             {
@@ -1263,7 +1248,7 @@
 
         try
         {
-            string plantillasDir = Path.Combine(env.WebRootPath, "bd", "plantillas");
+            string plantillasDir = Path.Combine(env.WebRootPath, "bd", "RegistroVentas", "Plantillas");
             string filePath = Path.Combine(plantillasDir, grifoSeleccionado.Plantilla);
 
             plantillaExcelHojaSeleccionada = sheetName;
@@ -1593,5 +1578,33 @@
         }
 
         return columnName;
+    }
+
+    private string GetFriendlyLabel(string propName)
+    {
+        return propName switch
+        {
+            "Venta_GPL" => "Venta GLP",
+            "Venta_GNV" => "Venta GNV",
+            "Total_venta_acumulada" => "Total Acumulado",
+            "Total_Tarjeta_de_Credito_Liquidos" => "Tarjeta Líquidos",
+            "Total_Tarjeta_de_Credito_GLP" => "Tarjeta GLP",
+            "Total_Tarjeta_de_Credito_GNV" => "Tarjeta GNV",
+            "ErrorMaquina" => "Error Máquina",
+            "Recaudo_Cofide_GNV" => "Cofide GNV",
+            "Gastos" => "Gastos",
+            "Ventas_con_transferencia" => "Transferencia",
+            "ColumnaFecha" => "Fecha",
+            "CreditoNombre" => "Crédito Nombre",
+            "CreditoMonto" => "Crédito Monto",
+            "FilaFinal" => "Fila Final",
+            "DescuentoLiquidos" => "Desc. Líquidos",
+            "DescuentoGLP" => "Desc. GLP",
+            "Hermes_monto_liquido" => "Hermes Líquidos",
+            "Hermes_monto_GLP" => "Hermes GLP",
+            "Hermes_monto_GNV1" => "Hermes GNV 1",
+            "Hermes_monto_GNV2" => "Hermes GNV 2",
+            _ => propName.Replace("_", " ")
+        };
     }
 }
