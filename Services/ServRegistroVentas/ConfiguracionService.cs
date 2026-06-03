@@ -29,6 +29,19 @@ namespace PETRO_BOT.Services.Services
             CargarConfiguracion();
         }
 
+        public static string ObtenerWebRootPath(string fallbackWebRoot)
+        {
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            if (baseDir.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}") || 
+                baseDir.Contains($"{Path.AltDirectorySeparatorChar}bin{Path.AltDirectorySeparatorChar}") ||
+                baseDir.EndsWith("bin") || 
+                !Directory.Exists(Path.Combine(baseDir, "wwwroot")))
+            {
+                return Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\wwwroot"));
+            }
+            return fallbackWebRoot;
+        }
+
         private static string GetDatabasePath()
         {
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
@@ -133,9 +146,35 @@ namespace PETRO_BOT.Services.Services
                     FOREIGN KEY (GrifoId) REFERENCES REGISTRO_VENTAS_GRIFOS (Id) ON DELETE CASCADE
                 );";
 
+            string createWriteConfigTable = @"
+                CREATE TABLE IF NOT EXISTS REGISTRO_VENTAS_WRITE (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    GrifoId INTEGER NOT NULL,
+                    NombreHoja TEXT,
+                    FilaSeleccion INTEGER NOT NULL DEFAULT 10,
+                    Venta_GPL TEXT,
+                    Venta_GNV TEXT,
+                    Total_venta_acumulada TEXT,
+                    Total_Tarjeta_de_Credito_Liquidos TEXT,
+                    Total_Tarjeta_de_Credito_GLP TEXT,
+                    Total_Tarjeta_de_Credito_GNV TEXT,
+                    ErrorMaquina TEXT,
+                    Recaudo_Cofide_GNV TEXT,
+                    Gastos TEXT,
+                    Ventas_con_transferencia TEXT,
+                    DescuentoLiquidos TEXT,
+                    DescuentoGLP TEXT,
+                    Hermes_monto_liquido TEXT,
+                    Hermes_monto_GLP TEXT,
+                    Hermes_monto_GNV1 TEXT,
+                    Hermes_monto_GNV2 TEXT,
+                    FOREIGN KEY (GrifoId) REFERENCES REGISTRO_VENTAS_GRIFOS (Id) ON DELETE CASCADE
+                );";
+
             using (var cmd = new SqliteCommand(createGrifosTable, connection)) cmd.ExecuteNonQuery();
             using (var cmd = new SqliteCommand(createConfiguracionTable, connection)) cmd.ExecuteNonQuery();
             using (var cmd = new SqliteCommand(createClientesTable, connection)) cmd.ExecuteNonQuery();
+            using (var cmd = new SqliteCommand(createWriteConfigTable, connection)) cmd.ExecuteNonQuery();
         }
 
         private static void MigrarJsonSiEsNecesario()
@@ -570,6 +609,35 @@ namespace PETRO_BOT.Services.Services
                                     Console.WriteLine("Columna 'FilaCreditosMonto' agregada exitosamente.");
                                 }
                             }
+
+                            // Ensure REGISTRO_VENTAS_WRITE table is created dynamically
+                            using (var cmdWrite = new SqliteCommand(@"
+                                CREATE TABLE IF NOT EXISTS REGISTRO_VENTAS_WRITE (
+                                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                    GrifoId INTEGER NOT NULL,
+                                    NombreHoja TEXT,
+                                    FilaSeleccion INTEGER NOT NULL DEFAULT 10,
+                                    Venta_GPL TEXT,
+                                    Venta_GNV TEXT,
+                                    Total_venta_acumulada TEXT,
+                                    Total_Tarjeta_de_Credito_Liquidos TEXT,
+                                    Total_Tarjeta_de_Credito_GLP TEXT,
+                                    Total_Tarjeta_de_Credito_GNV TEXT,
+                                    ErrorMaquina TEXT,
+                                    Recaudo_Cofide_GNV TEXT,
+                                    Gastos TEXT,
+                                    Ventas_con_transferencia TEXT,
+                                    DescuentoLiquidos TEXT,
+                                    DescuentoGLP TEXT,
+                                    Hermes_monto_liquido TEXT,
+                                    Hermes_monto_GLP TEXT,
+                                    Hermes_monto_GNV1 TEXT,
+                                    Hermes_monto_GNV2 TEXT,
+                                    FOREIGN KEY (GrifoId) REFERENCES REGISTRO_VENTAS_GRIFOS (Id) ON DELETE CASCADE
+                                );", connection))
+                            {
+                                cmdWrite.ExecuteNonQuery();
+                            }
                         }
                     }
                 }
@@ -781,9 +849,16 @@ namespace PETRO_BOT.Services.Services
                                c.Col_Hermes_monto_liquido, c.Col_Hermes_monto_GLP,
                                c.Col_Hermes_monto_GNV1, c.Col_Hermes_monto_GNV2,
                                c.FilaFinal, c.FilaCreditosNombre, c.FilaCreditosMonto,
-                               g.Plantilla
+                               g.Plantilla,
+                               -- REGISTRO_VENTAS_WRITE columns (41 to 60)
+                               w.NombreHoja, w.FilaSeleccion, w.Venta_GPL, w.Venta_GNV, w.Total_venta_acumulada, 
+                               w.Total_Tarjeta_de_Credito_Liquidos, w.Total_Tarjeta_de_Credito_GLP, w.Total_Tarjeta_de_Credito_GNV, 
+                               w.ErrorMaquina, w.Recaudo_Cofide_GNV, w.Gastos, w.Ventas_con_transferencia, 
+                               w.DescuentoLiquidos, w.DescuentoGLP, w.Hermes_monto_liquido, w.Hermes_monto_GLP, 
+                               w.Hermes_monto_GNV1, w.Hermes_monto_GNV2, w.Id
                         FROM REGISTRO_VENTAS_GRIFOS g
                         INNER JOIN REGISTRO_VENTAS_CONFIGURACION c ON g.Id = c.GrifoId
+                        LEFT JOIN REGISTRO_VENTAS_WRITE w ON g.Id = w.GrifoId
                         ORDER BY g.Nombre ASC;";
 
                     var grifoMap = new Dictionary<int, RegistroVentasGrifo>();
@@ -845,6 +920,29 @@ namespace PETRO_BOT.Services.Services
                                     Col_Hermes_monto_GLP = reader.IsDBNull(34) ? "" : reader.GetString(34),
                                     Col_Hermes_monto_GNV1 = reader.IsDBNull(35) ? "" : reader.GetString(35),
                                     Col_Hermes_monto_GNV2 = reader.IsDBNull(36) ? "" : reader.GetString(36)
+                                },
+                                RegistroVentasWrite = new RegistroVentasWriteConfig
+                                {
+                                    GrifoId = gId,
+                                    NombreHoja = reader.IsDBNull(41) ? "" : reader.GetString(41),
+                                    FilaSeleccion = reader.IsDBNull(42) ? 10 : reader.GetInt32(42),
+                                    Venta_GPL = reader.IsDBNull(43) ? "" : reader.GetString(43),
+                                    Venta_GNV = reader.IsDBNull(44) ? "" : reader.GetString(44),
+                                    Total_venta_acumulada = reader.IsDBNull(45) ? "" : reader.GetString(45),
+                                    Total_Tarjeta_de_Credito_Liquidos = reader.IsDBNull(46) ? "" : reader.GetString(46),
+                                    Total_Tarjeta_de_Credito_GLP = reader.IsDBNull(47) ? "" : reader.GetString(47),
+                                    Total_Tarjeta_de_Credito_GNV = reader.IsDBNull(48) ? "" : reader.GetString(48),
+                                    ErrorMaquina = reader.IsDBNull(49) ? "" : reader.GetString(49),
+                                    Recaudo_Cofide_GNV = reader.IsDBNull(50) ? "" : reader.GetString(50),
+                                    Gastos = reader.IsDBNull(51) ? "" : reader.GetString(51),
+                                    Ventas_con_transferencia = reader.IsDBNull(52) ? "" : reader.GetString(52),
+                                    DescuentoLiquidos = reader.IsDBNull(53) ? "" : reader.GetString(53),
+                                    DescuentoGLP = reader.IsDBNull(54) ? "" : reader.GetString(54),
+                                    Hermes_monto_liquido = reader.IsDBNull(55) ? "" : reader.GetString(55),
+                                    Hermes_monto_GLP = reader.IsDBNull(56) ? "" : reader.GetString(56),
+                                    Hermes_monto_GNV1 = reader.IsDBNull(57) ? "" : reader.GetString(57),
+                                    Hermes_monto_GNV2 = reader.IsDBNull(58) ? "" : reader.GetString(58),
+                                    Id = reader.IsDBNull(59) ? 0 : reader.GetInt32(59)
                                 }
                             };
                             grifos.Add(grifo);
@@ -1018,6 +1116,55 @@ namespace PETRO_BOT.Services.Services
                     cmd.Parameters.AddWithValue("@Col_Hermes_monto_GNV1", c.Col_Hermes_monto_GNV1 ?? "");
                     cmd.Parameters.AddWithValue("@Col_Hermes_monto_GNV2", c.Col_Hermes_monto_GNV2 ?? "");
 
+                    cmd.ExecuteNonQuery();
+                }
+
+                // 2.5 Save REGISTRO_VENTAS_WRITE config
+                string insertWriteConfig = @"
+                    INSERT INTO REGISTRO_VENTAS_WRITE (
+                        GrifoId, NombreHoja, FilaSeleccion,
+                        Venta_GPL, Venta_GNV, Total_venta_acumulada,
+                        Total_Tarjeta_de_Credito_Liquidos, Total_Tarjeta_de_Credito_GLP, Total_Tarjeta_de_Credito_GNV,
+                        ErrorMaquina, Recaudo_Cofide_GNV, Gastos, Ventas_con_transferencia,
+                        DescuentoLiquidos, DescuentoGLP, Hermes_monto_liquido, Hermes_monto_GLP,
+                        Hermes_monto_GNV1, Hermes_monto_GNV2
+                    ) VALUES (
+                        @GrifoId, @NombreHoja, @FilaSeleccion,
+                        @Venta_GPL, @Venta_GNV, @Total_venta_acumulada,
+                        @Total_Tarjeta_de_Credito_Liquidos, @Total_Tarjeta_de_Credito_GLP, @Total_Tarjeta_de_Credito_GNV,
+                        @ErrorMaquina, @Recaudo_Cofide_GNV, @Gastos, @Ventas_con_transferencia,
+                        @DescuentoLiquidos, @DescuentoGLP, @Hermes_monto_liquido, @Hermes_monto_GLP,
+                        @Hermes_monto_GNV1, @Hermes_monto_GNV2
+                    );";
+
+                using (var cmd = new SqliteCommand("DELETE FROM REGISTRO_VENTAS_WRITE WHERE GrifoId = @GrifoId;", connection, transaction))
+                {
+                    cmd.Parameters.AddWithValue("@GrifoId", grifoId);
+                    cmd.ExecuteNonQuery();
+                }
+
+                var w = grifo.RegistroVentasWrite ?? new RegistroVentasWriteConfig();
+                using (var cmd = new SqliteCommand(insertWriteConfig, connection, transaction))
+                {
+                    cmd.Parameters.AddWithValue("@GrifoId", grifoId);
+                    cmd.Parameters.AddWithValue("@NombreHoja", w.NombreHoja ?? "");
+                    cmd.Parameters.AddWithValue("@FilaSeleccion", w.FilaSeleccion);
+                    cmd.Parameters.AddWithValue("@Venta_GPL", w.Venta_GPL ?? "");
+                    cmd.Parameters.AddWithValue("@Venta_GNV", w.Venta_GNV ?? "");
+                    cmd.Parameters.AddWithValue("@Total_venta_acumulada", w.Total_venta_acumulada ?? "");
+                    cmd.Parameters.AddWithValue("@Total_Tarjeta_de_Credito_Liquidos", w.Total_Tarjeta_de_Credito_Liquidos ?? "");
+                    cmd.Parameters.AddWithValue("@Total_Tarjeta_de_Credito_GLP", w.Total_Tarjeta_de_Credito_GLP ?? "");
+                    cmd.Parameters.AddWithValue("@Total_Tarjeta_de_Credito_GNV", w.Total_Tarjeta_de_Credito_GNV ?? "");
+                    cmd.Parameters.AddWithValue("@ErrorMaquina", w.ErrorMaquina ?? "");
+                    cmd.Parameters.AddWithValue("@Recaudo_Cofide_GNV", w.Recaudo_Cofide_GNV ?? "");
+                    cmd.Parameters.AddWithValue("@Gastos", w.Gastos ?? "");
+                    cmd.Parameters.AddWithValue("@Ventas_con_transferencia", w.Ventas_con_transferencia ?? "");
+                    cmd.Parameters.AddWithValue("@DescuentoLiquidos", w.DescuentoLiquidos ?? "");
+                    cmd.Parameters.AddWithValue("@DescuentoGLP", w.DescuentoGLP ?? "");
+                    cmd.Parameters.AddWithValue("@Hermes_monto_liquido", w.Hermes_monto_liquido ?? "");
+                    cmd.Parameters.AddWithValue("@Hermes_monto_GLP", w.Hermes_monto_GLP ?? "");
+                    cmd.Parameters.AddWithValue("@Hermes_monto_GNV1", w.Hermes_monto_GNV1 ?? "");
+                    cmd.Parameters.AddWithValue("@Hermes_monto_GNV2", w.Hermes_monto_GNV2 ?? "");
                     cmd.ExecuteNonQuery();
                 }
 

@@ -40,6 +40,7 @@ namespace PETRO_BOT.Models.Configuracion
         public string Nombre { get; set; } = "";
         public string Plantilla { get; set; } = "";
         public RegistroVentasConfiguracion Configuracion { get; set; } = new();
+        public RegistroVentasWriteConfig RegistroVentasWrite { get; set; } = new();
         public List<RegistroVentasClienteCredito> ClientesCredito { get; set; } = new();
     }
 
@@ -106,5 +107,31 @@ namespace PETRO_BOT.Models.Configuracion
         public int GrifoId { get; set; }
         public string Columna { get; set; } = "";
         public string ClienteNombre { get; set; } = "";
+    }
+
+    public class RegistroVentasWriteConfig
+    {
+        public int Id { get; set; }
+        public int GrifoId { get; set; }
+        public string NombreHoja { get; set; } = "";
+        public int FilaSeleccion { get; set; } = 10;
+
+        // Columns from "Columnas Excel Maestro"
+        public string Venta_GPL { get; set; } = "";
+        public string Venta_GNV { get; set; } = "";
+        public string Total_venta_acumulada { get; set; } = "";
+        public string Total_Tarjeta_de_Credito_Liquidos { get; set; } = "";
+        public string Total_Tarjeta_de_Credito_GLP { get; set; } = "";
+        public string Total_Tarjeta_de_Credito_GNV { get; set; } = "";
+        public string ErrorMaquina { get; set; } = "";
+        public string Recaudo_Cofide_GNV { get; set; } = "";
+        public string Gastos { get; set; } = "";
+        public string Ventas_con_transferencia { get; set; } = "";
+        public string DescuentoLiquidos { get; set; } = "";
+        public string DescuentoGLP { get; set; } = "";
+        public string Hermes_monto_liquido { get; set; } = "";
+        public string Hermes_monto_GLP { get; set; } = "";
+        public string Hermes_monto_GNV1 { get; set; } = "";
+        public string Hermes_monto_GNV2 { get; set; } = "";
     }
 }

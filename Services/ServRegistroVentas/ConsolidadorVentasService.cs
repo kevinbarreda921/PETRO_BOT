@@ -1,5 +1,6 @@
 using OfficeOpenXml;
 using PETRO_BOT.Models;
+using PETRO_BOT.Models.Configuracion;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -62,8 +63,21 @@ namespace PETRO_BOT.Services.Services
                 //LoggerService.Info(grifoObjetivo, archivoGrifoActual.Archivo ?? "", $" CONTADOR {CONTADOR_dES}");
                 //CONTADOR_dES++;
 
-                // Buscamos la hoja cuyo nombre contenga el grifoObjetivo de forma flexible (ignora mayúsculas)
-                var hojaEPPlus = workbook.Worksheets.FirstOrDefault(w => w.Name.IndexOf(grifoObjetivo, StringComparison.OrdinalIgnoreCase) >= 0);
+                // Obtener configuración desde la base de datos
+                var grifoDB = grifosList.FirstOrDefault(g => g.Nombre.Equals(grifoObjetivo, StringComparison.OrdinalIgnoreCase));
+                if (grifoDB == null)
+                {
+                    Console.WriteLine($"[!] No se encontró configuración en la base de datos para el grifo: {grifoObjetivo}");
+                    continue;
+                }
+
+                // Buscamos la hoja usando el nombre configurado en RegistroVentasWrite, o por defecto con el nombre del grifo
+                string? sheetName = grifoDB.RegistroVentasWrite?.NombreHoja;
+                var hojaEPPlus = !string.IsNullOrWhiteSpace(sheetName) ? workbook.Worksheets.FirstOrDefault(w => w.Name.Equals(sheetName, StringComparison.OrdinalIgnoreCase)) : null;
+                if (hojaEPPlus == null)
+                {
+                    hojaEPPlus = workbook.Worksheets.FirstOrDefault(w => w.Name.IndexOf(grifoObjetivo, StringComparison.OrdinalIgnoreCase) >= 0);
+                }
                 
                 if (hojaEPPlus == null)
                 {
@@ -71,8 +85,6 @@ namespace PETRO_BOT.Services.Services
                     continue;
                 }
 
-                // LoggerService.Info(grifoObjetivo, archivoGrifoActual.Archivo, $"Hoja encontrada y lista para procesar.");
-                
                 // Mapeamos las filas de fechas directamente desde memoria (sin leer el archivo de nuevo)
                 var mapaFechasFilas = _escritor.MapearFechasHoja(hojaEPPlus);
 
@@ -82,15 +94,8 @@ namespace PETRO_BOT.Services.Services
                     .Distinct()
                     .ToList();
 
-                // Obtener configuración desde la base de datos
-                var grifoDB = grifosList.FirstOrDefault(g => g.Nombre.Equals(grifoObjetivo, StringComparison.OrdinalIgnoreCase));
-                if (grifoDB == null)
-                {
-                    Console.WriteLine($"[!] No se encontró configuración en la base de datos para el grifo: {grifoObjetivo}");
-                    continue;
-                }
-
                 var configGrifo = grifoDB.Configuracion;
+                var configWrite = grifoDB.RegistroVentasWrite ?? new RegistroVentasWriteConfig();
 
                 // Invertir diccionario de clientes una sola vez por Grifo
                 var clienteAColumna = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -111,22 +116,22 @@ namespace PETRO_BOT.Services.Services
                 {
                     columnasEscritura[propName] = colLetter ?? "";
                 }
-                AddCol(configGrifo.Col_Venta_GPL, "Venta_GPL");
-                AddCol(configGrifo.Col_Venta_GNV, "Venta_GNV");
-                AddCol(configGrifo.Col_Total_venta_acumulada, "Total_venta_acumulada");
-                AddCol(configGrifo.Col_Total_Tarjeta_de_Credito_Liquidos, "Total_Tarjeta_de_Credito_Liquidos");
-                AddCol(configGrifo.Col_Total_Tarjeta_de_Credito_GLP, "Total_Tarjeta_de_Credito_GLP");
-                AddCol(configGrifo.Col_Total_Tarjeta_de_Credito_GNV, "Total_Tarjeta_de_Credito_GNV");
-                AddCol(configGrifo.Col_ErrorMaquina, "ErrorMaquina");
-                AddCol(configGrifo.Col_Recaudo_Cofide_GNV, "Recaudo_Cofide_GNV");
-                AddCol(configGrifo.Col_Gastos, "Gastos");
-                AddCol(configGrifo.Col_Ventas_con_transferencia, "Ventas_con_transferencia");
-                AddCol(configGrifo.Col_DescuentoLiquidos, "DescuentoLiquidos");
-                AddCol(configGrifo.Col_DescuentoGLP, "DescuentoGLP");
-                AddCol(configGrifo.Col_Hermes_monto_liquido, "Hermes_monto_liquido");
-                AddCol(configGrifo.Col_Hermes_monto_GLP, "Hermes_monto_GLP");
-                AddCol(configGrifo.Col_Hermes_monto_GNV1, "Hermes_monto_GNV1");
-                AddCol(configGrifo.Col_Hermes_monto_GNV2, "Hermes_monto_GNV2");
+                AddCol(configWrite.Venta_GPL, "Venta_GPL");
+                AddCol(configWrite.Venta_GNV, "Venta_GNV");
+                AddCol(configWrite.Total_venta_acumulada, "Total_venta_acumulada");
+                AddCol(configWrite.Total_Tarjeta_de_Credito_Liquidos, "Total_Tarjeta_de_Credito_Liquidos");
+                AddCol(configWrite.Total_Tarjeta_de_Credito_GLP, "Total_Tarjeta_de_Credito_GLP");
+                AddCol(configWrite.Total_Tarjeta_de_Credito_GNV, "Total_Tarjeta_de_Credito_GNV");
+                AddCol(configWrite.ErrorMaquina, "ErrorMaquina");
+                AddCol(configWrite.Recaudo_Cofide_GNV, "Recaudo_Cofide_GNV");
+                AddCol(configWrite.Gastos, "Gastos");
+                AddCol(configWrite.Ventas_con_transferencia, "Ventas_con_transferencia");
+                AddCol(configWrite.DescuentoLiquidos, "DescuentoLiquidos");
+                AddCol(configWrite.DescuentoGLP, "DescuentoGLP");
+                AddCol(configWrite.Hermes_monto_liquido, "Hermes_monto_liquido");
+                AddCol(configWrite.Hermes_monto_GLP, "Hermes_monto_GLP");
+                AddCol(configWrite.Hermes_monto_GNV1, "Hermes_monto_GNV1");
+                AddCol(configWrite.Hermes_monto_GNV2, "Hermes_monto_GNV2");
 
                 foreach (string fechaABuscar in fechasDelGrifo)
                 {

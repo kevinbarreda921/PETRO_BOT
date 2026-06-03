@@ -683,7 +683,7 @@
         // Eliminar físicamente los archivos del disco
         try
         {
-            var rutaVentas = Path.Combine(env.WebRootPath, "uploads/RegistroVentas");
+            var rutaVentas = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "uploads/RegistroVentas");
             if (Directory.Exists(rutaVentas))
             {
                 foreach (var archivo in Directory.GetFiles(rutaVentas))
@@ -692,7 +692,7 @@
                 }
             }
 
-            var rutaReportes = Path.Combine(env.WebRootPath, "uploads/ReporteDiario");
+            var rutaReportes = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "uploads/ReporteDiario");
             if (Directory.Exists(rutaReportes))
             {
                 foreach (var archivo in Directory.GetFiles(rutaReportes))
@@ -774,7 +774,7 @@
     {
         try
         {
-            var rutaVentas = Path.Combine(env.WebRootPath, "uploads/RegistroVentas");
+            var rutaVentas = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "uploads/RegistroVentas");
             if (Directory.Exists(rutaVentas))
             {
                 var archivos = Directory.GetFiles(rutaVentas, "*.xlsx");
@@ -858,7 +858,7 @@
                 return;
             }
 
-            var ruta = Path.Combine(env.WebRootPath, "uploads/RegistroVentas");
+            var ruta = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "uploads/RegistroVentas");
             if (!Directory.Exists(ruta)) Directory.CreateDirectory(ruta);
 
             var nombreArchivo = $"{archivo.Name}";
@@ -889,7 +889,7 @@
     {
         try
         {
-            var ruta = Path.Combine(env.WebRootPath, "uploads/ReporteDiario");
+            var ruta = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "uploads/ReporteDiario");
 
             if (!Directory.Exists(ruta))
             {
@@ -1000,7 +1000,7 @@
         try
         {
             archivosRegistroVentas.Clear();
-            var rutaVentas = Path.Combine(env.WebRootPath, "uploads/RegistroVentas");
+            var rutaVentas = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "uploads/RegistroVentas");
             if (Directory.Exists(rutaVentas))
             {
                 archivosRegistroVentas = Directory.GetFiles(rutaVentas, "*.xlsx")
@@ -1009,7 +1009,7 @@
             }
 
             archivosReporteDiario.Clear();
-            var rutaReportes = Path.Combine(env.WebRootPath, "uploads/ReporteDiario");
+            var rutaReportes = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "uploads/ReporteDiario");
             if (Directory.Exists(rutaReportes))
             {
                 archivosReporteDiario = Directory.GetFiles(rutaReportes, "*.xlsx")
