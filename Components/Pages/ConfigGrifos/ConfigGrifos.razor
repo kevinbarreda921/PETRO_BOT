@@ -1486,7 +1486,19 @@
         var nuevoGrifo = new RegistroVentasGrifo
         {
             Nombre = grifoNameUpper,
-            Configuracion = new RegistroVentasConfiguracion()
+            Configuracion = new RegistroVentasConfiguracion
+            {
+                ColumnaFecha = -1,
+                FilaFecha = 0,
+                ColumnaCreditoNombre = -1,
+                FilaCreditosNombre = 0,
+                ColumnaCreditoMonto = -1,
+                FilaCreditosMonto = 0,
+                ColumnaVariaCombusNombre = -1,
+                ColumnaVariaCombusMonto = -1,
+                ColumnaTablaHermes = -1,
+                FilaFinal = 0
+            }
         };
 
         try
