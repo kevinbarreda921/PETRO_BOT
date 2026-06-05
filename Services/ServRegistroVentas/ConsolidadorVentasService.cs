@@ -137,7 +137,32 @@ namespace PETRO_BOT.Services.Services
                 {
                     if (mapaFechasFilas.TryGetValue(fechaABuscar, out int filaDestino))
                     {
-                        LoggerService.Info(grifoObjetivo, archivoGrifoActual.Archivo, $" El grifo {grifoObjetivo} del dia {fechaABuscar} procesado correctamente");
+                        // Validar si ya existe información en las columnas de escritura configuradas en la fila de destino
+                        bool yaTieneData = false;
+                        string columnaConData = "";
+                        foreach (var colLetter in columnasEscritura.Values)
+                        {
+                            if (!string.IsNullOrWhiteSpace(colLetter))
+                            {
+                                var cellVal = hojaEPPlus.Cells[$"{colLetter}{filaDestino}"].Value;
+                                if (cellVal != null)
+                                {
+                                    string valStr = cellVal.ToString()?.Trim() ?? "";
+                                    if (!string.IsNullOrEmpty(valStr) && valStr != "0" && valStr != "0.00" && valStr != "0,00" && valStr != "0.0")
+                                    {
+                                        yaTieneData = true;
+                                        columnaConData = colLetter;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (yaTieneData)
+                        {
+                            LoggerService.Error(grifoObjetivo, archivoGrifoActual.Archivo ?? "DESCONOCIDO", $"ERROR: El día {fechaABuscar} ya tiene data en el Registro de Ventas (Celda {columnaConData}{filaDestino}). No se sobrescribió.");
+                            continue;
+                        }
 
                         var ventaParaEscribir = archivoGrifoActual.ListVenta.FirstOrDefault(v => v.Dia == fechaABuscar);
                         if (ventaParaEscribir != null)
@@ -148,6 +173,8 @@ namespace PETRO_BOT.Services.Services
                             {
                                 _escritor.EscribirClientesCredito(hojaEPPlus, ventaParaEscribir, filaDestino, clienteAColumna, grifoObjetivo, archivoGrifoActual.Archivo ?? "DESCONOCIDO");
                             }
+
+                            LoggerService.Info(grifoObjetivo, archivoGrifoActual.Archivo, $" El grifo {grifoObjetivo} del dia {fechaABuscar} procesado correctamente");
                         }
                     }
                     else

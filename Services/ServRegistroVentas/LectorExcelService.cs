@@ -224,7 +224,7 @@ namespace PETRO_BOT.Services.Services
                                     else
                                     {
                                         int colLetraColumnaVariaCombusMonto = configGrifo.ColumnaVariaCombusMonto;
-                                        var varia_combus_monto = GetValueSafe(reader, colLetraColumnaVariaCombusMonto)?.ToString()?.Replace("-", "");
+                                        var varia_combus_monto = GetValueSafe(reader, colLetraColumnaVariaCombusMonto)?.ToString();
                                            
                                         decimal.TryParse(varia_combus_monto, out decimal montoActualVariacion);
 
