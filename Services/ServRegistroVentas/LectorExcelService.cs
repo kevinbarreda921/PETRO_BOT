@@ -137,7 +137,7 @@ namespace PETRO_BOT.Services.Services
                                 int colLetraTotales = configGrifo.ColumnaFecha;
                                 if (colLetraTotales >= 0)
                                 {
-                                    var fecha_hoja = reader.GetValue(colLetraTotales);
+                                    var fecha_hoja = GetValueSafe(reader, colLetraTotales);
                                     if (fecha_hoja != null)
                                     {
                                         if (fecha_hoja is DateTime dt) registro.Dia = dt.ToString("d/MM/yyyy");
@@ -157,7 +157,7 @@ namespace PETRO_BOT.Services.Services
                             if (mapeoFilas.TryGetValue(filaActual, out var mapping))
                             {
                                 int colNum = mapping.ColIndex;
-                                var valor = colNum >= 0 ? reader.GetValue(colNum) : null;
+                                var valor = colNum >= 0 ? GetValueSafe(reader, colNum) : null;
                                 decimal numValor = 0;
                                 if (valor != null)
                                 {
@@ -174,7 +174,7 @@ namespace PETRO_BOT.Services.Services
                             if (!leyendoClientes && flagclientecredito == 0 && filaActual >= configGrifo.FilaCreditosNombre && filaActual <= configGrifo.FilaCreditosNombre + 10)
                             {
                                 int colLetraCreditoNombre = configGrifo.ColumnaCreditoNombre;
-                                var valorNombre = reader.GetValue(colLetraCreditoNombre);
+                                var valorNombre = GetValueSafe(reader, colLetraCreditoNombre);
                                 if (valorNombre != null && valorNombre.ToString()?.Trim().ToUpper().StartsWith("CLIENTE") == true)
                                 {
                                     leyendoClientes = true;
@@ -184,8 +184,8 @@ namespace PETRO_BOT.Services.Services
                             {
                                 int colLetraCreditoNombre = configGrifo.ColumnaCreditoNombre;
                                 int colLetraCreditoMonto = configGrifo.ColumnaCreditoMonto;
-                                var valorNombre = reader.GetValue(colLetraCreditoNombre);
-                                var valorMonto = reader.GetValue(colLetraCreditoMonto);
+                                var valorNombre = GetValueSafe(reader, colLetraCreditoNombre);
+                                var valorMonto = GetValueSafe(reader, colLetraCreditoMonto);
 
                                 if (valorNombre != null && !string.IsNullOrWhiteSpace(valorNombre.ToString()))
                                 {
@@ -212,7 +212,7 @@ namespace PETRO_BOT.Services.Services
                             if (filaActual >= 17 && filaActual <= 50)
                             {
                                 int colLetraColumnaVariaCombusNombre = configGrifo.ColumnaVariaCombusNombre;
-                                var varia_combus_nombre = reader.GetValue(colLetraColumnaVariaCombusNombre);
+                                var varia_combus_nombre = GetValueSafe(reader, colLetraColumnaVariaCombusNombre);
                                 string? nombreTrimmed = varia_combus_nombre?.ToString()?.Trim();
 
                                 if (leyendoVariaciones)
@@ -224,7 +224,7 @@ namespace PETRO_BOT.Services.Services
                                     else
                                     {
                                         int colLetraColumnaVariaCombusMonto = configGrifo.ColumnaVariaCombusMonto;
-                                        var varia_combus_monto = reader.GetValue(colLetraColumnaVariaCombusMonto)?.ToString()?.Replace("-", "");
+                                        var varia_combus_monto = GetValueSafe(reader, colLetraColumnaVariaCombusMonto)?.ToString()?.Replace("-", "");
                                            
                                         decimal.TryParse(varia_combus_monto, out decimal montoActualVariacion);
 
@@ -246,7 +246,7 @@ namespace PETRO_BOT.Services.Services
                             if (filaActual >= 40 && filaActual <= 130)
                             {
                                 int colLetraColumnaTablaHermes = configGrifo.ColumnaTablaHermes;
-                                var celdaIdentificadora = reader.GetValue(colLetraColumnaTablaHermes);
+                                var celdaIdentificadora = GetValueSafe(reader, colLetraColumnaTablaHermes);
                                 string textoCelda = celdaIdentificadora?.ToString()?.Trim() ?? "";
 
                                 if (!hermesTablaEncontrada && textoCelda.Contains(hermesPalabraClaveCabecera, StringComparison.OrdinalIgnoreCase))
@@ -263,10 +263,10 @@ namespace PETRO_BOT.Services.Services
                                     {
                                         decimal.TryParse(textoCelda, out decimal montoActualHermes);
 
-                                        var celdahermesbanco = reader.GetValue(colLetraColumnaTablaHermes - 5);
+                                        var celdahermesbanco = GetValueSafe(reader, colLetraColumnaTablaHermes - 5);
                                         string textohermesbanco = celdahermesbanco?.ToString()?.Trim() ?? "";
 
-                                        var celdahermestipo = reader.GetValue(colLetraColumnaTablaHermes + 2);
+                                        var celdahermestipo = GetValueSafe(reader, colLetraColumnaTablaHermes + 2);
                                         string textohermestipo = celdahermestipo?.ToString()?.Trim() ?? "";
 
                                         listaHermes.Add((textohermesbanco, textohermestipo, montoActualHermes));
@@ -486,7 +486,7 @@ namespace PETRO_BOT.Services.Services
                                 int colLetraTotales = configGrifo.ColumnaFecha;
                                 if (colLetraTotales >= 0)
                                 {
-                                    var fecha_hoja = reader.GetValue(colLetraTotales);
+                                    var fecha_hoja = GetValueSafe(reader, colLetraTotales);
                                     if (fecha_hoja != null)
                                     {
                                         if (fecha_hoja is DateTime dt) fechaHojaDetectada = dt.ToString("d/MM/yyyy");
@@ -530,7 +530,7 @@ namespace PETRO_BOT.Services.Services
                                 if (mapeoFilas.TryGetValue(filaActual, out var mapping))
                                 {
                                     int colNum = mapping.ColIndex;
-                                    var valor = colNum >= 0 ? reader.GetValue(colNum) : null;
+                                    var valor = colNum >= 0 ? GetValueSafe(reader, colNum) : null;
                                     decimal numValor = 0;
                                     if (valor != null)
                                     {
@@ -547,7 +547,7 @@ namespace PETRO_BOT.Services.Services
                                 if (!leyendoClientes && flagclientecredito == 0 && filaActual >= configGrifo.FilaCreditosNombre && filaActual <= configGrifo.FilaCreditosNombre + 10)
                                 {
                                     int colLetraCreditoNombre = configGrifo.ColumnaCreditoNombre;
-                                    var valorNombre = reader.GetValue(colLetraCreditoNombre);
+                                    var valorNombre = GetValueSafe(reader, colLetraCreditoNombre);
                                     if (valorNombre != null && valorNombre.ToString()?.Trim().ToUpper().StartsWith("CLIENTE") == true)
                                     {
                                         leyendoClientes = true;
@@ -557,8 +557,8 @@ namespace PETRO_BOT.Services.Services
                                 {
                                     int colLetraCreditoNombre = configGrifo.ColumnaCreditoNombre;
                                     int colLetraCreditoMonto = configGrifo.ColumnaCreditoMonto;
-                                    var valorNombre = reader.GetValue(colLetraCreditoNombre);
-                                    var valorMonto = reader.GetValue(colLetraCreditoMonto);
+                                    var valorNombre = GetValueSafe(reader, colLetraCreditoNombre);
+                                    var valorMonto = GetValueSafe(reader, colLetraCreditoMonto);
 
                                     if (valorNombre != null && !string.IsNullOrWhiteSpace(valorNombre.ToString()))
                                     {
@@ -585,7 +585,7 @@ namespace PETRO_BOT.Services.Services
                                 if (filaActual >= 17 && filaActual <= 50)
                                 {
                                     int colLetraColumnaVariaCombusNombre = configGrifo.ColumnaVariaCombusNombre;
-                                    var varia_combus_nombre = reader.GetValue(colLetraColumnaVariaCombusNombre);
+                                    var varia_combus_nombre = GetValueSafe(reader, colLetraColumnaVariaCombusNombre);
                                     string? nombreTrimmed = varia_combus_nombre?.ToString()?.Trim();
 
                                     if (leyendoVariaciones)
@@ -597,7 +597,7 @@ namespace PETRO_BOT.Services.Services
                                         else
                                         {
                                             int colLetraColumnaVariaCombusMonto = configGrifo.ColumnaVariaCombusMonto;
-                                            var varia_combus_monto = reader.GetValue(colLetraColumnaVariaCombusMonto)?.ToString()?.Replace("-", "");
+                                            var varia_combus_monto = GetValueSafe(reader, colLetraColumnaVariaCombusMonto)?.ToString()?.Replace("-", "");
                                                
                                             decimal.TryParse(varia_combus_monto, out decimal montoActualVariacion);
 
@@ -619,7 +619,7 @@ namespace PETRO_BOT.Services.Services
                                 if (filaActual >= 40 && filaActual <= 130)
                                 {
                                     int colLetraColumnaTablaHermes = configGrifo.ColumnaTablaHermes;
-                                    var celdaIdentificadora = reader.GetValue(colLetraColumnaTablaHermes);
+                                    var celdaIdentificadora = GetValueSafe(reader, colLetraColumnaTablaHermes);
                                     string textoCelda = celdaIdentificadora?.ToString()?.Trim() ?? "";
 
                                     if (!hermesTablaEncontrada && textoCelda.Contains(hermesPalabraClaveCabecera, StringComparison.OrdinalIgnoreCase))
@@ -636,10 +636,10 @@ namespace PETRO_BOT.Services.Services
                                         {
                                             decimal.TryParse(textoCelda, out decimal montoActualHermes);
 
-                                            var celdahermesbanco = reader.GetValue(colLetraColumnaTablaHermes - 5);
+                                            var celdahermesbanco = GetValueSafe(reader, colLetraColumnaTablaHermes - 5);
                                             string textohermesbanco = celdahermesbanco?.ToString()?.Trim() ?? "";
 
-                                            var celdahermestipo = reader.GetValue(colLetraColumnaTablaHermes + 2);
+                                            var celdahermestipo = GetValueSafe(reader, colLetraColumnaTablaHermes + 2);
                                             string textohermestipo = celdahermestipo?.ToString()?.Trim() ?? "";
 
                                             listaHermes.Add((textohermesbanco, textohermestipo, montoActualHermes));
@@ -753,6 +753,13 @@ namespace PETRO_BOT.Services.Services
             });
 
             return listaGrifosProcesar;
+        }
+
+        private static object? GetValueSafe(IExcelDataReader reader, int index)
+        {
+            if (index < 0 || index >= reader.FieldCount)
+                return null;
+            return reader.GetValue(index);
         }
     }
 }

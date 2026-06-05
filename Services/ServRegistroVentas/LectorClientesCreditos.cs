@@ -40,7 +40,7 @@ namespace PETRO_BOT.Services.Services
                                 filaActual >= configGrifo.FilaCreditosNombre && 
                                 filaActual <= configGrifo.FilaCreditosNombre + 10)
                             {
-                                var valorNombre = reader.GetValue(colLetraCreditoNombre);
+                                var valorNombre = (colLetraCreditoNombre >= 0 && colLetraCreditoNombre < reader.FieldCount) ? reader.GetValue(colLetraCreditoNombre) : null;
                                 if (valorNombre != null && valorNombre.ToString()?.Trim().ToUpper().StartsWith("CLIENTE") == true)
                                 {
                                     leyendoClientes = true;
@@ -48,7 +48,7 @@ namespace PETRO_BOT.Services.Services
                             }
                             else if (leyendoClientes)
                             {
-                                var valorNombre = reader.GetValue(colLetraCreditoNombre);
+                                var valorNombre = (colLetraCreditoNombre >= 0 && colLetraCreditoNombre < reader.FieldCount) ? reader.GetValue(colLetraCreditoNombre) : null;
                                 if (valorNombre != null && !string.IsNullOrWhiteSpace(valorNombre.ToString()))
                                 {
                                     string nombreLimpio = valorNombre.ToString().Trim();
