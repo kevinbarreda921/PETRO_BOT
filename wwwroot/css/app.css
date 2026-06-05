@@ -49,19 +49,19 @@
 
 /* Personalización de Scrollbars en Modo Claro */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 16px;
+  height: 16px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.02);
+  background: #f1f5f9;
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.01);
+  border: 3px solid #f1f5f9;
   transition: background 0.2s;
 }
 
