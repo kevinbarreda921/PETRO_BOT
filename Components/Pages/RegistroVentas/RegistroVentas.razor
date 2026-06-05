@@ -478,11 +478,13 @@
                             <ul class="flex flex-col gap-2">
                                 @foreach (var archivo in archivosRegistroVentas)
                                 {
-                                    <li class="bg-white border border-slate-200 rounded-xl px-3 py-2.5 flex items-center justify-between font-mono text-[11px] text-slate-700 shadow-sm">
-                                        <span class="truncate pr-4 select-all">@archivo</span>
-                                        <svg class="w-4.5 h-4.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-                                        </svg>
+                                    <li class="bg-white border border-slate-200 rounded-xl px-3 py-2 flex items-center justify-between font-mono text-[11px] text-slate-700 shadow-sm hover:border-slate-350 transition-all">
+                                        <span class="truncate pr-4 select-all text-slate-800 font-semibold">@archivo</span>
+                                        <button @onclick="() => EliminarArchivoVenta(archivo)" type="button" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/60 rounded-xl transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-sm hover:scale-[1.03]" title="Eliminar archivo">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
                                     </li>
                                 }
                             </ul>
@@ -507,11 +509,13 @@
                             <ul class="flex flex-col gap-2">
                                 @foreach (var archivo in archivosReporteDiario)
                                 {
-                                    <li class="bg-white border border-slate-200 rounded-xl px-3 py-2.5 flex items-center justify-between font-mono text-[11px] text-slate-700 shadow-sm">
-                                        <span class="truncate pr-4 select-all">@archivo</span>
-                                        <svg class="w-4.5 h-4.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-                                        </svg>
+                                    <li class="bg-white border border-slate-200 rounded-xl px-3 py-2 flex items-center justify-between font-mono text-[11px] text-slate-700 shadow-sm hover:border-slate-350 transition-all">
+                                        <span class="truncate pr-4 select-all text-slate-800 font-semibold">@archivo</span>
+                                        <button @onclick="() => EliminarArchivoDiario(archivo)" type="button" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/60 rounded-xl transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-sm hover:scale-[1.03]" title="Eliminar archivo">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
                                     </li>
                                 }
                             </ul>
@@ -1066,6 +1070,57 @@
         catch (Exception ex)
         {
             Console.WriteLine("Error al cargar archivos adjuntos: " + ex.Message);
+        }
+    }
+
+    private void EliminarArchivoVenta(string nombreArchivo)
+    {
+        try
+        {
+            var rutaVentas = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "uploads/RegistroVentas");
+            var rutaCompleta = Path.Combine(rutaVentas, nombreArchivo);
+            if (File.Exists(rutaCompleta))
+            {
+                File.Delete(rutaCompleta);
+            }
+            CargarArchivosAdjuntos();
+            if (!archivosRegistroVentas.Any())
+            {
+                EstadoAdjuntadoRegistroVentas = false;
+            }
+            ToastService.Success($"Archivo {nombreArchivo} eliminado.");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al eliminar archivo: " + ex.Message);
+        }
+    }
+
+    private void EliminarArchivoDiario(string nombreArchivo)
+    {
+        try
+        {
+            var rutaReportes = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "uploads/ReporteDiario");
+            var rutaCompleta = Path.Combine(rutaReportes, nombreArchivo);
+            if (File.Exists(rutaCompleta))
+            {
+                File.Delete(rutaCompleta);
+            }
+            
+            listaArchivossubir.Remove(nombreArchivo);
+            
+            CargarArchivosAdjuntos();
+            if (!archivosReporteDiario.Any())
+            {
+                EstadoAdjuntadoReportediario = false;
+            }
+            ToastService.Success($"Archivo {nombreArchivo} eliminado.");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al eliminar archivo: " + ex.Message);
         }
     }
 

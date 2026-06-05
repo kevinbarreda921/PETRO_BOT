@@ -995,6 +995,12 @@
   .border-rose-200 {
     border-color: var(--color-rose-200);
   }
+  .border-rose-200\/60 {
+    border-color: color-mix(in srgb, oklch(89.2% 0.058 10.001) 60%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-rose-200) 60%, transparent);
+    }
+  }
   .border-rose-200\/80 {
     border-color: color-mix(in srgb, oklch(89.2% 0.058 10.001) 80%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -1878,6 +1884,13 @@
     &:hover {
       @media (hover: hover) {
         scale: 1.01;
+      }
+    }
+  }
+  .hover\:scale-\[1\.03\] {
+    &:hover {
+      @media (hover: hover) {
+        scale: 1.03;
       }
     }
   }
