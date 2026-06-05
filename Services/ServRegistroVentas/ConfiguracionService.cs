@@ -98,8 +98,17 @@ namespace PETRO_BOT.Services.Services
                     ColumnaCreditoNombre INTEGER NOT NULL,
                     ColumnaCreditoMonto INTEGER NOT NULL,
                     ColumnaVariaCombusNombre INTEGER NOT NULL,
+                    FilaVariaCombusNombre INTEGER NOT NULL DEFAULT -1,
                     ColumnaVariaCombusMonto INTEGER NOT NULL,
-                    ColumnaTablaHermes INTEGER NOT NULL,
+                    FilaVariaCombusMonto INTEGER NOT NULL DEFAULT -1,
+                    VariaCombusNombre TEXT DEFAULT '',
+                    ColumnaHermesMonto INTEGER NOT NULL DEFAULT 14,
+                    FilaHermesMonto INTEGER NOT NULL DEFAULT -1,
+                    ColumnaHermesBanco INTEGER NOT NULL DEFAULT -1,
+                    FilaHermesBanco INTEGER NOT NULL DEFAULT -1,
+                    ColumnaHermesTipo INTEGER NOT NULL DEFAULT -1,
+                    FilaHermesTipo INTEGER NOT NULL DEFAULT -1,
+                    HermesPalabraClaveMonto TEXT DEFAULT '',
                     FilaFinal INTEGER NOT NULL DEFAULT 129,
                     FilaCreditosNombre INTEGER NOT NULL DEFAULT 10,
                     FilaCreditosMonto INTEGER NOT NULL DEFAULT 10,
@@ -336,7 +345,8 @@ namespace PETRO_BOT.Services.Services
                 string insertConfig = @"
                     INSERT INTO REGISTRO_VENTAS_CONFIGURACION (
                         GrifoId, ColumnaFecha, FilaFecha, ColumnaCreditoNombre, 
-                        ColumnaCreditoMonto, ColumnaVariaCombusNombre, ColumnaVariaCombusMonto, ColumnaTablaHermes,
+                        ColumnaCreditoMonto, ColumnaVariaCombusNombre, FilaVariaCombusNombre, ColumnaVariaCombusMonto, FilaVariaCombusMonto, VariaCombusNombre, ColumnaHermesMonto,
+                        FilaHermesMonto, ColumnaHermesBanco, FilaHermesBanco, ColumnaHermesTipo, FilaHermesTipo, HermesPalabraClaveMonto,
                         FilaFinal, FilaCreditosNombre, FilaCreditosMonto,
                         
                         -- Sequential column and row mapping pairs
@@ -357,7 +367,8 @@ namespace PETRO_BOT.Services.Services
                         Col_Hermes_monto_GNV1, Col_Hermes_monto_GNV2
                     ) VALUES (
                         @GrifoId, @ColumnaFecha, @FilaFecha, @ColumnaCreditoNombre, 
-                        @ColumnaCreditoMonto, @ColumnaVariaCombusNombre, @ColumnaVariaCombusMonto, @ColumnaTablaHermes,
+                        @ColumnaCreditoMonto, @ColumnaVariaCombusNombre, @FilaVariaCombusNombre, @ColumnaVariaCombusMonto, @FilaVariaCombusMonto, @VariaCombusNombre, @ColumnaHermesMonto,
+                        @FilaHermesMonto, @ColumnaHermesBanco, @FilaHermesBanco, @ColumnaHermesTipo, @FilaHermesTipo, @HermesPalabraClaveMonto,
                         @FilaFinal, @FilaCreditosNombre, @FilaCreditosMonto,
                         
                         -- Pairs
@@ -393,8 +404,17 @@ namespace PETRO_BOT.Services.Services
                     cmd.Parameters.AddWithValue("@ColumnaCreditoNombre", GetExcelColumnName(config.Lectura?.ColumnaCreditoNombre ?? 0));
                     cmd.Parameters.AddWithValue("@ColumnaCreditoMonto", GetExcelColumnName(config.Lectura?.ColumnaCreditoMonto ?? 6));
                     cmd.Parameters.AddWithValue("@ColumnaVariaCombusNombre", GetExcelColumnName(config.Lectura?.ColumnaVariaCombusNombre ?? 16));
+                    cmd.Parameters.AddWithValue("@FilaVariaCombusNombre", config.Lectura?.FilaVariaCombusNombre ?? -1);
                     cmd.Parameters.AddWithValue("@ColumnaVariaCombusMonto", GetExcelColumnName(config.Lectura?.ColumnaVariaCombusMonto ?? 18));
-                    cmd.Parameters.AddWithValue("@ColumnaTablaHermes", GetExcelColumnName(config.Lectura?.ColumnaTablaHermes ?? 14));
+                    cmd.Parameters.AddWithValue("@FilaVariaCombusMonto", config.Lectura?.FilaVariaCombusMonto ?? -1);
+                    cmd.Parameters.AddWithValue("@VariaCombusNombre", config.Lectura?.VariaCombusNombre ?? "");
+                    cmd.Parameters.AddWithValue("@ColumnaHermesMonto", GetExcelColumnName(config.Lectura?.ColumnaHermesMonto ?? 14));
+                    cmd.Parameters.AddWithValue("@FilaHermesMonto", config.Lectura?.FilaHermesMonto ?? -1);
+                    cmd.Parameters.AddWithValue("@ColumnaHermesBanco", GetExcelColumnName(config.Lectura?.ColumnaHermesBanco ?? -1));
+                    cmd.Parameters.AddWithValue("@FilaHermesBanco", config.Lectura?.FilaHermesBanco ?? -1);
+                    cmd.Parameters.AddWithValue("@ColumnaHermesTipo", GetExcelColumnName(config.Lectura?.ColumnaHermesTipo ?? -1));
+                    cmd.Parameters.AddWithValue("@FilaHermesTipo", config.Lectura?.FilaHermesTipo ?? -1);
+                    cmd.Parameters.AddWithValue("@HermesPalabraClaveMonto", config.Lectura?.HermesPalabraClaveMonto ?? "");
                     cmd.Parameters.AddWithValue("@FilaFinal", config.Lectura?.FilaFinal ?? 129);
                     cmd.Parameters.AddWithValue("@FilaCreditosNombre", config.Lectura?.FilaCreditosNombre ?? 10);
                     cmd.Parameters.AddWithValue("@FilaCreditosMonto", config.Lectura?.FilaCreditosMonto ?? 10);
@@ -607,6 +627,197 @@ namespace PETRO_BOT.Services.Services
                                     alterCmd.ExecuteNonQuery();
                                     Console.WriteLine("Columna 'FilaCreditosMonto' agregada exitosamente.");
                                 }
+
+                                // Check for FilaVariaCombusNombre, FilaVariaCombusMonto, VariaCombusNombre
+                                bool hasFilaVariaCombusNombre = false;
+                                bool hasFilaVariaCombusMonto = false;
+                                bool hasVariaCombusNombre = false;
+
+                                using (var colCmdVar = new SqliteCommand("PRAGMA table_info(REGISTRO_VENTAS_CONFIGURACION);", connection))
+                                using (var readerVar = colCmdVar.ExecuteReader())
+                                {
+                                    while (readerVar.Read())
+                                    {
+                                        string colName = readerVar.GetString(1);
+                                        if (colName.Equals("FilaVariaCombusNombre", StringComparison.OrdinalIgnoreCase)) hasFilaVariaCombusNombre = true;
+                                        if (colName.Equals("FilaVariaCombusMonto", StringComparison.OrdinalIgnoreCase)) hasFilaVariaCombusMonto = true;
+                                        if (colName.Equals("VariaCombusNombre", StringComparison.OrdinalIgnoreCase)) hasVariaCombusNombre = true;
+                                    }
+                                }
+
+                                if (!hasFilaVariaCombusNombre)
+                                {
+                                    using var alterCmd = new SqliteCommand("ALTER TABLE REGISTRO_VENTAS_CONFIGURACION ADD COLUMN FilaVariaCombusNombre INTEGER NOT NULL DEFAULT -1;", connection);
+                                    alterCmd.ExecuteNonQuery();
+                                    Console.WriteLine("Columna 'FilaVariaCombusNombre' agregada exitosamente.");
+                                }
+                                if (!hasFilaVariaCombusMonto)
+                                {
+                                    using var alterCmd = new SqliteCommand("ALTER TABLE REGISTRO_VENTAS_CONFIGURACION ADD COLUMN FilaVariaCombusMonto INTEGER NOT NULL DEFAULT -1;", connection);
+                                    alterCmd.ExecuteNonQuery();
+                                    Console.WriteLine("Columna 'FilaVariaCombusMonto' agregada exitosamente.");
+                                }
+                                if (!hasVariaCombusNombre)
+                                {
+                                    using var alterCmd = new SqliteCommand("ALTER TABLE REGISTRO_VENTAS_CONFIGURACION ADD COLUMN VariaCombusNombre TEXT DEFAULT '';", connection);
+                                    alterCmd.ExecuteNonQuery();
+                                    Console.WriteLine("Columna 'VariaCombusNombre' agregada exitosamente.");
+                                }
+
+                                // Check and migrate Hermes columns
+                                bool hasColumnaTablaHermes = false;
+                                var columnasExistentes = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                                using (var colCmd5 = new SqliteCommand("PRAGMA table_info(REGISTRO_VENTAS_CONFIGURACION);", connection))
+                                using (var reader5 = colCmd5.ExecuteReader())
+                                {
+                                    while (reader5.Read())
+                                    {
+                                        string colName = reader5.GetString(1);
+                                        columnasExistentes.Add(colName);
+                                        if (colName.Equals("ColumnaTablaHermes", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            hasColumnaTablaHermes = true;
+                                        }
+                                    }
+                                }
+
+                                if (hasColumnaTablaHermes)
+                                {
+                                    using (var transaction = connection.BeginTransaction())
+                                    {
+                                        try
+                                        {
+                                            using (var dropOldCmd = new SqliteCommand("DROP TABLE IF EXISTS REGISTRO_VENTAS_CONFIGURACION_OLD;", connection, transaction))
+                                            {
+                                                dropOldCmd.ExecuteNonQuery();
+                                            }
+
+                                            using (var renameCmd = new SqliteCommand("ALTER TABLE REGISTRO_VENTAS_CONFIGURACION RENAME TO REGISTRO_VENTAS_CONFIGURACION_OLD;", connection, transaction))
+                                            {
+                                                renameCmd.ExecuteNonQuery();
+                                            }
+
+                                            string createNewTable = @"
+                                                CREATE TABLE REGISTRO_VENTAS_CONFIGURACION (
+                                                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                    GrifoId INTEGER NOT NULL,
+                                                    ColumnaFecha INTEGER NOT NULL,
+                                                    FilaFecha INTEGER NOT NULL DEFAULT 3,
+                                                    ColumnaCreditoNombre INTEGER NOT NULL,
+                                                    ColumnaCreditoMonto INTEGER NOT NULL,
+                                                    ColumnaVariaCombusNombre INTEGER NOT NULL,
+                                                    FilaVariaCombusNombre INTEGER NOT NULL DEFAULT -1,
+                                                    ColumnaVariaCombusMonto INTEGER NOT NULL,
+                                                    FilaVariaCombusMonto INTEGER NOT NULL DEFAULT -1,
+                                                    VariaCombusNombre TEXT DEFAULT '',
+                                                    ColumnaHermesMonto INTEGER NOT NULL DEFAULT 14,
+                                                    FilaHermesMonto INTEGER NOT NULL DEFAULT -1,
+                                                    ColumnaHermesBanco INTEGER NOT NULL DEFAULT -1,
+                                                    FilaHermesBanco INTEGER NOT NULL DEFAULT -1,
+                                                    ColumnaHermesTipo INTEGER NOT NULL DEFAULT -1,
+                                                    FilaHermesTipo INTEGER NOT NULL DEFAULT -1,
+                                                    HermesPalabraClaveMonto TEXT DEFAULT '',
+                                                    FilaFinal INTEGER NOT NULL DEFAULT 129,
+                                                    FilaCreditosNombre INTEGER NOT NULL DEFAULT 10,
+                                                    FilaCreditosMonto INTEGER NOT NULL DEFAULT 10,
+                                                    
+                                                    Col_Venta_GPL TEXT,
+                                                    Fila_Venta_GPL TEXT,
+                                                    Col_Venta_GNV TEXT,
+                                                    Fila_Venta_GNV TEXT,
+                                                    Col_Total_venta_acumulada TEXT,
+                                                    Fila_Total_venta_acumulada TEXT,
+                                                    Col_Total_Tarjeta_de_Credito_Liquidos TEXT,
+                                                    Fila_Total_Tarjeta_de_Credito_Liquidos TEXT,
+                                                    Col_Total_Tarjeta_de_Credito_GLP TEXT,
+                                                    Fila_Total_Tarjeta_de_Credito_GLP TEXT,
+                                                    Col_Total_Tarjeta_de_Credito_GNV TEXT,
+                                                    Fila_Total_Tarjeta_de_Credito_GNV TEXT,
+                                                    Col_ErrorMaquina TEXT,
+                                                    Fila_ErrorMaquina TEXT,
+                                                    Col_Recaudo_Cofide_GNV TEXT,
+                                                    Fila_Recaudo_Cofide_GNV TEXT,
+                                                    Col_Gastos TEXT,
+                                                    Fila_Gastos TEXT,
+                                                    Col_Ventas_con_transferencia TEXT,
+                                                    Fila_Ventas_con_transferencia TEXT,
+
+                                                    Col_DescuentoLiquidos TEXT,
+                                                    Col_DescuentoGLP TEXT,
+                                                    Col_Hermes_monto_liquido TEXT,
+                                                    Col_Hermes_monto_GLP TEXT,
+                                                    Col_Hermes_monto_GNV1 TEXT,
+                                                    Col_Hermes_monto_GNV2 TEXT,
+
+                                                    FOREIGN KEY (GrifoId) REFERENCES REGISTRO_VENTAS_GRIFOS (Id) ON DELETE CASCADE
+                                                );";
+                                            using (var createCmd = new SqliteCommand(createNewTable, connection, transaction))
+                                            {
+                                                createCmd.ExecuteNonQuery();
+                                            }
+
+                                            var targetCols = new System.Collections.Generic.List<string>();
+                                            var sourceCols = new System.Collections.Generic.List<string>();
+                                             var columnsToMigrate = new System.Collections.Generic.List<string> {
+                                                "Id", "GrifoId", "ColumnaFecha", "FilaFecha", "ColumnaCreditoNombre", "ColumnaCreditoMonto",
+                                                "ColumnaVariaCombusNombre", "FilaVariaCombusNombre", "ColumnaVariaCombusMonto", "FilaVariaCombusMonto", "VariaCombusNombre",
+                                                "FilaFinal", "FilaCreditosNombre", "FilaCreditosMonto",
+                                                "Col_Venta_GPL", "Fila_Venta_GPL", "Col_Venta_GNV", "Fila_Venta_GNV",
+                                                "Col_Total_venta_acumulada", "Fila_Total_venta_acumulada",
+                                                "Col_Total_Tarjeta_de_Credito_Liquidos", "Fila_Total_Tarjeta_de_Credito_Liquidos",
+                                                "Col_Total_Tarjeta_de_Credito_GLP", "Fila_Total_Tarjeta_de_Credito_GLP",
+                                                "Col_Total_Tarjeta_de_Credito_GNV", "Fila_Total_Tarjeta_de_Credito_GNV",
+                                                "Col_ErrorMaquina", "Fila_ErrorMaquina", "Col_Recaudo_Cofide_GNV", "Fila_Recaudo_Cofide_GNV",
+                                                "Col_Gastos", "Fila_Gastos", "Col_Ventas_con_transferencia", "Fila_Ventas_con_transferencia",
+                                                "Col_DescuentoLiquidos", "Col_DescuentoGLP", "Col_Hermes_monto_liquido", "Col_Hermes_monto_GLP",
+                                                "Col_Hermes_monto_GNV1", "Col_Hermes_monto_GNV2"
+                                            };;
+
+                                            foreach (var col in columnsToMigrate)
+                                            {
+                                                if (columnasExistentes.Contains(col))
+                                                {
+                                                    targetCols.Add(col);
+                                                    sourceCols.Add(col);
+                                                }
+                                            }
+
+                                            if (columnasExistentes.Contains("ColumnaTablaHermes"))
+                                            {
+                                                targetCols.Add("ColumnaHermesMonto");
+                                                sourceCols.Add("ColumnaTablaHermes");
+                                            }
+
+                                            string copyData = $@"
+                                                INSERT INTO REGISTRO_VENTAS_CONFIGURACION (
+                                                    {string.Join(", ", targetCols)}
+                                                )
+                                                SELECT 
+                                                    {string.Join(", ", sourceCols)}
+                                                FROM REGISTRO_VENTAS_CONFIGURACION_OLD;";
+
+                                            using (var copyCmd = new SqliteCommand(copyData, connection, transaction))
+                                            {
+                                                copyCmd.ExecuteNonQuery();
+                                            }
+
+                                            using (var dropCmd = new SqliteCommand("DROP TABLE REGISTRO_VENTAS_CONFIGURACION_OLD;", connection, transaction))
+                                            {
+                                                dropCmd.ExecuteNonQuery();
+                                            }
+
+                                            transaction.Commit();
+                                            Console.WriteLine("Migración de tabla de configuración completada correctamente.");
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            transaction.Rollback();
+                                            Console.WriteLine("Error crítico durante la recreación de la tabla de configuración: " + ex.Message);
+                                            throw;
+                                        }
+                                    }
+                                }
                             }
 
                             // Ensure REGISTRO_VENTAS_WRITE table is created dynamically
@@ -675,24 +886,26 @@ namespace PETRO_BOT.Services.Services
                     // 1. Read all Grifos and their configuration using an INNER JOIN
                     string queryGrifos = @"
                         SELECT g.Nombre, g.Id, c.ColumnaFecha, NULL AS ColumnaTotales, c.ColumnaCreditoNombre, 
-                               c.ColumnaCreditoMonto, c.ColumnaVariaCombusNombre, c.ColumnaVariaCombusMonto, 
-                               c.ColumnaTablaHermes, c.FilaFecha,
-                               -- Sequential column and row mapping pairs (10 to 29)
-                               c.Col_Venta_GPL, c.Fila_Venta_GPL,
-                               c.Col_Venta_GNV, c.Fila_Venta_GNV,
-                               c.Col_Total_venta_acumulada, c.Fila_Total_venta_acumulada,
-                               c.Col_Total_Tarjeta_de_Credito_Liquidos, c.Fila_Total_Tarjeta_de_Credito_Liquidos,
-                               c.Col_Total_Tarjeta_de_Credito_GLP, c.Fila_Total_Tarjeta_de_Credito_GLP,
-                               c.Col_Total_Tarjeta_de_Credito_GNV, c.Fila_Total_Tarjeta_de_Credito_GNV,
-                               c.Col_ErrorMaquina, c.Fila_ErrorMaquina,
-                               c.Col_Recaudo_Cofide_GNV, c.Fila_Recaudo_Cofide_GNV,
-                               c.Col_Gastos, c.Fila_Gastos,
-                               c.Col_Ventas_con_transferencia, c.Fila_Ventas_con_transferencia,
-                               -- Writing only columns (30 to 35)
-                               c.Col_DescuentoLiquidos, c.Col_DescuentoGLP,
-                               c.Col_Hermes_monto_liquido, c.Col_Hermes_monto_GLP,
-                               c.Col_Hermes_monto_GNV1, c.Col_Hermes_monto_GNV2,
-                               c.FilaFinal, c.FilaCreditosNombre, c.FilaCreditosMonto
+                                c.ColumnaCreditoMonto, c.ColumnaVariaCombusNombre, c.ColumnaVariaCombusMonto, 
+                                c.ColumnaHermesMonto, c.FilaFecha,
+                                c.FilaHermesMonto, c.ColumnaHermesBanco, c.FilaHermesBanco, c.ColumnaHermesTipo, c.FilaHermesTipo, c.HermesPalabraClaveMonto,
+                                -- Sequential column and row mapping pairs (16 to 35)
+                                c.Col_Venta_GPL, c.Fila_Venta_GPL,
+                                c.Col_Venta_GNV, c.Fila_Venta_GNV,
+                                c.Col_Total_venta_acumulada, c.Fila_Total_venta_acumulada,
+                                c.Col_Total_Tarjeta_de_Credito_Liquidos, c.Fila_Total_Tarjeta_de_Credito_Liquidos,
+                                c.Col_Total_Tarjeta_de_Credito_GLP, c.Fila_Total_Tarjeta_de_Credito_GLP,
+                                c.Col_Total_Tarjeta_de_Credito_GNV, c.Fila_Total_Tarjeta_de_Credito_GNV,
+                                c.Col_ErrorMaquina, c.Fila_ErrorMaquina,
+                                c.Col_Recaudo_Cofide_GNV, c.Fila_Recaudo_Cofide_GNV,
+                                c.Col_Gastos, c.Fila_Gastos,
+                                c.Col_Ventas_con_transferencia, c.Fila_Ventas_con_transferencia,
+                                -- Writing only columns (36 to 41)
+                                c.Col_DescuentoLiquidos, c.Col_DescuentoGLP,
+                                c.Col_Hermes_monto_liquido, c.Col_Hermes_monto_GLP,
+                                c.Col_Hermes_monto_GNV1, c.Col_Hermes_monto_GNV2,
+                                c.FilaFinal, c.FilaCreditosNombre, c.FilaCreditosMonto,
+                                c.FilaVariaCombusNombre, c.FilaVariaCombusMonto, c.VariaCombusNombre
                         FROM REGISTRO_VENTAS_GRIFOS g
                         INNER JOIN REGISTRO_VENTAS_CONFIGURACION c ON g.Id = c.GrifoId
                         ORDER BY g.Nombre ASC;";
@@ -717,10 +930,19 @@ namespace PETRO_BOT.Services.Services
                                     ColumnaCreditoMonto = ParseColumnDbValue(reader.GetValue(5), 6),
                                     ColumnaVariaCombusNombre = ParseColumnDbValue(reader.GetValue(6), 16),
                                     ColumnaVariaCombusMonto = ParseColumnDbValue(reader.GetValue(7), 18),
-                                    ColumnaTablaHermes = ParseColumnDbValue(reader.GetValue(8), 14),
-                                    FilaFinal = reader.IsDBNull(36) ? 129 : reader.GetInt32(36),
-                                    FilaCreditosNombre = reader.IsDBNull(37) ? 10 : reader.GetInt32(37),
-                                    FilaCreditosMonto = reader.IsDBNull(38) ? 10 : reader.GetInt32(38),
+                                    ColumnaHermesMonto = ParseColumnDbValue(reader.GetValue(8), 14),
+                                    FilaHermesMonto = reader.IsDBNull(10) ? -1 : reader.GetInt32(10),
+                                    ColumnaHermesBanco = ParseColumnDbValue(reader.GetValue(11), -1),
+                                    FilaHermesBanco = reader.IsDBNull(12) ? -1 : reader.GetInt32(12),
+                                    ColumnaHermesTipo = ParseColumnDbValue(reader.GetValue(13), -1),
+                                    FilaHermesTipo = reader.IsDBNull(14) ? -1 : reader.GetInt32(14),
+                                    HermesPalabraClaveMonto = reader.IsDBNull(15) ? "" : reader.GetString(15),
+                                    FilaFinal = reader.IsDBNull(42) ? 129 : reader.GetInt32(42),
+                                    FilaCreditosNombre = reader.IsDBNull(43) ? 10 : reader.GetInt32(43),
+                                    FilaCreditosMonto = reader.IsDBNull(44) ? 10 : reader.GetInt32(44),
+                                    FilaVariaCombusNombre = reader.IsDBNull(45) ? -1 : reader.GetInt32(45),
+                                    FilaVariaCombusMonto = reader.IsDBNull(46) ? -1 : reader.GetInt32(46),
+                                    VariaCombusNombre = reader.IsDBNull(47) ? "" : reader.GetString(47),
                                     MapeoFilas = new Dictionary<string, string>()
                                 },
                                 Escritura = new EscrituraConfig
@@ -739,16 +961,16 @@ namespace PETRO_BOT.Services.Services
                                 }
                             }
                             
-                            AddRow(reader.IsDBNull(11) ? "" : reader.GetString(11), "Venta_GPL");
-                            AddRow(reader.IsDBNull(13) ? "" : reader.GetString(13), "Venta_GNV");
-                            AddRow(reader.IsDBNull(15) ? "" : reader.GetString(15), "Total_venta_acumulada");
-                            AddRow(reader.IsDBNull(17) ? "" : reader.GetString(17), "Total_Tarjeta_de_Credito_Liquidos");
-                            AddRow(reader.IsDBNull(19) ? "" : reader.GetString(19), "Total_Tarjeta_de_Credito_GLP");
-                            AddRow(reader.IsDBNull(21) ? "" : reader.GetString(21), "Total_Tarjeta_de_Credito_GNV");
-                            AddRow(reader.IsDBNull(23) ? "" : reader.GetString(23), "ErrorMaquina");
-                            AddRow(reader.IsDBNull(25) ? "" : reader.GetString(25), "Recaudo_Cofide_GNV");
-                            AddRow(reader.IsDBNull(27) ? "" : reader.GetString(27), "Gastos");
-                            AddRow(reader.IsDBNull(29) ? "" : reader.GetString(29), "Ventas_con_transferencia");
+                            AddRow(reader.IsDBNull(17) ? "" : reader.GetString(17), "Venta_GPL");
+                            AddRow(reader.IsDBNull(19) ? "" : reader.GetString(19), "Venta_GNV");
+                            AddRow(reader.IsDBNull(21) ? "" : reader.GetString(21), "Total_venta_acumulada");
+                            AddRow(reader.IsDBNull(23) ? "" : reader.GetString(23), "Total_Tarjeta_de_Credito_Liquidos");
+                            AddRow(reader.IsDBNull(25) ? "" : reader.GetString(25), "Total_Tarjeta_de_Credito_GLP");
+                            AddRow(reader.IsDBNull(27) ? "" : reader.GetString(27), "Total_Tarjeta_de_Credito_GNV");
+                            AddRow(reader.IsDBNull(29) ? "" : reader.GetString(29), "ErrorMaquina");
+                            AddRow(reader.IsDBNull(31) ? "" : reader.GetString(31), "Recaudo_Cofide_GNV");
+                            AddRow(reader.IsDBNull(33) ? "" : reader.GetString(33), "Gastos");
+                            AddRow(reader.IsDBNull(35) ? "" : reader.GetString(35), "Ventas_con_transferencia");
 
                             // Populate Escritura.Columnas
                             void AddCol(string colVal, string propName)
@@ -759,22 +981,22 @@ namespace PETRO_BOT.Services.Services
                                 }
                             }
 
-                            AddCol(reader.IsDBNull(10) ? "" : reader.GetString(10), "Venta_GPL");
-                            AddCol(reader.IsDBNull(12) ? "" : reader.GetString(12), "Venta_GNV");
-                            AddCol(reader.IsDBNull(14) ? "" : reader.GetString(14), "Total_venta_acumulada");
-                            AddCol(reader.IsDBNull(16) ? "" : reader.GetString(16), "Total_Tarjeta_de_Credito_Liquidos");
-                            AddCol(reader.IsDBNull(18) ? "" : reader.GetString(18), "Total_Tarjeta_de_Credito_GLP");
-                            AddCol(reader.IsDBNull(20) ? "" : reader.GetString(20), "Total_Tarjeta_de_Credito_GNV");
-                            AddCol(reader.IsDBNull(22) ? "" : reader.GetString(22), "ErrorMaquina");
-                            AddCol(reader.IsDBNull(24) ? "" : reader.GetString(24), "Recaudo_Cofide_GNV");
-                            AddCol(reader.IsDBNull(26) ? "" : reader.GetString(26), "Gastos");
-                            AddCol(reader.IsDBNull(28) ? "" : reader.GetString(28), "Ventas_con_transferencia");
-                            AddCol(reader.IsDBNull(30) ? "" : reader.GetString(30), "DescuentoLiquidos");
-                            AddCol(reader.IsDBNull(31) ? "" : reader.GetString(31), "DescuentoGLP");
-                            AddCol(reader.IsDBNull(32) ? "" : reader.GetString(32), "Hermes_monto_liquido");
-                            AddCol(reader.IsDBNull(33) ? "" : reader.GetString(33), "Hermes_monto_GLP");
-                            AddCol(reader.IsDBNull(34) ? "" : reader.GetString(34), "Hermes_monto_GNV1");
-                            AddCol(reader.IsDBNull(35) ? "" : reader.GetString(35), "Hermes_monto_GNV2");
+                            AddCol(reader.IsDBNull(16) ? "" : reader.GetString(16), "Venta_GPL");
+                            AddCol(reader.IsDBNull(18) ? "" : reader.GetString(18), "Venta_GNV");
+                            AddCol(reader.IsDBNull(20) ? "" : reader.GetString(20), "Total_venta_acumulada");
+                            AddCol(reader.IsDBNull(22) ? "" : reader.GetString(22), "Total_Tarjeta_de_Credito_Liquidos");
+                            AddCol(reader.IsDBNull(24) ? "" : reader.GetString(24), "Total_Tarjeta_de_Credito_GLP");
+                            AddCol(reader.IsDBNull(26) ? "" : reader.GetString(26), "Total_Tarjeta_de_Credito_GNV");
+                            AddCol(reader.IsDBNull(28) ? "" : reader.GetString(28), "ErrorMaquina");
+                            AddCol(reader.IsDBNull(30) ? "" : reader.GetString(30), "Recaudo_Cofide_GNV");
+                            AddCol(reader.IsDBNull(32) ? "" : reader.GetString(32), "Gastos");
+                            AddCol(reader.IsDBNull(34) ? "" : reader.GetString(34), "Ventas_con_transferencia");
+                            AddCol(reader.IsDBNull(36) ? "" : reader.GetString(36), "DescuentoLiquidos");
+                            AddCol(reader.IsDBNull(37) ? "" : reader.GetString(37), "DescuentoGLP");
+                            AddCol(reader.IsDBNull(38) ? "" : reader.GetString(38), "Hermes_monto_liquido");
+                            AddCol(reader.IsDBNull(39) ? "" : reader.GetString(39), "Hermes_monto_GLP");
+                            AddCol(reader.IsDBNull(40) ? "" : reader.GetString(40), "Hermes_monto_GNV1");
+                            AddCol(reader.IsDBNull(41) ? "" : reader.GetString(41), "Hermes_monto_GNV2");;
 
                             newConfigRoot.Grifos[nombre] = grifo;
                             grifoIdMap[grifoId] = grifo;
@@ -830,31 +1052,33 @@ namespace PETRO_BOT.Services.Services
                     // 1. Read all Grifos and their configuration using an INNER JOIN
                     string queryGrifos = @"
                         SELECT g.Id, g.Nombre, c.Id, c.ColumnaFecha, NULL AS ColumnaTotales, c.ColumnaCreditoNombre, 
-                               c.ColumnaCreditoMonto, c.ColumnaVariaCombusNombre, c.ColumnaVariaCombusMonto, 
-                               c.ColumnaTablaHermes, c.FilaFecha,
-                               -- Sequential column and row mapping pairs (11 to 30)
-                               c.Col_Venta_GPL, c.Fila_Venta_GPL,
-                               c.Col_Venta_GNV, c.Fila_Venta_GNV,
-                               c.Col_Total_venta_acumulada, c.Fila_Total_venta_acumulada,
-                               c.Col_Total_Tarjeta_de_Credito_Liquidos, c.Fila_Total_Tarjeta_de_Credito_Liquidos,
-                               c.Col_Total_Tarjeta_de_Credito_GLP, c.Fila_Total_Tarjeta_de_Credito_GLP,
-                               c.Col_Total_Tarjeta_de_Credito_GNV, c.Fila_Total_Tarjeta_de_Credito_GNV,
-                               c.Col_ErrorMaquina, c.Fila_ErrorMaquina,
-                               c.Col_Recaudo_Cofide_GNV, c.Fila_Recaudo_Cofide_GNV,
-                               c.Col_Gastos, c.Fila_Gastos,
-                               c.Col_Ventas_con_transferencia, c.Fila_Ventas_con_transferencia,
-                               -- Writing only columns (31 to 36)
-                               c.Col_DescuentoLiquidos, c.Col_DescuentoGLP,
-                               c.Col_Hermes_monto_liquido, c.Col_Hermes_monto_GLP,
-                               c.Col_Hermes_monto_GNV1, c.Col_Hermes_monto_GNV2,
-                               c.FilaFinal, c.FilaCreditosNombre, c.FilaCreditosMonto,
-                               g.Plantilla,
-                               -- REGISTRO_VENTAS_WRITE columns (41 to 60)
-                               w.NombreHoja, w.FilaSeleccion, w.Venta_GPL, w.Venta_GNV, w.Total_venta_acumulada, 
-                               w.Total_Tarjeta_de_Credito_Liquidos, w.Total_Tarjeta_de_Credito_GLP, w.Total_Tarjeta_de_Credito_GNV, 
-                               w.ErrorMaquina, w.Recaudo_Cofide_GNV, w.Gastos, w.Ventas_con_transferencia, 
-                               w.DescuentoLiquidos, w.DescuentoGLP, w.Hermes_monto_liquido, w.Hermes_monto_GLP, 
-                               w.Hermes_monto_GNV1, w.Hermes_monto_GNV2, w.Id
+                                c.ColumnaCreditoMonto, c.ColumnaVariaCombusNombre, c.ColumnaVariaCombusMonto, 
+                                c.ColumnaHermesMonto, c.FilaFecha,
+                                c.FilaHermesMonto, c.ColumnaHermesBanco, c.FilaHermesBanco, c.ColumnaHermesTipo, c.FilaHermesTipo, c.HermesPalabraClaveMonto,
+                                -- Sequential column and row mapping pairs (17 to 36)
+                                c.Col_Venta_GPL, c.Fila_Venta_GPL,
+                                c.Col_Venta_GNV, c.Fila_Venta_GNV,
+                                c.Col_Total_venta_acumulada, c.Fila_Total_venta_acumulada,
+                                c.Col_Total_Tarjeta_de_Credito_Liquidos, c.Fila_Total_Tarjeta_de_Credito_Liquidos,
+                                c.Col_Total_Tarjeta_de_Credito_GLP, c.Fila_Total_Tarjeta_de_Credito_GLP,
+                                c.Col_Total_Tarjeta_de_Credito_GNV, c.Fila_Total_Tarjeta_de_Credito_GNV,
+                                c.Col_ErrorMaquina, c.Fila_ErrorMaquina,
+                                c.Col_Recaudo_Cofide_GNV, c.Fila_Recaudo_Cofide_GNV,
+                                c.Col_Gastos, c.Fila_Gastos,
+                                c.Col_Ventas_con_transferencia, c.Fila_Ventas_con_transferencia,
+                                -- Writing only columns (37 to 42)
+                                c.Col_DescuentoLiquidos, c.Col_DescuentoGLP,
+                                c.Col_Hermes_monto_liquido, c.Col_Hermes_monto_GLP,
+                                c.Col_Hermes_monto_GNV1, c.Col_Hermes_monto_GNV2,
+                                c.FilaFinal, c.FilaCreditosNombre, c.FilaCreditosMonto,
+                                g.Plantilla,
+                                -- REGISTRO_VENTAS_WRITE columns (47 to 66)
+                                w.NombreHoja, w.FilaSeleccion, w.Venta_GPL, w.Venta_GNV, w.Total_venta_acumulada, 
+                                w.Total_Tarjeta_de_Credito_Liquidos, w.Total_Tarjeta_de_Credito_GLP, w.Total_Tarjeta_de_Credito_GNV, 
+                                w.ErrorMaquina, w.Recaudo_Cofide_GNV, w.Gastos, w.Ventas_con_transferencia, 
+                                w.DescuentoLiquidos, w.DescuentoGLP, w.Hermes_monto_liquido, w.Hermes_monto_GLP, 
+                                w.Hermes_monto_GNV1, w.Hermes_monto_GNV2, w.Id,
+                                c.FilaVariaCombusNombre, c.FilaVariaCombusMonto, c.VariaCombusNombre
                         FROM REGISTRO_VENTAS_GRIFOS g
                         INNER JOIN REGISTRO_VENTAS_CONFIGURACION c ON g.Id = c.GrifoId
                         LEFT JOIN REGISTRO_VENTAS_WRITE w ON g.Id = w.GrifoId
@@ -874,7 +1098,7 @@ namespace PETRO_BOT.Services.Services
                             {
                                 Id = gId,
                                 Nombre = gNombre,
-                                Plantilla = reader.IsDBNull(40) ? "" : reader.GetString(40),
+                                Plantilla = reader.IsDBNull(46) ? "" : reader.GetString(46),
                                 Configuracion = new RegistroVentasConfiguracion
                                 {
                                     Id = reader.GetInt32(2),
@@ -885,63 +1109,72 @@ namespace PETRO_BOT.Services.Services
                                     ColumnaCreditoMonto = ParseColumnDbValue(reader.GetValue(6), 6),
                                     ColumnaVariaCombusNombre = ParseColumnDbValue(reader.GetValue(7), 16),
                                     ColumnaVariaCombusMonto = ParseColumnDbValue(reader.GetValue(8), 18),
-                                    ColumnaTablaHermes = ParseColumnDbValue(reader.GetValue(9), 14),
-                                    FilaFinal = reader.IsDBNull(37) ? 129 : reader.GetInt32(37),
-                                    FilaCreditosNombre = reader.IsDBNull(38) ? 10 : reader.GetInt32(38),
-                                    FilaCreditosMonto = reader.IsDBNull(39) ? 10 : reader.GetInt32(39),
+                                    ColumnaHermesMonto = ParseColumnDbValue(reader.GetValue(9), 14),
+                                    FilaHermesMonto = reader.IsDBNull(11) ? -1 : reader.GetInt32(11),
+                                    ColumnaHermesBanco = ParseColumnDbValue(reader.GetValue(12), -1),
+                                    FilaHermesBanco = reader.IsDBNull(13) ? -1 : reader.GetInt32(13),
+                                    ColumnaHermesTipo = ParseColumnDbValue(reader.GetValue(14), -1),
+                                    FilaHermesTipo = reader.IsDBNull(15) ? -1 : reader.GetInt32(15),
+                                    HermesPalabraClaveMonto = reader.IsDBNull(16) ? "" : reader.GetString(16),
+                                    FilaFinal = reader.IsDBNull(43) ? 129 : reader.GetInt32(43),
+                                    FilaCreditosNombre = reader.IsDBNull(44) ? 10 : reader.GetInt32(44),
+                                    FilaCreditosMonto = reader.IsDBNull(45) ? 10 : reader.GetInt32(45),
+                                    FilaVariaCombusNombre = reader.IsDBNull(66) ? -1 : reader.GetInt32(66),
+                                    FilaVariaCombusMonto = reader.IsDBNull(67) ? -1 : reader.GetInt32(67),
+                                    VariaCombusNombre = reader.IsDBNull(68) ? "" : reader.GetString(68),
                                     
                                     // Sequential column and row mapping pairs
-                                    Col_Venta_GPL = reader.IsDBNull(11) ? "" : reader.GetString(11),
-                                    Fila_Venta_GPL = reader.IsDBNull(12) ? "" : reader.GetString(12),
-                                    Col_Venta_GNV = reader.IsDBNull(13) ? "" : reader.GetString(13),
-                                    Fila_Venta_GNV = reader.IsDBNull(14) ? "" : reader.GetString(14),
-                                    Col_Total_venta_acumulada = reader.IsDBNull(15) ? "" : reader.GetString(15),
-                                    Fila_Total_venta_acumulada = reader.IsDBNull(16) ? "" : reader.GetString(16),
-                                    Col_Total_Tarjeta_de_Credito_Liquidos = reader.IsDBNull(17) ? "" : reader.GetString(17),
-                                    Fila_Total_Tarjeta_de_Credito_Liquidos = reader.IsDBNull(18) ? "" : reader.GetString(18),
-                                    Col_Total_Tarjeta_de_Credito_GLP = reader.IsDBNull(19) ? "" : reader.GetString(19),
-                                    Fila_Total_Tarjeta_de_Credito_GLP = reader.IsDBNull(20) ? "" : reader.GetString(20),
-                                    Col_Total_Tarjeta_de_Credito_GNV = reader.IsDBNull(21) ? "" : reader.GetString(21),
-                                    Fila_Total_Tarjeta_de_Credito_GNV = reader.IsDBNull(22) ? "" : reader.GetString(22),
-                                    Col_ErrorMaquina = reader.IsDBNull(23) ? "" : reader.GetString(23),
-                                    Fila_ErrorMaquina = reader.IsDBNull(24) ? "" : reader.GetString(24),
-                                    Col_Recaudo_Cofide_GNV = reader.IsDBNull(25) ? "" : reader.GetString(25),
-                                    Fila_Recaudo_Cofide_GNV = reader.IsDBNull(26) ? "" : reader.GetString(26),
-                                    Col_Gastos = reader.IsDBNull(27) ? "" : reader.GetString(27),
-                                    Fila_Gastos = reader.IsDBNull(28) ? "" : reader.GetString(28),
-                                    Col_Ventas_con_transferencia = reader.IsDBNull(29) ? "" : reader.GetString(29),
-                                    Fila_Ventas_con_transferencia = reader.IsDBNull(30) ? "" : reader.GetString(30),
+                                    Col_Venta_GPL = reader.IsDBNull(17) ? "" : reader.GetString(17),
+                                    Fila_Venta_GPL = reader.IsDBNull(18) ? "" : reader.GetString(18),
+                                    Col_Venta_GNV = reader.IsDBNull(19) ? "" : reader.GetString(19),
+                                    Fila_Venta_GNV = reader.IsDBNull(20) ? "" : reader.GetString(20),
+                                    Col_Total_venta_acumulada = reader.IsDBNull(21) ? "" : reader.GetString(21),
+                                    Fila_Total_venta_acumulada = reader.IsDBNull(22) ? "" : reader.GetString(22),
+                                    Col_Total_Tarjeta_de_Credito_Liquidos = reader.IsDBNull(23) ? "" : reader.GetString(23),
+                                    Fila_Total_Tarjeta_de_Credito_Liquidos = reader.IsDBNull(24) ? "" : reader.GetString(24),
+                                    Col_Total_Tarjeta_de_Credito_GLP = reader.IsDBNull(25) ? "" : reader.GetString(25),
+                                    Fila_Total_Tarjeta_de_Credito_GLP = reader.IsDBNull(26) ? "" : reader.GetString(26),
+                                    Col_Total_Tarjeta_de_Credito_GNV = reader.IsDBNull(27) ? "" : reader.GetString(27),
+                                    Fila_Total_Tarjeta_de_Credito_GNV = reader.IsDBNull(28) ? "" : reader.GetString(28),
+                                    Col_ErrorMaquina = reader.IsDBNull(29) ? "" : reader.GetString(29),
+                                    Fila_ErrorMaquina = reader.IsDBNull(30) ? "" : reader.GetString(30),
+                                    Col_Recaudo_Cofide_GNV = reader.IsDBNull(31) ? "" : reader.GetString(31),
+                                    Fila_Recaudo_Cofide_GNV = reader.IsDBNull(32) ? "" : reader.GetString(32),
+                                    Col_Gastos = reader.IsDBNull(33) ? "" : reader.GetString(33),
+                                    Fila_Gastos = reader.IsDBNull(34) ? "" : reader.GetString(34),
+                                    Col_Ventas_con_transferencia = reader.IsDBNull(35) ? "" : reader.GetString(35),
+                                    Fila_Ventas_con_transferencia = reader.IsDBNull(36) ? "" : reader.GetString(36),
                                     
                                     // Writing only columns
-                                    Col_DescuentoLiquidos = reader.IsDBNull(31) ? "" : reader.GetString(31),
-                                    Col_DescuentoGLP = reader.IsDBNull(32) ? "" : reader.GetString(32),
-                                    Col_Hermes_monto_liquido = reader.IsDBNull(33) ? "" : reader.GetString(33),
-                                    Col_Hermes_monto_GLP = reader.IsDBNull(34) ? "" : reader.GetString(34),
-                                    Col_Hermes_monto_GNV1 = reader.IsDBNull(35) ? "" : reader.GetString(35),
-                                    Col_Hermes_monto_GNV2 = reader.IsDBNull(36) ? "" : reader.GetString(36)
+                                    Col_DescuentoLiquidos = reader.IsDBNull(37) ? "" : reader.GetString(37),
+                                    Col_DescuentoGLP = reader.IsDBNull(38) ? "" : reader.GetString(38),
+                                    Col_Hermes_monto_liquido = reader.IsDBNull(39) ? "" : reader.GetString(39),
+                                    Col_Hermes_monto_GLP = reader.IsDBNull(40) ? "" : reader.GetString(40),
+                                    Col_Hermes_monto_GNV1 = reader.IsDBNull(41) ? "" : reader.GetString(41),
+                                    Col_Hermes_monto_GNV2 = reader.IsDBNull(42) ? "" : reader.GetString(42)
                                 },
                                 RegistroVentasWrite = new RegistroVentasWriteConfig
                                 {
                                     GrifoId = gId,
-                                    NombreHoja = reader.IsDBNull(41) ? "" : reader.GetString(41),
-                                    FilaSeleccion = reader.IsDBNull(42) ? 10 : reader.GetInt32(42),
-                                    Venta_GPL = reader.IsDBNull(43) ? "" : reader.GetString(43),
-                                    Venta_GNV = reader.IsDBNull(44) ? "" : reader.GetString(44),
-                                    Total_venta_acumulada = reader.IsDBNull(45) ? "" : reader.GetString(45),
-                                    Total_Tarjeta_de_Credito_Liquidos = reader.IsDBNull(46) ? "" : reader.GetString(46),
-                                    Total_Tarjeta_de_Credito_GLP = reader.IsDBNull(47) ? "" : reader.GetString(47),
-                                    Total_Tarjeta_de_Credito_GNV = reader.IsDBNull(48) ? "" : reader.GetString(48),
-                                    ErrorMaquina = reader.IsDBNull(49) ? "" : reader.GetString(49),
-                                    Recaudo_Cofide_GNV = reader.IsDBNull(50) ? "" : reader.GetString(50),
-                                    Gastos = reader.IsDBNull(51) ? "" : reader.GetString(51),
-                                    Ventas_con_transferencia = reader.IsDBNull(52) ? "" : reader.GetString(52),
-                                    DescuentoLiquidos = reader.IsDBNull(53) ? "" : reader.GetString(53),
-                                    DescuentoGLP = reader.IsDBNull(54) ? "" : reader.GetString(54),
-                                    Hermes_monto_liquido = reader.IsDBNull(55) ? "" : reader.GetString(55),
-                                    Hermes_monto_GLP = reader.IsDBNull(56) ? "" : reader.GetString(56),
-                                    Hermes_monto_GNV1 = reader.IsDBNull(57) ? "" : reader.GetString(57),
-                                    Hermes_monto_GNV2 = reader.IsDBNull(58) ? "" : reader.GetString(58),
-                                    Id = reader.IsDBNull(59) ? 0 : reader.GetInt32(59)
+                                    NombreHoja = reader.IsDBNull(47) ? "" : reader.GetString(47),
+                                    FilaSeleccion = reader.IsDBNull(48) ? 10 : reader.GetInt32(48),
+                                    Venta_GPL = reader.IsDBNull(49) ? "" : reader.GetString(49),
+                                    Venta_GNV = reader.IsDBNull(50) ? "" : reader.GetString(50),
+                                    Total_venta_acumulada = reader.IsDBNull(51) ? "" : reader.GetString(51),
+                                    Total_Tarjeta_de_Credito_Liquidos = reader.IsDBNull(52) ? "" : reader.GetString(52),
+                                    Total_Tarjeta_de_Credito_GLP = reader.IsDBNull(53) ? "" : reader.GetString(53),
+                                    Total_Tarjeta_de_Credito_GNV = reader.IsDBNull(54) ? "" : reader.GetString(54),
+                                    ErrorMaquina = reader.IsDBNull(55) ? "" : reader.GetString(55),
+                                    Recaudo_Cofide_GNV = reader.IsDBNull(56) ? "" : reader.GetString(56),
+                                    Gastos = reader.IsDBNull(57) ? "" : reader.GetString(57),
+                                    Ventas_con_transferencia = reader.IsDBNull(58) ? "" : reader.GetString(58),
+                                    DescuentoLiquidos = reader.IsDBNull(59) ? "" : reader.GetString(59),
+                                    DescuentoGLP = reader.IsDBNull(60) ? "" : reader.GetString(60),
+                                    Hermes_monto_liquido = reader.IsDBNull(61) ? "" : reader.GetString(61),
+                                    Hermes_monto_GLP = reader.IsDBNull(62) ? "" : reader.GetString(62),
+                                    Hermes_monto_GNV1 = reader.IsDBNull(63) ? "" : reader.GetString(63),
+                                    Hermes_monto_GNV2 = reader.IsDBNull(64) ? "" : reader.GetString(64),
+                                    Id = reader.IsDBNull(65) ? 0 : reader.GetInt32(65)
                                 }
                             };
                             grifos.Add(grifo);
@@ -1024,7 +1257,8 @@ namespace PETRO_BOT.Services.Services
                 string insertConfig = @"
                     INSERT INTO REGISTRO_VENTAS_CONFIGURACION (
                         GrifoId, ColumnaFecha, FilaFecha, ColumnaCreditoNombre, 
-                        ColumnaCreditoMonto, ColumnaVariaCombusNombre, ColumnaVariaCombusMonto, ColumnaTablaHermes,
+                        ColumnaCreditoMonto, ColumnaVariaCombusNombre, FilaVariaCombusNombre, ColumnaVariaCombusMonto, FilaVariaCombusMonto, VariaCombusNombre, ColumnaHermesMonto,
+                        FilaHermesMonto, ColumnaHermesBanco, FilaHermesBanco, ColumnaHermesTipo, FilaHermesTipo, HermesPalabraClaveMonto,
                         FilaFinal, FilaCreditosNombre, FilaCreditosMonto,
                         
                         -- Sequential column and row mapping pairs
@@ -1045,7 +1279,8 @@ namespace PETRO_BOT.Services.Services
                         Col_Hermes_monto_GNV1, Col_Hermes_monto_GNV2
                     ) VALUES (
                         @GrifoId, @ColumnaFecha, @FilaFecha, @ColumnaCreditoNombre, 
-                        @ColumnaCreditoMonto, @ColumnaVariaCombusNombre, @ColumnaVariaCombusMonto, @ColumnaTablaHermes,
+                        @ColumnaCreditoMonto, @ColumnaVariaCombusNombre, @FilaVariaCombusNombre, @ColumnaVariaCombusMonto, @FilaVariaCombusMonto, @VariaCombusNombre, @ColumnaHermesMonto,
+                        @FilaHermesMonto, @ColumnaHermesBanco, @FilaHermesBanco, @ColumnaHermesTipo, @FilaHermesTipo, @HermesPalabraClaveMonto,
                         @FilaFinal, @FilaCreditosNombre, @FilaCreditosMonto,
                         
                         -- Pairs
@@ -1081,8 +1316,17 @@ namespace PETRO_BOT.Services.Services
                     cmd.Parameters.AddWithValue("@ColumnaCreditoNombre", GetExcelColumnName(c.ColumnaCreditoNombre));
                     cmd.Parameters.AddWithValue("@ColumnaCreditoMonto", GetExcelColumnName(c.ColumnaCreditoMonto));
                     cmd.Parameters.AddWithValue("@ColumnaVariaCombusNombre", GetExcelColumnName(c.ColumnaVariaCombusNombre));
+                    cmd.Parameters.AddWithValue("@FilaVariaCombusNombre", c.FilaVariaCombusNombre);
                     cmd.Parameters.AddWithValue("@ColumnaVariaCombusMonto", GetExcelColumnName(c.ColumnaVariaCombusMonto));
-                    cmd.Parameters.AddWithValue("@ColumnaTablaHermes", GetExcelColumnName(c.ColumnaTablaHermes));
+                    cmd.Parameters.AddWithValue("@FilaVariaCombusMonto", c.FilaVariaCombusMonto);
+                    cmd.Parameters.AddWithValue("@VariaCombusNombre", c.VariaCombusNombre ?? "");
+                    cmd.Parameters.AddWithValue("@ColumnaHermesMonto", GetExcelColumnName(c.ColumnaHermesMonto));
+                    cmd.Parameters.AddWithValue("@FilaHermesMonto", c.FilaHermesMonto);
+                    cmd.Parameters.AddWithValue("@ColumnaHermesBanco", GetExcelColumnName(c.ColumnaHermesBanco));
+                    cmd.Parameters.AddWithValue("@FilaHermesBanco", c.FilaHermesBanco);
+                    cmd.Parameters.AddWithValue("@ColumnaHermesTipo", GetExcelColumnName(c.ColumnaHermesTipo));
+                    cmd.Parameters.AddWithValue("@FilaHermesTipo", c.FilaHermesTipo);
+                    cmd.Parameters.AddWithValue("@HermesPalabraClaveMonto", c.HermesPalabraClaveMonto ?? "");
                     cmd.Parameters.AddWithValue("@FilaFinal", c.FilaFinal);
                     cmd.Parameters.AddWithValue("@FilaCreditosNombre", c.FilaCreditosNombre);
                     cmd.Parameters.AddWithValue("@FilaCreditosMonto", c.FilaCreditosMonto);

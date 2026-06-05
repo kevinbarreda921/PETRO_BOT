@@ -138,96 +138,195 @@
                             <h4 class="text-[9px] font-black text-slate-800 uppercase tracking-[0.15em] border-b border-slate-200 pb-2 mb-4 flex items-center gap-2">
                                 <span class="w-1.5 h-3 bg-[#0f172a] rounded-full"></span> Coordenadas de Lectura
                             </h4>
-                            <div class="config-grid-7">
-                                <!-- 1. Columna Fecha -->
-                                <div class="flex flex-col gap-1">
-                                    <label class="text-[8px] font-black text-slate-500 uppercase">Columna Fecha</label>
-                                    <div class="relative flex items-center">
-                                        <button @onclick="ActivarSeleccionColumnaFecha" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(grifoSeleccionado.Configuracion.ColumnaFecha >= 0 && grifoSeleccionado.Configuracion.FilaFecha >= 1 ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(grifoSeleccionado.Configuracion.ColumnaFecha >= 0 && grifoSeleccionado.Configuracion.FilaFecha >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaFecha) + grifoSeleccionado.Configuracion.FilaFecha + " (Columna: " + grifoSeleccionado.Configuracion.ColumnaFecha + ", Fila: " + grifoSeleccionado.Configuracion.FilaFecha + ")" : "Sin Asignar")">
-                                            <span>@(grifoSeleccionado.Configuracion.ColumnaFecha >= 0 && grifoSeleccionado.Configuracion.FilaFecha >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaFecha) + grifoSeleccionado.Configuracion.FilaFecha : "Sin Valor")</span>
-                                            <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                        </button>
-                                        @if (grifoSeleccionado.Configuracion.ColumnaFecha >= 0 && grifoSeleccionado.Configuracion.FilaFecha >= 1)
-                                        {
-                                            <button @onclick="LimpiarColumnaFecha" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                            </button>
-                                        }
-                                    </div>
-                                </div>
-
-                                <!-- 2. Crédito Nombre -->
-                                <div class="flex flex-col gap-1">
-                                    <label class="text-[8px] font-black text-slate-500 uppercase">Crédito Nombre</label>
-                                    <div class="relative flex items-center">
-                                        <button @onclick="ActivarSeleccionCreditoNombre" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(grifoSeleccionado.Configuracion.ColumnaCreditoNombre >= 0 && grifoSeleccionado.Configuracion.FilaCreditosNombre >= 1 ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(grifoSeleccionado.Configuracion.ColumnaCreditoNombre >= 0 && grifoSeleccionado.Configuracion.FilaCreditosNombre >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaCreditoNombre) + grifoSeleccionado.Configuracion.FilaCreditosNombre + " (Columna: " + grifoSeleccionado.Configuracion.ColumnaCreditoNombre + ", Fila: " + grifoSeleccionado.Configuracion.FilaCreditosNombre + ")" : "Sin Asignar")">
-                                            <span>@(grifoSeleccionado.Configuracion.ColumnaCreditoNombre >= 0 && grifoSeleccionado.Configuracion.FilaCreditosNombre >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaCreditoNombre) + grifoSeleccionado.Configuracion.FilaCreditosNombre : "Sin Valor")</span>
-                                            <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                        </button>
-                                        @if (grifoSeleccionado.Configuracion.ColumnaCreditoNombre >= 0 && grifoSeleccionado.Configuracion.FilaCreditosNombre >= 1)
-                                        {
-                                            <button @onclick="LimpiarCreditoNombre" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                            </button>
-                                        }
-                                    </div>
-                                </div>
-
-                                <!-- 3. Crédito Monto -->
-                                <div class="flex flex-col gap-1">
-                                    <label class="text-[8px] font-black text-slate-500 uppercase">Crédito Monto</label>
-                                    <div class="relative flex items-center">
-                                        <button @onclick="ActivarSeleccionCreditoMonto" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(grifoSeleccionado.Configuracion.ColumnaCreditoMonto >= 0 && grifoSeleccionado.Configuracion.FilaCreditosMonto >= 1 ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(grifoSeleccionado.Configuracion.ColumnaCreditoMonto >= 0 && grifoSeleccionado.Configuracion.FilaCreditosMonto >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaCreditoMonto) + grifoSeleccionado.Configuracion.FilaCreditosMonto + " (Columna: " + grifoSeleccionado.Configuracion.ColumnaCreditoMonto + ", Fila: " + grifoSeleccionado.Configuracion.FilaCreditosMonto + ")" : "Sin Asignar")">
-                                            <span>@(grifoSeleccionado.Configuracion.ColumnaCreditoMonto >= 0 && grifoSeleccionado.Configuracion.FilaCreditosMonto >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaCreditoMonto) + grifoSeleccionado.Configuracion.FilaCreditosMonto : "Sin Valor")</span>
-                                            <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                        </button>
-                                        @if (grifoSeleccionado.Configuracion.ColumnaCreditoMonto >= 0 && grifoSeleccionado.Configuracion.FilaCreditosMonto >= 1)
-                                        {
-                                            <button @onclick="LimpiarCreditoMonto" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                            </button>
-                                        }
-                                    </div>
-                                </div>
-
-                                <!-- Sequential row maps (10 fields) -->
-                                @foreach (var prop in mapeoFilasKeys)
-                                {
+                            <div class="flex flex-col gap-6">
+                                <!-- Grupo 1: Mapeo de Lectura Principal (Original 14 campos, alineación perfecta 7x2) -->
+                                <div class="config-grid-7">
+                                    <!-- 1. Columna Fecha -->
                                     <div class="flex flex-col gap-1">
-                                        <label class="text-[8px] font-black text-slate-500 uppercase truncate" title="@prop">@GetFriendlyLabel(prop)</label>
+                                        <label class="text-[8px] font-black text-slate-500 uppercase">Columna Fecha</label>
                                         <div class="relative flex items-center">
-                                            <button @onclick="() => ActivarSeleccionFila(prop)" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(!string.IsNullOrWhiteSpace(GetConfigValue(prop, false)) ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@GetConfigLabelFull(prop)">
-                                                <span>@GetConfigLabel(prop, false)</span>
+                                            <button @onclick="ActivarSeleccionColumnaFecha" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(grifoSeleccionado.Configuracion.ColumnaFecha >= 0 && grifoSeleccionado.Configuracion.FilaFecha >= 1 ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(grifoSeleccionado.Configuracion.ColumnaFecha >= 0 && grifoSeleccionado.Configuracion.FilaFecha >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaFecha) + grifoSeleccionado.Configuracion.FilaFecha + " (Columna: " + grifoSeleccionado.Configuracion.ColumnaFecha + ", Fila: " + grifoSeleccionado.Configuracion.FilaFecha + ")" : "Sin Asignar")">
+                                                <span>@(grifoSeleccionado.Configuracion.ColumnaFecha >= 0 && grifoSeleccionado.Configuracion.FilaFecha >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaFecha) + grifoSeleccionado.Configuracion.FilaFecha : "Sin Valor")</span>
                                                 <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                             </button>
-                                            @if (!string.IsNullOrWhiteSpace(GetConfigValue(prop, false)))
+                                            @if (grifoSeleccionado.Configuracion.ColumnaFecha >= 0 && grifoSeleccionado.Configuracion.FilaFecha >= 1)
                                             {
-                                                <button @onclick="() => LimpiarFila(prop)" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
+                                                <button @onclick="LimpiarColumnaFecha" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
                                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                                                 </button>
                                             }
                                         </div>
                                     </div>
-                                }
 
-                                <!-- 14. Fila Final (Goes last!) -->
-                                <div class="flex flex-col gap-1">
-                                    <label class="text-[8px] font-black text-slate-500 uppercase">Fila Final</label>
-                                    <div class="relative flex items-center">
-                                        <button @onclick="ActivarSeleccionFilaFinal" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(grifoSeleccionado.Configuracion.FilaFinal >= 1 ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(grifoSeleccionado.Configuracion.FilaFinal >= 1 ? "Fila Final: " + grifoSeleccionado.Configuracion.FilaFinal : "Sin Asignar")">
-                                            <span>@(grifoSeleccionado.Configuracion.FilaFinal >= 1 ? "Fila " + grifoSeleccionado.Configuracion.FilaFinal : "Sin Valor")</span>
-                                            <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                        </button>
-                                        @if (grifoSeleccionado.Configuracion.FilaFinal >= 1 && grifoSeleccionado.Configuracion.FilaFinal != 129)
-                                        {
-                                            <button @onclick="LimpiarFilaFinal" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    <!-- 2. Crédito Nombre -->
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-[8px] font-black text-slate-500 uppercase">Crédito Nombre</label>
+                                        <div class="relative flex items-center">
+                                            <button @onclick="ActivarSeleccionCreditoNombre" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(grifoSeleccionado.Configuracion.ColumnaCreditoNombre >= 0 && grifoSeleccionado.Configuracion.FilaCreditosNombre >= 1 ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(grifoSeleccionado.Configuracion.ColumnaCreditoNombre >= 0 && grifoSeleccionado.Configuracion.FilaCreditosNombre >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaCreditoNombre) + grifoSeleccionado.Configuracion.FilaCreditosNombre + " (Columna: " + grifoSeleccionado.Configuracion.ColumnaCreditoNombre + ", Fila: " + grifoSeleccionado.Configuracion.FilaCreditosNombre + ")" : "Sin Asignar")">
+                                                <span>@(grifoSeleccionado.Configuracion.ColumnaCreditoNombre >= 0 && grifoSeleccionado.Configuracion.FilaCreditosNombre >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaCreditoNombre) + grifoSeleccionado.Configuracion.FilaCreditosNombre : "Sin Valor")</span>
+                                                <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                             </button>
-                                        }
+                                            @if (grifoSeleccionado.Configuracion.ColumnaCreditoNombre >= 0 && grifoSeleccionado.Configuracion.FilaCreditosNombre >= 1)
+                                            {
+                                                <button @onclick="LimpiarCreditoNombre" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                </button>
+                                            }
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
+
+                                    <!-- 3. Crédito Monto -->
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-[8px] font-black text-slate-500 uppercase">Crédito Monto</label>
+                                        <div class="relative flex items-center">
+                                            <button @onclick="ActivarSeleccionCreditoMonto" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(grifoSeleccionado.Configuracion.ColumnaCreditoMonto >= 0 && grifoSeleccionado.Configuracion.FilaCreditosMonto >= 1 ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(grifoSeleccionado.Configuracion.ColumnaCreditoMonto >= 0 && grifoSeleccionado.Configuracion.FilaCreditosMonto >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaCreditoMonto) + grifoSeleccionado.Configuracion.FilaCreditosMonto + " (Columna: " + grifoSeleccionado.Configuracion.ColumnaCreditoMonto + ", Fila: " + grifoSeleccionado.Configuracion.FilaCreditosMonto + ")" : "Sin Asignar")">
+                                                <span>@(grifoSeleccionado.Configuracion.ColumnaCreditoMonto >= 0 && grifoSeleccionado.Configuracion.FilaCreditosMonto >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaCreditoMonto) + grifoSeleccionado.Configuracion.FilaCreditosMonto : "Sin Valor")</span>
+                                                <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                            </button>
+                                            @if (grifoSeleccionado.Configuracion.ColumnaCreditoMonto >= 0 && grifoSeleccionado.Configuracion.FilaCreditosMonto >= 1)
+                                            {
+                                                <button @onclick="LimpiarCreditoMonto" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- Sequential row maps (10 fields) -->
+                                    @foreach (var prop in mapeoFilasKeys)
+                                    {
+                                        <div class="flex flex-col gap-1">
+                                            <label class="text-[8px] font-black text-slate-500 uppercase truncate" title="@prop">@GetFriendlyLabel(prop)</label>
+                                            <div class="relative flex items-center">
+                                                <button @onclick="() => ActivarSeleccionFila(prop)" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(!string.IsNullOrWhiteSpace(GetConfigValue(prop, false)) ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@GetConfigLabelFull(prop)">
+                                                    <span>@GetConfigLabel(prop, false)</span>
+                                                    <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                </button>
+                                                @if (!string.IsNullOrWhiteSpace(GetConfigValue(prop, false)))
+                                                {
+                                                    <button @onclick="() => LimpiarFila(prop)" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                    </button>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- 14. Fila Final (Goes last!) -->
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-[8px] font-black text-slate-500 uppercase">Fila Final</label>
+                                        <div class="relative flex items-center">
+                                            <button @onclick="ActivarSeleccionFilaFinal" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(grifoSeleccionado.Configuracion.FilaFinal >= 1 ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(grifoSeleccionado.Configuracion.FilaFinal >= 1 ? "Fila Final: " + grifoSeleccionado.Configuracion.FilaFinal : "Sin Asignar")">
+                                                <span>@(grifoSeleccionado.Configuracion.FilaFinal >= 1 ? "Fila " + grifoSeleccionado.Configuracion.FilaFinal : "Sin Valor")</span>
+                                                <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                            </button>
+                                            @if (grifoSeleccionado.Configuracion.FilaFinal >= 1 && grifoSeleccionado.Configuracion.FilaFinal != 129)
+                                            {
+                                                <button @onclick="LimpiarFilaFinal" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                     <!-- 15. Hermes Banco -->
+                                     <div class="flex flex-col gap-1">
+                                         <label class="text-[8px] font-black text-slate-500 uppercase">Hermes Banco</label>
+                                         <div class="relative flex items-center">
+                                             <button @onclick="ActivarSeleccionHermesBanco" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(grifoSeleccionado.Configuracion.ColumnaHermesBanco >= 0 && grifoSeleccionado.Configuracion.FilaHermesBanco >= 1 ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(grifoSeleccionado.Configuracion.ColumnaHermesBanco >= 0 && grifoSeleccionado.Configuracion.FilaHermesBanco >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaHermesBanco) + grifoSeleccionado.Configuracion.FilaHermesBanco + " (Columna: " + grifoSeleccionado.Configuracion.ColumnaHermesBanco + ", Fila: " + grifoSeleccionado.Configuracion.FilaHermesBanco + ")" : "Sin Asignar")">
+                                                 <span>@(grifoSeleccionado.Configuracion.ColumnaHermesBanco >= 0 && grifoSeleccionado.Configuracion.FilaHermesBanco >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaHermesBanco) + grifoSeleccionado.Configuracion.FilaHermesBanco : "Sin Valor")</span>
+                                                 <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                             </button>
+                                             @if (grifoSeleccionado.Configuracion.ColumnaHermesBanco >= 0 && grifoSeleccionado.Configuracion.FilaHermesBanco >= 1)
+                                             {
+                                                 <button @onclick="LimpiarHermesBanco" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
+                                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                 </button>
+                                             }
+                                         </div>
+                                     </div>
+
+                                     <!-- 16. Hermes Tipo -->
+                                     <div class="flex flex-col gap-1">
+                                         <label class="text-[8px] font-black text-slate-500 uppercase">Hermes Tipo</label>
+                                         <div class="relative flex items-center">
+                                             <button @onclick="ActivarSeleccionHermesTipo" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(grifoSeleccionado.Configuracion.ColumnaHermesTipo >= 0 && grifoSeleccionado.Configuracion.FilaHermesTipo >= 1 ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(grifoSeleccionado.Configuracion.ColumnaHermesTipo >= 0 && grifoSeleccionado.Configuracion.FilaHermesTipo >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaHermesTipo) + grifoSeleccionado.Configuracion.FilaHermesTipo + " (Columna: " + grifoSeleccionado.Configuracion.ColumnaHermesTipo + ", Fila: " + grifoSeleccionado.Configuracion.FilaHermesTipo + ")" : "Sin Asignar")">
+                                                 <span>@(grifoSeleccionado.Configuracion.ColumnaHermesTipo >= 0 && grifoSeleccionado.Configuracion.FilaHermesTipo >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaHermesTipo) + grifoSeleccionado.Configuracion.FilaHermesTipo : "Sin Valor")</span>
+                                                 <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                             </button>
+                                             @if (grifoSeleccionado.Configuracion.ColumnaHermesTipo >= 0 && grifoSeleccionado.Configuracion.FilaHermesTipo >= 1)
+                                             {
+                                                 <button @onclick="LimpiarHermesTipo" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
+                                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                 </button>
+                                             }
+                                         </div>
+                                     </div>
+
+                                     <!-- 17. Hermes Monto -->
+                                     <div class="flex flex-col gap-1">
+                                         <label class="text-[8px] font-black text-slate-500 uppercase">Hermes Monto</label>
+                                         <div class="relative flex items-center">
+                                             <button @onclick="ActivarSeleccionHermesMonto" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(grifoSeleccionado.Configuracion.ColumnaHermesMonto >= 0 && grifoSeleccionado.Configuracion.FilaHermesMonto >= 1 ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(grifoSeleccionado.Configuracion.ColumnaHermesMonto >= 0 && grifoSeleccionado.Configuracion.FilaHermesMonto >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaHermesMonto) + grifoSeleccionado.Configuracion.FilaHermesMonto + " (Columna: " + grifoSeleccionado.Configuracion.ColumnaHermesMonto + ", Fila: " + grifoSeleccionado.Configuracion.FilaHermesMonto + ")" : "Sin Asignar")">
+                                                 <span>@(grifoSeleccionado.Configuracion.ColumnaHermesMonto >= 0 && grifoSeleccionado.Configuracion.FilaHermesMonto >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaHermesMonto) + grifoSeleccionado.Configuracion.FilaHermesMonto : "Sin Valor")</span>
+                                                 <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                             </button>
+                                             @if (grifoSeleccionado.Configuracion.ColumnaHermesMonto >= 0 && grifoSeleccionado.Configuracion.FilaHermesMonto >= 1)
+                                             {
+                                                 <button @onclick="LimpiarHermesMonto" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
+                                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                 </button>
+                                             }
+                                         </div>
+                                     </div>
+
+                                     <!-- 18. Palabra Clave Hermes -->
+                                     <div class="flex flex-col gap-1">
+                                         <label class="text-[8px] font-black text-slate-500 uppercase">Palabra Clave Hermes</label>
+                                         <input type="text" readonly class="w-full rounded-xl px-3 py-2 text-xs font-bold border border-slate-200 bg-slate-100 text-slate-600 select-none outline-none min-h-[34px]" value="@grifoSeleccionado.Configuracion.HermesPalabraClaveMonto" title="Valor palabra clave del monto de Hermes (no editable)" />
+                                     </div>
+
+                                     <!-- 19. Combustible Variable Nombre -->
+                                     <div class="flex flex-col gap-1">
+                                         <label class="text-[8px] font-black text-slate-500 uppercase">Combustible Var. Nombre</label>
+                                         <div class="relative flex items-center">
+                                             <button @onclick="ActivarSeleccionVariaCombusNombre" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(grifoSeleccionado.Configuracion.ColumnaVariaCombusNombre >= 0 && grifoSeleccionado.Configuracion.FilaVariaCombusNombre >= 1 ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(grifoSeleccionado.Configuracion.ColumnaVariaCombusNombre >= 0 && grifoSeleccionado.Configuracion.FilaVariaCombusNombre >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaVariaCombusNombre) + grifoSeleccionado.Configuracion.FilaVariaCombusNombre + " (Columna: " + grifoSeleccionado.Configuracion.ColumnaVariaCombusNombre + ", Fila: " + grifoSeleccionado.Configuracion.FilaVariaCombusNombre + ")" : "Sin Asignar")">
+                                                 <span>@(grifoSeleccionado.Configuracion.ColumnaVariaCombusNombre >= 0 && grifoSeleccionado.Configuracion.FilaVariaCombusNombre >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaVariaCombusNombre) + grifoSeleccionado.Configuracion.FilaVariaCombusNombre : "Sin Valor")</span>
+                                                 <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                             </button>
+                                             @if (grifoSeleccionado.Configuracion.ColumnaVariaCombusNombre >= 0 && grifoSeleccionado.Configuracion.FilaVariaCombusNombre >= 1)
+                                             {
+                                                 <button @onclick="LimpiarVariaCombusNombre" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
+                                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                 </button>
+                                             }
+                                         </div>
+                                     </div>
+
+                                     <!-- 20. Combustible Variable Monto -->
+                                     <div class="flex flex-col gap-1">
+                                         <label class="text-[8px] font-black text-slate-500 uppercase">Combustible Var. Monto</label>
+                                         <div class="relative flex items-center">
+                                             <button @onclick="ActivarSeleccionVariaCombusMonto" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(grifoSeleccionado.Configuracion.ColumnaVariaCombusMonto >= 0 && grifoSeleccionado.Configuracion.FilaVariaCombusMonto >= 1 ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(grifoSeleccionado.Configuracion.ColumnaVariaCombusMonto >= 0 && grifoSeleccionado.Configuracion.FilaVariaCombusMonto >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaVariaCombusMonto) + grifoSeleccionado.Configuracion.FilaVariaCombusMonto + " (Columna: " + grifoSeleccionado.Configuracion.ColumnaVariaCombusMonto + ", Fila: " + grifoSeleccionado.Configuracion.FilaVariaCombusMonto + ")" : "Sin Asignar")">
+                                                 <span>@(grifoSeleccionado.Configuracion.ColumnaVariaCombusMonto >= 0 && grifoSeleccionado.Configuracion.FilaVariaCombusMonto >= 1 ? GetExcelColumnName(grifoSeleccionado.Configuracion.ColumnaVariaCombusMonto) + grifoSeleccionado.Configuracion.FilaVariaCombusMonto : "Sin Valor")</span>
+                                                 <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                             </button>
+                                             @if (grifoSeleccionado.Configuracion.ColumnaVariaCombusMonto >= 0 && grifoSeleccionado.Configuracion.FilaVariaCombusMonto >= 1)
+                                             {
+                                                 <button @onclick="LimpiarVariaCombusMonto" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
+                                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                 </button>
+                                             }
+                                         </div>
+                                     </div>
+
+                                     <!-- 21. Palabra Clave Combustible -->
+                                     <div class="flex flex-col gap-1">
+                                         <label class="text-[8px] font-black text-slate-500 uppercase">Palabra Clave Combustible</label>
+                                         <input type="text" readonly class="w-full rounded-xl px-3 py-2 text-xs font-bold border border-slate-200 bg-slate-100 text-slate-600 select-none outline-none min-h-[34px]" value="@grifoSeleccionado.Configuracion.VariaCombusNombre" title="Valor palabra clave del nombre de Combustible Variable (no editable)" />
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
 
                         <!-- Panel: Escritura -->
                         <div class="bg-slate-50 border border-slate-200 rounded-[20px] p-5 shadow-sm">
@@ -272,20 +371,20 @@
                                 </h4>
                                 <button @onclick="AbrirModalAgregarCliente" class="bg-[#0f172a] hover:bg-slate-800 text-white px-3.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer shadow-sm hover:scale-[1.01] active:scale-[0.98]">Agregar</button>
                             </div>
-                            <div class="overflow-auto custom-scrollbar bg-[#0f172a] border border-slate-800 rounded-2xl px-4 pb-4 pt-0 shadow-lg" style="flex: 1; min-height: 150px; padding-right: 4px;">
-                                <table class="w-full text-left">
-                                    <thead class="sticky top-0 bg-[#0f172a] z-10">
-                                        <tr class="text-xs font-black uppercase tracking-wider border-b border-slate-800" style="color: #ffffff !important;">
-                                            <th class="py-3 bg-[#0f172a]" style="color: #ffffff !important;">Columna</th>
-                                            <th class="py-3 bg-[#0f172a]" style="color: #ffffff !important;">Cliente / Razon Social</th>
-                                            <th class="py-3 text-right pr-4 bg-[#0f172a]" style="color: #ffffff !important;">Acción</th>
+                            <div class="overflow-auto custom-scrollbar bg-white border border-slate-200 rounded-2xl shadow-sm" style="flex: 1; min-height: 150px;">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="sticky top-0 z-10" style="background-color: #1e293b !important;">
+                                        <tr class="text-[10px] font-black uppercase tracking-wider" style="color: #ffffff !important;">
+                                            <th class="py-3 px-4" style="background-color: #1e293b !important; color: #ffffff !important;">Columna</th>
+                                            <th class="py-3 px-4" style="background-color: #1e293b !important; color: #ffffff !important;">Cliente / Razón Social</th>
+                                            <th class="py-3 px-4 text-right" style="background-color: #1e293b !important; color: #ffffff !important;">Acción</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="text-xs">
+                                    <tbody class="text-xs text-slate-700 divide-y divide-slate-100">
                                         @if (grifoSeleccionado.ClientesCredito == null || !grifoSeleccionado.ClientesCredito.Any())
                                         {
                                             <tr>
-                                                <td colspan="3" class="py-6 text-center text-slate-400 italic font-semibold">Sin clientes registrados.</td>
+                                                <td colspan="3" class="py-8 text-center text-slate-450 italic font-semibold bg-white">Sin clientes registrados.</td>
                                             </tr>
                                         }
                                         else
@@ -294,10 +393,10 @@
                                             {
                                                 var col = cliente.Columna;
                                                 var name = cliente.ClienteNombre;
-                                                <tr class="border-b border-slate-850 hover:bg-slate-900/40 transition-all duration-200">
-                                                    <td class="py-2">
+                                                <tr class="hover:bg-slate-50/50 transition-all duration-205">
+                                                    <td class="py-2.5 px-4 bg-white">
                                                         <div class="relative flex items-center w-24">
-                                                            <button @onclick="() => ActivarSeleccionClienteCol(cliente)" type="button" class="w-full rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1" style="@(!string.IsNullOrWhiteSpace(cliente.Columna) ? "background-color: #0f172a !important; border-color: #475569 !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(string.IsNullOrWhiteSpace(cliente.Columna) ? "Sin Asignar" : $"Columna {cliente.Columna}")">
+                                                            <button @onclick="() => ActivarSeleccionClienteCol(cliente)" type="button" class="w-full rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[30px]" style="@(!string.IsNullOrWhiteSpace(cliente.Columna) ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(string.IsNullOrWhiteSpace(cliente.Columna) ? "Sin Asignar" : $"Columna {cliente.Columna}")">
                                                                 <span>@(!string.IsNullOrWhiteSpace(cliente.Columna) ? cliente.Columna : "Sin Valor")</span>
                                                                 <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                                             </button>
@@ -309,12 +408,14 @@
                                                             }
                                                         </div>
                                                     </td>
-                                                    <td class="py-3 text-slate-200 font-bold">@name</td>
-                                                    <td class="py-3 text-right flex items-center justify-end gap-2 pr-4">
-                                                        <button @onclick="() => EliminarCliente(cliente.Id)" class="bg-rose-600 hover:bg-rose-700 text-white text-[9px] font-black uppercase tracking-wider rounded-xl px-2.5 py-1.5 shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 cursor-pointer">
-                                                            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                            <span>Eliminar</span>
-                                                        </button>
+                                                    <td class="py-2.5 px-4 bg-white font-bold text-slate-800">@name</td>
+                                                    <td class="py-2.5 px-4 bg-white text-right">
+                                                        <div class="flex items-center justify-end gap-2">
+                                                            <button @onclick="() => EliminarCliente(cliente.Id)" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 text-[10px] font-black uppercase tracking-wider rounded-xl px-3.5 py-1.5 shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 cursor-pointer">
+                                                                <svg class="w-3 h-3 text-rose-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                                <span>Eliminar</span>
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             }
@@ -533,11 +634,16 @@
                         </div>
                     </div>
                 }
-                else if (campoSeleccionandoModal == "ColumnaFecha" || campoSeleccionandoModal == "CreditoNombre" || campoSeleccionandoModal == "CreditoMonto")
+                else if (campoSeleccionandoModal == "ColumnaFecha" || campoSeleccionandoModal == "CreditoNombre" || campoSeleccionandoModal == "CreditoMonto" || campoSeleccionandoModal == "HermesBanco" || campoSeleccionandoModal == "HermesTipo" || campoSeleccionandoModal == "HermesMonto" || campoSeleccionandoModal == "VariaCombusNombre" || campoSeleccionandoModal == "VariaCombusMonto")
                 {
                     var titleText = campoSeleccionandoModal == "ColumnaFecha" ? "Columna/Fila Fecha" :
                                     campoSeleccionandoModal == "CreditoNombre" ? "Columna/Fila de Crédito Nombre" :
-                                    "Columna/Fila de Crédito Monto";
+                                    campoSeleccionandoModal == "CreditoMonto" ? "Columna/Fila de Crédito Monto" :
+                                    campoSeleccionandoModal == "HermesBanco" ? "Columna/Fila de Hermes Banco" :
+                                    campoSeleccionandoModal == "HermesTipo" ? "Columna/Fila de Hermes Tipo" :
+                                    campoSeleccionandoModal == "HermesMonto" ? "Columna/Fila de Hermes Monto" :
+                                    campoSeleccionandoModal == "VariaCombusNombre" ? "Columna/Fila de Combustible Var. Nombre" :
+                                    "Columna/Fila de Combustible Var. Monto";
                     <div class="mb-4 bg-emerald-55 border border-emerald-200/80 rounded-2xl p-4 flex items-center justify-between shadow-sm animate-modal-in" style="background-color: #f0fdf4;">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 border border-emerald-200 animate-pulse">
@@ -615,7 +721,7 @@
                     var maxColCount = plantillaExcelFilas.Max(r => r.Count);
                     
                     <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white flex-1 flex flex-col">
-                        <div id="excelPreviewContainer" class="overflow-auto custom-scrollbar flex-1" style="max-height: calc(90vh - 220px);">
+                        <div id="excelPreviewContainer" class="overflow-auto excel-preview-scrollbar flex-1" style="max-height: calc(90vh - 220px);">
                             <table class="w-full border-collapse text-left excel-preview-table">
                                 <thead>
                                     <tr class="bg-slate-100 select-none">
@@ -624,7 +730,7 @@
                                         @for (int c = 0; c < maxColCount; c++)
                                         {
                                             var letter = GetExcelColumnName(c);
-                                            <th class="px-3 py-2 text-center text-[12px] font-mono font-black text-slate-600 border-r border-b border-slate-300/80 min-w-[120px] bg-slate-100">
+                                            <th class="px-3 py-2 text-center text-[10px] font-mono font-black text-slate-600 border-r border-b border-slate-300/80 min-w-[120px] bg-slate-100 notranslate" translate="no">
                                                 @letter
                                             </th>
                                         }
@@ -636,7 +742,7 @@
                                         var rowData = plantillaExcelFilas[r];
                                         var displayRowNumber = r + 1;
                                         <tr class="hover:bg-slate-50/40 border-b border-slate-200/70">
-                                            <td class="bg-slate-100 text-center text-[12px] font-mono font-black text-slate-600 border-r border-slate-300/80 select-none py-2 px-3 w-12">
+                                            <td class="bg-slate-100 text-center text-[10px] font-mono font-black text-slate-600 border-r border-slate-300/80 select-none py-2 px-3 w-12 notranslate" translate="no">
                                                 @displayRowNumber
                                             </td>
                                             @for (int c = 0; c < maxColCount; c++)
@@ -763,7 +869,7 @@
                                                 }
                                                 else
                                                 {
-                                                    if (campoSeleccionandoModal == "ColumnaFecha" || campoSeleccionandoModal == "CreditoNombre" || campoSeleccionandoModal == "CreditoMonto")
+                                                    if (campoSeleccionandoModal == "ColumnaFecha" || campoSeleccionandoModal == "CreditoNombre" || campoSeleccionandoModal == "CreditoMonto" || campoSeleccionandoModal == "HermesBanco" || campoSeleccionandoModal == "HermesTipo" || campoSeleccionandoModal == "HermesMonto" || campoSeleccionandoModal == "VariaCombusNombre" || campoSeleccionandoModal == "VariaCombusMonto")
                                                     {
                                                         var localRow = r;
                                                         var mappedProp = GetMappedPropertyNameForCell(localRow, localCol);
@@ -784,6 +890,31 @@
                                                         {
                                                             esElMismo = (localCol == grifoSeleccionado?.Configuracion.ColumnaCreditoMonto && localRow == (grifoSeleccionado?.Configuracion.FilaCreditosMonto - 1));
                                                             tooltipText = $"Crédito Monto ({GetExcelColumnName(localCol)}{localRow + 1})";
+                                                        }
+                                                        else if (campoSeleccionandoModal == "HermesBanco")
+                                                        {
+                                                            esElMismo = (localCol == grifoSeleccionado?.Configuracion.ColumnaHermesBanco && localRow == (grifoSeleccionado?.Configuracion.FilaHermesBanco - 1));
+                                                            tooltipText = $"Hermes Banco ({GetExcelColumnName(localCol)}{localRow + 1})";
+                                                        }
+                                                        else if (campoSeleccionandoModal == "HermesTipo")
+                                                        {
+                                                            esElMismo = (localCol == grifoSeleccionado?.Configuracion.ColumnaHermesTipo && localRow == (grifoSeleccionado?.Configuracion.FilaHermesTipo - 1));
+                                                            tooltipText = $"Hermes Tipo ({GetExcelColumnName(localCol)}{localRow + 1})";
+                                                        }
+                                                        else if (campoSeleccionandoModal == "HermesMonto")
+                                                        {
+                                                            esElMismo = (localCol == grifoSeleccionado?.Configuracion.ColumnaHermesMonto && localRow == (grifoSeleccionado?.Configuracion.FilaHermesMonto - 1));
+                                                            tooltipText = $"Hermes Monto ({GetExcelColumnName(localCol)}{localRow + 1})";
+                                                        }
+                                                        else if (campoSeleccionandoModal == "VariaCombusNombre")
+                                                        {
+                                                            esElMismo = (localCol == grifoSeleccionado?.Configuracion.ColumnaVariaCombusNombre && localRow == (grifoSeleccionado?.Configuracion.FilaVariaCombusNombre - 1));
+                                                            tooltipText = $"Combustible Nombre ({GetExcelColumnName(localCol)}{localRow + 1})";
+                                                        }
+                                                        else if (campoSeleccionandoModal == "VariaCombusMonto")
+                                                        {
+                                                            esElMismo = (localCol == grifoSeleccionado?.Configuracion.ColumnaVariaCombusMonto && localRow == (grifoSeleccionado?.Configuracion.FilaVariaCombusMonto - 1));
+                                                            tooltipText = $"Combustible Monto ({GetExcelColumnName(localCol)}{localRow + 1})";
                                                         }
                                                         
                                                         if (esElMismo)
@@ -1020,6 +1151,9 @@
     .excel-preview-table {
         border-collapse: separate !important;
         border-spacing: 0 !important;
+    }
+    .excel-preview-table tbody tr td {
+        font-size: 10px !important;
     }
     
     /* Sticky Top Headers (A, B, C...) */
@@ -1496,7 +1630,13 @@
                 FilaCreditosMonto = 0,
                 ColumnaVariaCombusNombre = -1,
                 ColumnaVariaCombusMonto = -1,
-                ColumnaTablaHermes = -1,
+                ColumnaHermesMonto = 14,
+                FilaHermesMonto = -1,
+                ColumnaHermesBanco = -1,
+                FilaHermesBanco = -1,
+                ColumnaHermesTipo = -1,
+                FilaHermesTipo = -1,
+                HermesPalabraClaveMonto = "",
                 FilaFinal = 0
             }
         };
@@ -2041,6 +2181,113 @@
         CerrarModalVerPlantilla();
     }
 
+    private void ActivarSeleccionHermesBanco()
+    {
+        if (grifoSeleccionado == null) return;
+        if (string.IsNullOrWhiteSpace(grifoSeleccionado.Plantilla))
+        {
+            ToastService.Error("Carga primero un archivo de plantilla Excel para poder seleccionar visualmente.");
+            return;
+        }
+
+        campoSeleccionandoModal = "HermesBanco";
+        AbrirModalVerPlantilla();
+    }
+
+    private void LimpiarHermesBanco()
+    {
+        if (grifoSeleccionado == null) return;
+        grifoSeleccionado.Configuracion.ColumnaHermesBanco = -1;
+        grifoSeleccionado.Configuracion.FilaHermesBanco = -1;
+        ToastService.Success("Hermes Banco removido (sin asignar). Recuerda Guardar los cambios.");
+    }
+
+    private void ActivarSeleccionHermesTipo()
+    {
+        if (grifoSeleccionado == null) return;
+        if (string.IsNullOrWhiteSpace(grifoSeleccionado.Plantilla))
+        {
+            ToastService.Error("Carga primero un archivo de plantilla Excel para poder seleccionar visualmente.");
+            return;
+        }
+
+        campoSeleccionandoModal = "HermesTipo";
+        AbrirModalVerPlantilla();
+    }
+
+    private void LimpiarHermesTipo()
+    {
+        if (grifoSeleccionado == null) return;
+        grifoSeleccionado.Configuracion.ColumnaHermesTipo = -1;
+        grifoSeleccionado.Configuracion.FilaHermesTipo = -1;
+        ToastService.Success("Hermes Tipo removido (sin asignar). Recuerda Guardar los cambios.");
+    }
+
+    private void ActivarSeleccionHermesMonto()
+    {
+        if (grifoSeleccionado == null) return;
+        if (string.IsNullOrWhiteSpace(grifoSeleccionado.Plantilla))
+        {
+            ToastService.Error("Carga primero un archivo de plantilla Excel para poder seleccionar visualmente.");
+            return;
+        }
+
+        campoSeleccionandoModal = "HermesMonto";
+        AbrirModalVerPlantilla();
+    }
+
+    private void LimpiarHermesMonto()
+    {
+        if (grifoSeleccionado == null) return;
+        grifoSeleccionado.Configuracion.ColumnaHermesMonto = -1;
+        grifoSeleccionado.Configuracion.FilaHermesMonto = -1;
+        grifoSeleccionado.Configuracion.HermesPalabraClaveMonto = "";
+        ToastService.Success("Hermes Monto y Palabra Clave removidos (sin asignar). Recuerda Guardar los cambios.");
+    }
+
+    private void ActivarSeleccionVariaCombusNombre()
+    {
+        if (grifoSeleccionado == null) return;
+        if (string.IsNullOrWhiteSpace(grifoSeleccionado.Plantilla))
+        {
+            ToastService.Error("Carga primero un archivo de plantilla Excel para poder seleccionar visualmente.");
+            return;
+        }
+
+        campoSeleccionandoModal = "VariaCombusNombre";
+        AbrirModalVerPlantilla();
+    }
+
+    private void LimpiarVariaCombusNombre()
+    {
+        if (grifoSeleccionado == null) return;
+        grifoSeleccionado.Configuracion.ColumnaVariaCombusNombre = -1;
+        grifoSeleccionado.Configuracion.FilaVariaCombusNombre = -1;
+        grifoSeleccionado.Configuracion.VariaCombusNombre = "";
+        ToastService.Success("Nombre de Combustible Variable removido. Recuerda Guardar los cambios.");
+    }
+
+    private void ActivarSeleccionVariaCombusMonto()
+    {
+        if (grifoSeleccionado == null) return;
+        if (string.IsNullOrWhiteSpace(grifoSeleccionado.Plantilla))
+        {
+            ToastService.Error("Carga primero un archivo de plantilla Excel para poder seleccionar visualmente.");
+            return;
+        }
+
+        campoSeleccionandoModal = "VariaCombusMonto";
+        AbrirModalVerPlantilla();
+    }
+
+    private void LimpiarVariaCombusMonto()
+    {
+        if (grifoSeleccionado == null) return;
+        grifoSeleccionado.Configuracion.ColumnaVariaCombusMonto = -1;
+        grifoSeleccionado.Configuracion.FilaVariaCombusMonto = -1;
+        ToastService.Success("Monto de Combustible Variable removido. Recuerda Guardar los cambios.");
+    }
+
     private void SeleccionarCeldaDesdePlantilla(int rowIndex, int colIndex)
     {
         if (grifoSeleccionado == null) return;
@@ -2090,6 +2337,110 @@
             else
             {
                 ToastService.Success("Celda de Crédito Monto establecida sin valor. Recuerda Guardar los cambios.");
+            }
+            CerrarModalVerPlantilla();
+        }
+        else if (campoSeleccionandoModal == "HermesBanco")
+        {
+            grifoSeleccionado.Configuracion.ColumnaHermesBanco = colIndex;
+            grifoSeleccionado.Configuracion.FilaHermesBanco = rowIndex + 1; // 1-based index
+            if (colIndex >= 0 && rowIndex >= 0)
+            {
+                string colLetter = GetExcelColumnName(colIndex);
+                int rowNum = rowIndex + 1;
+                ToastService.Success($"Celda de Hermes Banco establecida en {colLetter}{rowNum}. Recuerda Guardar los cambios.");
+            }
+            else
+            {
+                ToastService.Success("Celda de Hermes Banco establecida sin valor. Recuerda Guardar los cambios.");
+            }
+            CerrarModalVerPlantilla();
+        }
+        else if (campoSeleccionandoModal == "HermesTipo")
+        {
+            grifoSeleccionado.Configuracion.ColumnaHermesTipo = colIndex;
+            grifoSeleccionado.Configuracion.FilaHermesTipo = rowIndex + 1; // 1-based index
+            if (colIndex >= 0 && rowIndex >= 0)
+            {
+                string colLetter = GetExcelColumnName(colIndex);
+                int rowNum = rowIndex + 1;
+                ToastService.Success($"Celda de Hermes Tipo establecida en {colLetter}{rowNum}. Recuerda Guardar los cambios.");
+            }
+            else
+            {
+                ToastService.Success("Celda de Hermes Tipo establecida sin valor. Recuerda Guardar los cambios.");
+            }
+            CerrarModalVerPlantilla();
+        }
+        else if (campoSeleccionandoModal == "HermesMonto")
+        {
+            grifoSeleccionado.Configuracion.ColumnaHermesMonto = colIndex;
+            grifoSeleccionado.Configuracion.FilaHermesMonto = rowIndex + 1; // 1-based index
+            
+            string cellValue = "";
+            if (rowIndex >= 0 && rowIndex < plantillaExcelFilas.Count)
+            {
+                var row = plantillaExcelFilas[rowIndex];
+                if (colIndex >= 0 && colIndex < row.Count)
+                {
+                    cellValue = row[colIndex] ?? "";
+                }
+            }
+            grifoSeleccionado.Configuracion.HermesPalabraClaveMonto = cellValue;
+
+            if (colIndex >= 0 && rowIndex >= 0)
+            {
+                string colLetter = GetExcelColumnName(colIndex);
+                int rowNum = rowIndex + 1;
+                ToastService.Success($"Celda de Hermes Monto establecida en {colLetter}{rowNum} y Palabra Clave '{cellValue}'. Recuerda Guardar los cambios.");
+            }
+            else
+            {
+                ToastService.Success("Celda de Hermes Monto establecida sin valor. Recuerda Guardar los cambios.");
+            }
+            CerrarModalVerPlantilla();
+        }
+        else if (campoSeleccionandoModal == "VariaCombusNombre")
+        {
+            grifoSeleccionado.Configuracion.ColumnaVariaCombusNombre = colIndex;
+            grifoSeleccionado.Configuracion.FilaVariaCombusNombre = rowIndex + 1; // 1-based index
+            
+            string cellValue = "";
+            if (rowIndex >= 0 && rowIndex < plantillaExcelFilas.Count)
+            {
+                var row = plantillaExcelFilas[rowIndex];
+                if (colIndex >= 0 && colIndex < row.Count)
+                {
+                    cellValue = row[colIndex] ?? "";
+                }
+            }
+            grifoSeleccionado.Configuracion.VariaCombusNombre = cellValue;
+
+            if (colIndex >= 0 && rowIndex >= 0)
+            {
+                string colLetter = GetExcelColumnName(colIndex);
+                int rowNum = rowIndex + 1;
+                ToastService.Success($"Celda de Nombre de Combustible Var. establecida en {colLetter}{rowNum} y palabra clave '{cellValue}'. Recuerda Guardar los cambios.");
+            }
+            else
+            {
+                ToastService.Success("Celda de Nombre de Combustible Var. establecida sin valor. Recuerda Guardar los cambios.");
+            }
+            CerrarModalVerPlantilla();
+        }
+        else if (campoSeleccionandoModal == "VariaCombusMonto")
+        {
+            grifoSeleccionado.Configuracion.ColumnaVariaCombusMonto = colIndex;
+            grifoSeleccionado.Configuracion.FilaVariaCombusMonto = rowIndex + 1; // 1-based index
+            if (colIndex >= 0 && rowIndex >= 0)
+            {
+                string colLetter = GetExcelColumnName(colIndex);
+                int rowNum = rowIndex + 1;
+                ToastService.Success($"Celda de Monto de Combustible Var. establecida en {colLetter}{rowNum}. Recuerda Guardar los cambios.");
+            }
+            else
+            {
+                ToastService.Success("Celda de Monto de Combustible Var. establecida sin valor. Recuerda Guardar los cambios.");
             }
             CerrarModalVerPlantilla();
         }
@@ -2221,6 +2572,36 @@
             return "Crédito Monto";
         }
 
+        // Check Hermes Banco
+        if (localCol == config.ColumnaHermesBanco && localRow == (config.FilaHermesBanco - 1))
+        {
+            return "HermesBanco";
+        }
+
+        // Check Hermes Tipo
+        if (localCol == config.ColumnaHermesTipo && localRow == (config.FilaHermesTipo - 1))
+        {
+            return "HermesTipo";
+        }
+
+        // Check Hermes Monto
+        if (localCol == config.ColumnaHermesMonto && localRow == (config.FilaHermesMonto - 1))
+        {
+            return "HermesMonto";
+        }
+
+        // Check Combustible Var. Nombre
+        if (localCol == config.ColumnaVariaCombusNombre && localRow == (config.FilaVariaCombusNombre - 1))
+        {
+            return "VariaCombusNombre";
+        }
+
+        // Check Combustible Var. Monto
+        if (localCol == config.ColumnaVariaCombusMonto && localRow == (config.FilaVariaCombusMonto - 1))
+        {
+            return "VariaCombusMonto";
+        }
+
         // 4. Check sequential fields
         foreach (var propName in mapeoFilasKeys)
         {
@@ -2302,6 +2683,9 @@
             "ColumnaFecha" => "Fecha",
             "CreditoNombre" => "Crédito Nombre",
             "CreditoMonto" => "Crédito Monto",
+            "HermesBanco" => "Hermes Banco",
+            "HermesTipo" => "Hermes Tipo",
+            "HermesMonto" => "Hermes Monto",
             "FilaFinal" => "Fila Final",
             "DescuentoLiquidos" => "Desc. Líquidos",
             "DescuentoGLP" => "Desc. GLP",
@@ -2309,6 +2693,8 @@
             "Hermes_monto_GLP" => "Hermes GLP",
             "Hermes_monto_GNV1" => "Hermes GNV 1",
             "Hermes_monto_GNV2" => "Hermes GNV 2",
+            "VariaCombusNombre" => "Combustible Var. Nombre",
+            "VariaCombusMonto" => "Combustible Var. Monto",
             _ => propName.Replace("_", " ")
         };
     }

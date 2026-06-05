@@ -236,7 +236,8 @@ namespace PETRO_BOT.Services.Services
                                 }
                                 else
                                 {
-                                    if (string.Equals(nombreTrimmed, "COMBUSTIBLE", StringComparison.OrdinalIgnoreCase))
+                                    string combustiblePalabraClave = string.IsNullOrWhiteSpace(configGrifo.VariaCombusNombre) ? "COMBUSTIBLE" : configGrifo.VariaCombusNombre;
+                                    if (string.Equals(nombreTrimmed, combustiblePalabraClave, StringComparison.OrdinalIgnoreCase))
                                     {
                                         leyendoVariaciones = true;
                                     }
@@ -245,7 +246,7 @@ namespace PETRO_BOT.Services.Services
 
                             if (filaActual >= 40 && filaActual <= 130)
                             {
-                                int colLetraColumnaTablaHermes = configGrifo.ColumnaTablaHermes;
+                                int colLetraColumnaTablaHermes = configGrifo.ColumnaHermesMonto;
                                 var celdaIdentificadora = GetValueSafe(reader, colLetraColumnaTablaHermes);
                                 string textoCelda = celdaIdentificadora?.ToString()?.Trim() ?? "";
 
@@ -263,10 +264,12 @@ namespace PETRO_BOT.Services.Services
                                     {
                                         decimal.TryParse(textoCelda, out decimal montoActualHermes);
 
-                                        var celdahermesbanco = GetValueSafe(reader, colLetraColumnaTablaHermes - 5);
+                                        int colBanco = configGrifo.ColumnaHermesBanco >= 0 ? configGrifo.ColumnaHermesBanco : colLetraColumnaTablaHermes - 5;
+                                        var celdahermesbanco = GetValueSafe(reader, colBanco);
                                         string textohermesbanco = celdahermesbanco?.ToString()?.Trim() ?? "";
 
-                                        var celdahermestipo = GetValueSafe(reader, colLetraColumnaTablaHermes + 2);
+                                        int colTipo = configGrifo.ColumnaHermesTipo >= 0 ? configGrifo.ColumnaHermesTipo : colLetraColumnaTablaHermes + 2;
+                                        var celdahermestipo = GetValueSafe(reader, colTipo);
                                         string textohermestipo = celdahermestipo?.ToString()?.Trim() ?? "";
 
                                         listaHermes.Add((textohermesbanco, textohermestipo, montoActualHermes));
@@ -520,7 +523,6 @@ namespace PETRO_BOT.Services.Services
 
                             bool hermesTablaEncontrada = false;
                             bool hermesLeyendoTablaFlotante = false;
-                            string hermesPalabraClaveCabecera = "IMPORTE S/.";
                             var listaHermes = new List<(string Banco, string Tipo, decimal Monto)>();
 
                             while (reader.Read())
@@ -609,7 +611,8 @@ namespace PETRO_BOT.Services.Services
                                     }
                                     else
                                     {
-                                        if (string.Equals(nombreTrimmed, "COMBUSTIBLE", StringComparison.OrdinalIgnoreCase))
+                                        //string combustiblePalabraClave = string.IsNullOrWhiteSpace(configGrifo.VariaCombusNombre) ? "COMBUSTIBLE" : configGrifo.VariaCombusNombre;
+                                        if (string.Equals(nombreTrimmed, configGrifo.VariaCombusNombre, StringComparison.OrdinalIgnoreCase))
                                         {
                                             leyendoVariaciones = true;
                                         }
@@ -618,11 +621,11 @@ namespace PETRO_BOT.Services.Services
 
                                 if (filaActual >= 40 && filaActual <= 130)
                                 {
-                                    int colLetraColumnaTablaHermes = configGrifo.ColumnaTablaHermes;
+                                    int colLetraColumnaTablaHermes = configGrifo.ColumnaHermesMonto;
                                     var celdaIdentificadora = GetValueSafe(reader, colLetraColumnaTablaHermes);
                                     string textoCelda = celdaIdentificadora?.ToString()?.Trim() ?? "";
 
-                                    if (!hermesTablaEncontrada && textoCelda.Contains(hermesPalabraClaveCabecera, StringComparison.OrdinalIgnoreCase))
+                                    if (!hermesTablaEncontrada && textoCelda.Contains(configGrifo.HermesPalabraClaveMonto, StringComparison.OrdinalIgnoreCase))
                                     {
                                         hermesTablaEncontrada = true;
                                         hermesLeyendoTablaFlotante = true;
@@ -636,10 +639,12 @@ namespace PETRO_BOT.Services.Services
                                         {
                                             decimal.TryParse(textoCelda, out decimal montoActualHermes);
 
-                                            var celdahermesbanco = GetValueSafe(reader, colLetraColumnaTablaHermes - 5);
+                                            //int colBanco = configGrifo.ColumnaHermesBanco >= 0 ? configGrifo.ColumnaHermesBanco : colLetraColumnaTablaHermes - 5;
+                                            var celdahermesbanco = GetValueSafe(reader, configGrifo.ColumnaHermesBanco);
                                             string textohermesbanco = celdahermesbanco?.ToString()?.Trim() ?? "";
 
-                                            var celdahermestipo = GetValueSafe(reader, colLetraColumnaTablaHermes + 2);
+                                            //int colTipo = configGrifo.ColumnaHermesTipo >= 0 ? configGrifo.ColumnaHermesTipo : colLetraColumnaTablaHermes + 2;
+                                            var celdahermestipo = GetValueSafe(reader, configGrifo.ColumnaHermesTipo);
                                             string textohermestipo = celdahermestipo?.ToString()?.Trim() ?? "";
 
                                             listaHermes.Add((textohermesbanco, textohermestipo, montoActualHermes));

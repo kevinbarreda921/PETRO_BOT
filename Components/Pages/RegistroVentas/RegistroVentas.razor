@@ -286,11 +286,11 @@
 <!-- ============================================== -->
 @if (mostrarModal && archivoSeleccionado != null)
 {
-    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[9999] animate-modal-in" 
-         @onclick="CerrarModal">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[9999] animate-modal-in">
+        <div class="fixed inset-0 z-[-1]" @onclick="CerrarModal"></div>
         
         <!-- Modal Card container -->
-        <div class="bg-white border border-slate-200 rounded-[28px] shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden"
+        <div class="bg-white border border-slate-200 rounded-[28px] shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden relative z-10"
              @onclick:stopPropagation="true">
             
             <!-- Header bar of popover -->
@@ -402,10 +402,10 @@
 <!-- 3. MODAL ADJUNTOS DETALLES -->
 @if (mostrarModalAdjuntos)
 {
-    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[9998] animate-modal-in" 
-         @onclick="CerrarModalAdjuntos">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[9998] animate-modal-in">
+        <div class="fixed inset-0 z-[-1]" @onclick="CerrarModalAdjuntos"></div>
         
-        <div class="bg-white border border-slate-200 rounded-[28px] shadow-2xl w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden"
+        <div class="bg-white border border-slate-200 rounded-[28px] shadow-2xl w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden relative z-10"
              @onclick:stopPropagation="true">
             
             <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
@@ -532,7 +532,7 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        EliminarAarchivos_Ventas_y_Diario();
+        CancelarRegistroVentasInternal(false);
         await CargarReporteProceso();
     }
 
@@ -663,6 +663,11 @@
 
     void CancelarRegistroVentas()
     {
+        CancelarRegistroVentasInternal(true);
+    }
+
+    void CancelarRegistroVentasInternal(bool mostrarToast)
+    {
         EstadoAdjuntadoRegistroVentas = false;
         EstadoAdjuntadoReportediario = false;
         archivosProcesados.Clear();
@@ -675,7 +680,10 @@
         // Limpiar reporte_proceso.json
         LimpiarArchivoReporteProceso();
         EliminarAarchivos_Ventas_y_Diario();
-        ToastService.Info("Operación cancelada. Archivos adjuntos eliminados.");
+        if (mostrarToast)
+        {
+            ToastService.Info("Operación cancelada. Archivos adjuntos eliminados.");
+        }
     }
 
     void EliminarAarchivos_Ventas_y_Diario()
