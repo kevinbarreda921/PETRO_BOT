@@ -398,6 +398,11 @@ namespace PETRO_BOT.Services.Services
             var grifosList = ConfiguracionService.ObtenerGrifosDB();
             var listadoClavesGrifos = grifosList.Select(g => g.Nombre).ToList();
 
+            var fechasABuscar = (fechaAProcesar ?? "")
+                .Split(';', StringSplitOptions.RemoveEmptyEntries)
+                .Select(f => f.Trim())
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
             Parallel.ForEach(archivos, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, (ruta) =>
             {
                 string nombreGrifoDetectadoStr = "DESCONOCIDO";
@@ -475,6 +480,7 @@ namespace PETRO_BOT.Services.Services
                     using var reader = ExcelReaderFactory.CreateOpenXmlReader(stream);
 
                     bool diaEncontrado = false;
+                    ArchivoGrifo? nuevoGrifo = null;
 
                     // Buscar la hoja que corresponde a la fecha a procesar
                     do
@@ -508,11 +514,14 @@ namespace PETRO_BOT.Services.Services
                         }
 
                         // Si coincide, procesamos esta hoja
-                        if (fechaHojaDetectada == fechaAProcesar)
+                        if (fechasABuscar.Contains(fechaHojaDetectada))
                         {
                             diaEncontrado = true;
                             
-                            ArchivoGrifo nuevoGrifo = new ArchivoGrifo(nombreGrifoDetectado, Path.GetFileName(ruta));
+                            if (nuevoGrifo == null)
+                            {
+                                nuevoGrifo = new ArchivoGrifo(nombreGrifoDetectado, Path.GetFileName(ruta));
+                            }
                             var registro = new VentaDTO { Hoja = reader.Name, Dia = fechaHojaDetectada };
                             decimal descuentoLiquidos_Total = 0;
                             int filaActual = 4; // Empezamos desde la fila 4 ya que ya leímos las primeras 3 filas
@@ -741,14 +750,17 @@ namespace PETRO_BOT.Services.Services
                             }
 
                             nuevoGrifo.AgregarVenta(registro);
-                            listaGrifosProcesar.Add(nuevoGrifo);
-                            break; // Coincidió la fecha, ya no necesitamos seguir leyendo hojas en este archivo Excel!
                         }
                     } while (reader.NextResult());
 
+                    if (nuevoGrifo != null)
+                    {
+                        listaGrifosProcesar.Add(nuevoGrifo);
+                    }
+
                     if (!diaEncontrado)
                     {
-                        LoggerService.Error(nombreGrifoDetectadoStr, Path.GetFileName(ruta), $"El archivo no tiene el día {fechaAProcesar} a procesar");
+                        LoggerService.Error(nombreGrifoDetectadoStr, Path.GetFileName(ruta), $"El archivo no contiene ninguno de los días seleccionados: {fechaAProcesar}");
                     }
                 }
                 catch (Exception ex)

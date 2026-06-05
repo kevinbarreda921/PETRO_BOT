@@ -71,7 +71,11 @@
                             </label>
                             <div @onclick="ToggleCalendario" 
                                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 outline-none hover:border-slate-300 transition-all cursor-pointer flex items-center justify-between select-none @(mostrarCalendario ? "border-slate-400 ring-2 ring-slate-200/50" : "")">
-                                <span class="font-mono">@fechaSeleccionada.ToString("dd/MM/yyyy")</span>
+                                <span class="font-mono">
+                                    @(fechasSeleccionadas.Count == 0 ? "Seleccionar días" : 
+                                      fechasSeleccionadas.Count == 1 ? fechasSeleccionadas.First().ToString("dd/MM/yyyy") : 
+                                      $"{fechasSeleccionadas.Count} días seleccionados")
+                                </span>
                                 <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
@@ -117,7 +121,7 @@
                                         {
                                             var diaActual = dia; 
                                             var fechaCelda = new DateTime(mesVisualizado.Year, mesVisualizado.Month, diaActual);
-                                            var esSeleccionado = fechaCelda.Date == fechaSeleccionada.Date;
+                                            var esSeleccionado = fechasSeleccionadas.Contains(fechaCelda.Date);
                                             var esHoy = fechaCelda.Date == DateTime.Today;
 
                                             if (esSeleccionado)
@@ -547,6 +551,7 @@
     string trabajoSeleccionado = "Seleccionar";
     int diaSeleccionado = 0;
     private DateTime fechaSeleccionada = DateTime.Today;
+    private HashSet<DateTime> fechasSeleccionadas = new HashSet<DateTime> { DateTime.Today };
     private DateTime mesVisualizado = DateTime.Today;
     private bool mostrarCalendario = false;
 
@@ -576,14 +581,35 @@
 
     private void SeleccionarFecha(DateTime fecha)
     {
-        fechaSeleccionada = fecha;
-        mostrarCalendario = false;
-        ToastService.Success($"Fecha de registro establecida: {fecha.ToString("dd/MM/yyyy")}");
+        if (trabajoSeleccionado == "Procesar Día")
+        {
+            if (fechasSeleccionadas.Contains(fecha.Date))
+            {
+                fechasSeleccionadas.Remove(fecha.Date);
+                ToastService.Info($"Fecha desmarcada: {fecha.ToString("dd/MM/yyyy")}");
+            }
+            else
+            {
+                fechasSeleccionadas.Add(fecha.Date);
+                ToastService.Success($"Fecha seleccionada: {fecha.ToString("dd/MM/yyyy")}");
+            }
+            fechaSeleccionada = fecha;
+        }
+        else
+        {
+            fechasSeleccionadas.Clear();
+            fechasSeleccionadas.Add(fecha.Date);
+            fechaSeleccionada = fecha;
+            mostrarCalendario = false;
+            ToastService.Success($"Fecha de registro establecida: {fecha.ToString("dd/MM/yyyy")}");
+        }
     }
 
     private void EstablecerHoy()
     {
         fechaSeleccionada = DateTime.Today;
+        fechasSeleccionadas.Clear();
+        fechasSeleccionadas.Add(DateTime.Today);
         mesVisualizado = DateTime.Today;
         mostrarCalendario = false;
         ToastService.Success("Establecido el día de hoy.");
@@ -592,6 +618,8 @@
     private void LimpiarCalendario()
     {
         fechaSeleccionada = DateTime.Today;
+        fechasSeleccionadas.Clear();
+        fechasSeleccionadas.Add(DateTime.Today);
         mesVisualizado = DateTime.Today;
         mostrarCalendario = false;
     }
@@ -676,6 +704,9 @@
         archivosReporteDiario.Clear();
         trabajoSeleccionado = "Seleccionar";
         showDiaActivar = false;
+        fechasSeleccionadas.Clear();
+        fechasSeleccionadas.Add(DateTime.Today);
+        fechaSeleccionada = DateTime.Today;
         StateHasChanged();
         // Limpiar reporte_proceso.json
         LimpiarArchivoReporteProceso();
@@ -738,8 +769,15 @@
                     }
                     else if (trabajoSeleccionado == "Procesar Día")
                     {
-                        string fechaFormateada = fechaSeleccionada.ToString("d/MM/yyyy");
-                        ToastService.Info($"Procesando fecha seleccionada: {fechaFormateada}");
+                        if (fechasSeleccionadas.Count == 0)
+                        {
+                            ToastService.Error("Seleccione al menos un día en el calendario.");
+                            return;
+                        }
+                        
+                        string fechaFormateada = string.Join(";", fechasSeleccionadas.OrderBy(d => d).Select(d => d.ToString("d/MM/yyyy")));
+                        string listadoDeFechas = string.Join(", ", fechasSeleccionadas.OrderBy(d => d).Select(d => d.ToString("dd/MM/yyyy")));
+                        ToastService.Info($"Procesando fechas seleccionadas: {listadoDeFechas}");
                         isLoading = true;
                         LimpiarArchivoReporteProceso();
                         archivosProcesados.Clear();
