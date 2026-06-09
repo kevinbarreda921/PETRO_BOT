@@ -16,6 +16,9 @@ namespace PETRO_BOT.Models.Configuracion
 
     public class LecturaConfig
     {
+        public int ColumnaEESS { get; set; } = -1;
+        public int FilaEESS { get; set; } = -1;
+        public string EESS { get; set; } = "";
         public int ColumnaFecha { get; set; } = 14;
         public int FilaFecha { get; set; } = 3;
         public int ColumnaCreditoNombre { get; set; } = 0;
@@ -59,6 +62,9 @@ namespace PETRO_BOT.Models.Configuracion
         public int GrifoId { get; set; }
         
         // Reading general columns
+        public int ColumnaEESS { get; set; } = -1;
+        public int FilaEESS { get; set; } = -1;
+        public string EESS { get; set; } = "";
         public int ColumnaFecha { get; set; } = 14;
         public int FilaFecha { get; set; } = 3;
         public int ColumnaCreditoNombre { get; set; } = 0;

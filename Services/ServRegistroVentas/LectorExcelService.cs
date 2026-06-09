@@ -152,6 +152,19 @@ namespace PETRO_BOT.Services.Services
                                 }
                             }
 
+                            if (filaActual == configGrifo.FilaEESS)
+                            {
+                                int colEESS = configGrifo.ColumnaEESS;
+                                if (colEESS >= 0)
+                                {
+                                    var eess_val = GetValueSafe(reader, colEESS);
+                                    if (eess_val != null)
+                                    {
+                                        registro.EESS = eess_val.ToString()?.Trim();
+                                    }
+                                }
+                            }
+
                             if (filaActual > configGrifo.FilaFinal) break;
 
                             if (mapeoFilas.TryGetValue(filaActual, out var mapping))
@@ -488,6 +501,13 @@ namespace PETRO_BOT.Services.Services
                         // Para verificar rápido, leemos las primeras 3 filas para obtener la fecha de esta hoja
                         int filaCheck = 1;
                         string fechaHojaDetectada = "";
+                        string eessHojaDetectada = "";
+                        int maxFilaCheck = configGrifo.FilaFecha;
+                        if (configGrifo.FilaEESS >= 1 && configGrifo.ColumnaEESS >= 0)
+                        {
+                            maxFilaCheck = Math.Max(maxFilaCheck, configGrifo.FilaEESS);
+                        }
+
                         while (reader.Read())
                         {
                             if (filaCheck == configGrifo.FilaFecha)
@@ -508,6 +528,23 @@ namespace PETRO_BOT.Services.Services
                                         }
                                     }
                                 }
+                            }
+
+                            if (filaCheck == configGrifo.FilaEESS)
+                            {
+                                int colEESS = configGrifo.ColumnaEESS;
+                                if (colEESS >= 0)
+                                {
+                                    var eess_val = GetValueSafe(reader, colEESS);
+                                    if (eess_val != null)
+                                    {
+                                        eessHojaDetectada = eess_val.ToString()?.Trim() ?? "";
+                                    }
+                                }
+                            }
+
+                            if (filaCheck >= maxFilaCheck)
+                            {
                                 break;
                             }
                             filaCheck++;
@@ -522,9 +559,9 @@ namespace PETRO_BOT.Services.Services
                             {
                                 nuevoGrifo = new ArchivoGrifo(nombreGrifoDetectado, Path.GetFileName(ruta));
                             }
-                            var registro = new VentaDTO { Hoja = reader.Name, Dia = fechaHojaDetectada };
+                            var registro = new VentaDTO { Hoja = reader.Name, Dia = fechaHojaDetectada, EESS = eessHojaDetectada };
                             decimal descuentoLiquidos_Total = 0;
-                            int filaActual = 4; // Empezamos desde la fila 4 ya que ya leímos las primeras 3 filas
+                            int filaActual = maxFilaCheck + 1; // Empezamos desde la fila siguiente a las leídas
                             bool leyendoClientes = false;
                             bool leyendoVariaciones = false;
                             int flagclientecredito = 0;

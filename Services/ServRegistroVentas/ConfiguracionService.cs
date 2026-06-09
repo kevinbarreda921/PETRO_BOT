@@ -93,6 +93,9 @@ namespace PETRO_BOT.Services.Services
                 CREATE TABLE IF NOT EXISTS REGISTRO_VENTAS_CONFIGURACION (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     GrifoId INTEGER NOT NULL,
+                    EESS TEXT DEFAULT '',
+                    ColumnaEESS TEXT DEFAULT '',
+                    FilaEESS INTEGER NOT NULL DEFAULT -1,
                     ColumnaFecha INTEGER NOT NULL,
                     FilaFecha INTEGER NOT NULL DEFAULT 3,
                     ColumnaCreditoNombre INTEGER NOT NULL,
@@ -340,11 +343,10 @@ namespace PETRO_BOT.Services.Services
                 {
                     throw new Exception($"No se pudo obtener o crear el Id para el grifo: {nombreGrifo}");
                 }
-
                 // 2. Insert or replace Configuration for this GrifoId
                 string insertConfig = @"
                     INSERT INTO REGISTRO_VENTAS_CONFIGURACION (
-                        GrifoId, ColumnaFecha, FilaFecha, ColumnaCreditoNombre, 
+                        GrifoId, EESS, ColumnaEESS, FilaEESS, ColumnaFecha, FilaFecha, ColumnaCreditoNombre, 
                         ColumnaCreditoMonto, ColumnaVariaCombusNombre, FilaVariaCombusNombre, ColumnaVariaCombusMonto, FilaVariaCombusMonto, VariaCombusNombre, ColumnaHermesMonto,
                         FilaHermesMonto, ColumnaHermesBanco, FilaHermesBanco, ColumnaHermesTipo, FilaHermesTipo, HermesPalabraClaveMonto,
                         FilaFinal, FilaCreditosNombre, FilaCreditosMonto,
@@ -366,7 +368,7 @@ namespace PETRO_BOT.Services.Services
                         Col_Hermes_monto_liquido, Col_Hermes_monto_GLP,
                         Col_Hermes_monto_GNV1, Col_Hermes_monto_GNV2
                     ) VALUES (
-                        @GrifoId, @ColumnaFecha, @FilaFecha, @ColumnaCreditoNombre, 
+                        @GrifoId, @EESS, @ColumnaEESS, @FilaEESS, @ColumnaFecha, @FilaFecha, @ColumnaCreditoNombre, 
                         @ColumnaCreditoMonto, @ColumnaVariaCombusNombre, @FilaVariaCombusNombre, @ColumnaVariaCombusMonto, @FilaVariaCombusMonto, @VariaCombusNombre, @ColumnaHermesMonto,
                         @FilaHermesMonto, @ColumnaHermesBanco, @FilaHermesBanco, @ColumnaHermesTipo, @FilaHermesTipo, @HermesPalabraClaveMonto,
                         @FilaFinal, @FilaCreditosNombre, @FilaCreditosMonto,
@@ -388,17 +390,20 @@ namespace PETRO_BOT.Services.Services
                         @Col_Hermes_monto_liquido, @Col_Hermes_monto_GLP,
                         @Col_Hermes_monto_GNV1, @Col_Hermes_monto_GNV2
                     );";
-
+ 
                 // First delete existing configuration for this GrifoId to overwrite
                 using (var cmd = new SqliteCommand("DELETE FROM REGISTRO_VENTAS_CONFIGURACION WHERE GrifoId = @GrifoId;", connection, transaction))
                 {
                     cmd.Parameters.AddWithValue("@GrifoId", grifoId);
                     cmd.ExecuteNonQuery();
                 }
-
+ 
                 using (var cmd = new SqliteCommand(insertConfig, connection, transaction))
                 {
                     cmd.Parameters.AddWithValue("@GrifoId", grifoId);
+                    cmd.Parameters.AddWithValue("@EESS", config.Lectura?.EESS ?? "");
+                    cmd.Parameters.AddWithValue("@ColumnaEESS", GetExcelColumnName(config.Lectura?.ColumnaEESS ?? -1));
+                    cmd.Parameters.AddWithValue("@FilaEESS", config.Lectura?.FilaEESS ?? -1);
                     cmd.Parameters.AddWithValue("@ColumnaFecha", GetExcelColumnName(config.Lectura?.ColumnaFecha ?? 14));
                     cmd.Parameters.AddWithValue("@FilaFecha", config.Lectura?.FilaFecha ?? 3);
                     cmd.Parameters.AddWithValue("@ColumnaCreditoNombre", GetExcelColumnName(config.Lectura?.ColumnaCreditoNombre ?? 0));
@@ -594,6 +599,43 @@ namespace PETRO_BOT.Services.Services
                                 Console.WriteLine("Columna 'FilaFecha' agregada a REGISTRO_VENTAS_CONFIGURACION exitosamente.");
                             }
 
+                            // Check if the EESS, ColumnaEESS and FilaEESS columns exist in REGISTRO_VENTAS_CONFIGURACION
+                            using (var colCmdEESS = new SqliteCommand("PRAGMA table_info(REGISTRO_VENTAS_CONFIGURACION);", connection))
+                            using (var readerEESS = colCmdEESS.ExecuteReader())
+                            {
+                                bool hasEESS = false;
+                                bool hasColumnaEESS = false;
+                                bool hasFilaEESS = false;
+                                while (readerEESS.Read())
+                                {
+                                    string colName = readerEESS.GetString(1);
+                                    if (colName.Equals("EESS", StringComparison.OrdinalIgnoreCase)) hasEESS = true;
+                                    if (colName.Equals("ColumnaEESS", StringComparison.OrdinalIgnoreCase)) hasColumnaEESS = true;
+                                    if (colName.Equals("FilaEESS", StringComparison.OrdinalIgnoreCase)) hasFilaEESS = true;
+                                }
+                                if (!hasEESS)
+                                {
+                                    // Alter table to add EESS column dynamically
+                                    using var alterCmd = new SqliteCommand("ALTER TABLE REGISTRO_VENTAS_CONFIGURACION ADD COLUMN EESS TEXT DEFAULT '';", connection);
+                                    alterCmd.ExecuteNonQuery();
+                                    Console.WriteLine("Columna 'EESS' agregada a REGISTRO_VENTAS_CONFIGURACION exitosamente.");
+                                }
+                                if (!hasColumnaEESS)
+                                {
+                                    // Alter table to add ColumnaEESS column dynamically
+                                    using var alterCmd = new SqliteCommand("ALTER TABLE REGISTRO_VENTAS_CONFIGURACION ADD COLUMN ColumnaEESS TEXT DEFAULT '';", connection);
+                                    alterCmd.ExecuteNonQuery();
+                                    Console.WriteLine("Columna 'ColumnaEESS' agregada a REGISTRO_VENTAS_CONFIGURACION exitosamente.");
+                                }
+                                if (!hasFilaEESS)
+                                {
+                                    // Alter table to add FilaEESS column dynamically
+                                    using var alterCmd = new SqliteCommand("ALTER TABLE REGISTRO_VENTAS_CONFIGURACION ADD COLUMN FilaEESS INTEGER NOT NULL DEFAULT -1;", connection);
+                                    alterCmd.ExecuteNonQuery();
+                                    Console.WriteLine("Columna 'FilaEESS' agregada a REGISTRO_VENTAS_CONFIGURACION exitosamente.");
+                                }
+                            }
+
                             // Dynamic check for FilaFinal, FilaCreditosNombre, and FilaCreditosMonto
                             using (var colCmd4 = new SqliteCommand("PRAGMA table_info(REGISTRO_VENTAS_CONFIGURACION);", connection))
                             using (var reader4 = colCmd4.ExecuteReader())
@@ -702,6 +744,9 @@ namespace PETRO_BOT.Services.Services
                                                 CREATE TABLE REGISTRO_VENTAS_CONFIGURACION (
                                                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                                                     GrifoId INTEGER NOT NULL,
+                                                    EESS TEXT DEFAULT '',
+                                                    ColumnaEESS TEXT DEFAULT '',
+                                                    FilaEESS INTEGER NOT NULL DEFAULT -1,
                                                     ColumnaFecha INTEGER NOT NULL,
                                                     FilaFecha INTEGER NOT NULL DEFAULT 3,
                                                     ColumnaCreditoNombre INTEGER NOT NULL,
@@ -759,8 +804,8 @@ namespace PETRO_BOT.Services.Services
 
                                             var targetCols = new System.Collections.Generic.List<string>();
                                             var sourceCols = new System.Collections.Generic.List<string>();
-                                             var columnsToMigrate = new System.Collections.Generic.List<string> {
-                                                "Id", "GrifoId", "ColumnaFecha", "FilaFecha", "ColumnaCreditoNombre", "ColumnaCreditoMonto",
+                                            var columnsToMigrate = new System.Collections.Generic.List<string> {
+                                                "Id", "GrifoId", "EESS", "ColumnaEESS", "FilaEESS", "ColumnaFecha", "FilaFecha", "ColumnaCreditoNombre", "ColumnaCreditoMonto",
                                                 "ColumnaVariaCombusNombre", "FilaVariaCombusNombre", "ColumnaVariaCombusMonto", "FilaVariaCombusMonto", "VariaCombusNombre",
                                                 "FilaFinal", "FilaCreditosNombre", "FilaCreditosMonto",
                                                 "Col_Venta_GPL", "Fila_Venta_GPL", "Col_Venta_GNV", "Fila_Venta_GNV",
@@ -905,7 +950,8 @@ namespace PETRO_BOT.Services.Services
                                 c.Col_Hermes_monto_liquido, c.Col_Hermes_monto_GLP,
                                 c.Col_Hermes_monto_GNV1, c.Col_Hermes_monto_GNV2,
                                 c.FilaFinal, c.FilaCreditosNombre, c.FilaCreditosMonto,
-                                c.FilaVariaCombusNombre, c.FilaVariaCombusMonto, c.VariaCombusNombre
+                                c.FilaVariaCombusNombre, c.FilaVariaCombusMonto, c.VariaCombusNombre,
+                                c.ColumnaEESS, c.FilaEESS, c.EESS
                         FROM REGISTRO_VENTAS_GRIFOS g
                         INNER JOIN REGISTRO_VENTAS_CONFIGURACION c ON g.Id = c.GrifoId
                         ORDER BY g.Nombre ASC;";
@@ -943,6 +989,9 @@ namespace PETRO_BOT.Services.Services
                                     FilaVariaCombusNombre = reader.IsDBNull(45) ? -1 : reader.GetInt32(45),
                                     FilaVariaCombusMonto = reader.IsDBNull(46) ? -1 : reader.GetInt32(46),
                                     VariaCombusNombre = reader.IsDBNull(47) ? "" : reader.GetString(47),
+                                    ColumnaEESS = ParseColumnDbValue(reader.GetValue(48), -1),
+                                    FilaEESS = reader.IsDBNull(49) ? -1 : reader.GetInt32(49),
+                                    EESS = reader.IsDBNull(50) ? "" : reader.GetString(50),
                                     MapeoFilas = new Dictionary<string, string>()
                                 },
                                 Escritura = new EscrituraConfig
@@ -1078,7 +1127,8 @@ namespace PETRO_BOT.Services.Services
                                 w.ErrorMaquina, w.Recaudo_Cofide_GNV, w.Gastos, w.Ventas_con_transferencia, 
                                 w.DescuentoLiquidos, w.DescuentoGLP, w.Hermes_monto_liquido, w.Hermes_monto_GLP, 
                                 w.Hermes_monto_GNV1, w.Hermes_monto_GNV2, w.Id,
-                                c.FilaVariaCombusNombre, c.FilaVariaCombusMonto, c.VariaCombusNombre
+                                c.FilaVariaCombusNombre, c.FilaVariaCombusMonto, c.VariaCombusNombre,
+                                c.ColumnaEESS, c.FilaEESS, c.EESS
                         FROM REGISTRO_VENTAS_GRIFOS g
                         INNER JOIN REGISTRO_VENTAS_CONFIGURACION c ON g.Id = c.GrifoId
                         LEFT JOIN REGISTRO_VENTAS_WRITE w ON g.Id = w.GrifoId
@@ -1122,6 +1172,9 @@ namespace PETRO_BOT.Services.Services
                                     FilaVariaCombusNombre = reader.IsDBNull(66) ? -1 : reader.GetInt32(66),
                                     FilaVariaCombusMonto = reader.IsDBNull(67) ? -1 : reader.GetInt32(67),
                                     VariaCombusNombre = reader.IsDBNull(68) ? "" : reader.GetString(68),
+                                    ColumnaEESS = ParseColumnDbValue(reader.GetValue(69), -1),
+                                    FilaEESS = reader.IsDBNull(70) ? -1 : reader.GetInt32(70),
+                                    EESS = reader.IsDBNull(71) ? "" : reader.GetString(71),
                                     
                                     // Sequential column and row mapping pairs
                                     Col_Venta_GPL = reader.IsDBNull(17) ? "" : reader.GetString(17),
@@ -1256,7 +1309,7 @@ namespace PETRO_BOT.Services.Services
                 // 2. Insert or replace Configuration for this GrifoId
                 string insertConfig = @"
                     INSERT INTO REGISTRO_VENTAS_CONFIGURACION (
-                        GrifoId, ColumnaFecha, FilaFecha, ColumnaCreditoNombre, 
+                        GrifoId, EESS, ColumnaEESS, FilaEESS, ColumnaFecha, FilaFecha, ColumnaCreditoNombre, 
                         ColumnaCreditoMonto, ColumnaVariaCombusNombre, FilaVariaCombusNombre, ColumnaVariaCombusMonto, FilaVariaCombusMonto, VariaCombusNombre, ColumnaHermesMonto,
                         FilaHermesMonto, ColumnaHermesBanco, FilaHermesBanco, ColumnaHermesTipo, FilaHermesTipo, HermesPalabraClaveMonto,
                         FilaFinal, FilaCreditosNombre, FilaCreditosMonto,
@@ -1278,7 +1331,7 @@ namespace PETRO_BOT.Services.Services
                         Col_Hermes_monto_liquido, Col_Hermes_monto_GLP,
                         Col_Hermes_monto_GNV1, Col_Hermes_monto_GNV2
                     ) VALUES (
-                        @GrifoId, @ColumnaFecha, @FilaFecha, @ColumnaCreditoNombre, 
+                        @GrifoId, @EESS, @ColumnaEESS, @FilaEESS, @ColumnaFecha, @FilaFecha, @ColumnaCreditoNombre, 
                         @ColumnaCreditoMonto, @ColumnaVariaCombusNombre, @FilaVariaCombusNombre, @ColumnaVariaCombusMonto, @FilaVariaCombusMonto, @VariaCombusNombre, @ColumnaHermesMonto,
                         @FilaHermesMonto, @ColumnaHermesBanco, @FilaHermesBanco, @ColumnaHermesTipo, @FilaHermesTipo, @HermesPalabraClaveMonto,
                         @FilaFinal, @FilaCreditosNombre, @FilaCreditosMonto,
@@ -1311,6 +1364,9 @@ namespace PETRO_BOT.Services.Services
                 using (var cmd = new SqliteCommand(insertConfig, connection, transaction))
                 {
                     cmd.Parameters.AddWithValue("@GrifoId", grifoId);
+                    cmd.Parameters.AddWithValue("@EESS", c.EESS ?? "");
+                    cmd.Parameters.AddWithValue("@ColumnaEESS", GetExcelColumnName(c.ColumnaEESS));
+                    cmd.Parameters.AddWithValue("@FilaEESS", c.FilaEESS);
                     cmd.Parameters.AddWithValue("@ColumnaFecha", GetExcelColumnName(c.ColumnaFecha));
                     cmd.Parameters.AddWithValue("@FilaFecha", c.FilaFecha);
                     cmd.Parameters.AddWithValue("@ColumnaCreditoNombre", GetExcelColumnName(c.ColumnaCreditoNombre));

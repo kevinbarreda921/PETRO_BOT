@@ -174,7 +174,18 @@ namespace PETRO_BOT.Services.Services
                                 _escritor.EscribirClientesCredito(hojaEPPlus, ventaParaEscribir, filaDestino, clienteAColumna, grifoObjetivo, archivoGrifoActual.Archivo ?? "DESCONOCIDO");
                             }
 
-                            LoggerService.Info(grifoObjetivo, archivoGrifoActual.Archivo, $" El grifo {grifoObjetivo} del dia {fechaABuscar} procesado correctamente");
+                            string eessMsg = !string.IsNullOrWhiteSpace(ventaParaEscribir.EESS) ? $", Estación: {ventaParaEscribir.EESS}" : "";
+                            LoggerService.Info(grifoObjetivo, archivoGrifoActual.Archivo, $" El grifo {grifoObjetivo}{eessMsg} del dia {fechaABuscar} procesado correctamente");
+                            
+                            if (!string.IsNullOrWhiteSpace(ventaParaEscribir.EESS))
+                            {
+                                string eessLimpio = ventaParaEscribir.EESS.ToLower();
+                                string grifoLimpio = grifoObjetivo.ToLower();
+                                if (!eessLimpio.Contains(grifoLimpio) && !grifoLimpio.Contains(eessLimpio))
+                                {
+                                    LoggerService.Error(grifoObjetivo, archivoGrifoActual.Archivo, $"ADVERTENCIA: El nombre de la estación leído en el Parte Diario ('{ventaParaEscribir.EESS}') no coincide con el grifo configurado '{grifoObjetivo}'");
+                                }
+                            }
                         }
                     }
                     else

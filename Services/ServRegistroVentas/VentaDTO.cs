@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,6 +10,7 @@ namespace PETRO_BOT.Services.Services
 
         public string? Hoja { get; set; }
         public string? Dia { get; set; }
+        public string? EESS { get; set; }
         public object? Venta_GPL { get; set; }
         public object? Venta_GNV { get; set; }
         public object? Total_venta_acumulada { get; set; }
