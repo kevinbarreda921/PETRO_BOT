@@ -21,7 +21,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 
         <!-- Left Column (col-span-4): Fuel stations selector list, styled like mockup breakdown -->
-        <div class="lg:col-span-4 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col hover:border-slate-300 hover:shadow-lg transition-all duration-300" style="height: calc(100vh - 160px);">
+        <div class="lg:col-span-4 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col hover:border-slate-300 hover:shadow-lg transition-all duration-300 animate-fade-in-up anim-delay-75" style="height: calc(100vh - 160px);">
             <div class="flex flex-col h-full overflow-hidden">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4 shrink-0">
                     <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest">Lista de Grifos</h3>
@@ -40,7 +40,8 @@
                         var esSeleccionado = grifoSeleccionado != null && grifo.Id == grifoSeleccionado.Id;
                         var currentIdx = idx++;
                         <div @onclick="() => SeleccionarGrifo(grifo.Id)" 
-                             class="flex items-center justify-between group/ch p-3 rounded-2xl border transition-all cursor-pointer @(esSeleccionado ? "bg-[#0f172a] border-[#0f172a] text-white shadow-lg scale-[1.01]" : "bg-transparent border-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900")">
+                             class="flex items-center justify-between group/ch p-3 rounded-2xl border transition-all cursor-pointer animate-fade-in-up @(esSeleccionado ? "bg-[#0f172a] border-[#0f172a] text-white shadow-lg scale-[1.01]" : "bg-transparent border-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900")"
+                             style="animation-delay: @(currentIdx * 30)ms;">
                             
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 @(esSeleccionado ? "bg-slate-800 border border-slate-700" : "bg-slate-100 border border-slate-200")">
@@ -63,7 +64,7 @@
         </div>
 
         <!-- Right Column (col-span-8): Form and active mapping editors, styled like Transaction Perf -->
-        <div class="lg:col-span-8 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col hover:border-slate-300 hover:shadow-lg transition-all duration-300 overflow-y-auto custom-scrollbar" style="height: calc(100vh - 160px);">
+        <div class="lg:col-span-8 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col hover:border-slate-300 hover:shadow-lg transition-all duration-300 overflow-y-auto custom-scrollbar animate-fade-in-up anim-delay-150" style="height: calc(100vh - 160px);">
             <div class="flex flex-col h-full">
                 
                 @if (grifoSeleccionado == null)
@@ -78,10 +79,10 @@
                 else
                 {
                     <!-- Active Edit Board form -->
-                    <div class="flex flex-col gap-6 flex-1 min-h-0">
+                    <div @key="grifoSeleccionado.Id" class="flex flex-col gap-6 flex-1 min-h-0">
                         
                                         <!-- Header and action bar in ONE row -->
-                        <div class="flex flex-col md:flex-row flex-wrap md:items-center justify-between border-b border-slate-150 pb-4 gap-3 w-full">
+                        <div class="flex flex-col md:flex-row flex-wrap md:items-center justify-between border-b border-slate-150 pb-4 gap-3 w-full animate-fade-in-up anim-delay-75">
                             <!-- Left: Nombre del Grifo Inline -->
                             <div class="flex items-center gap-2 shrink-0 justify-center md:justify-start w-full md:w-auto">
                                 <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest shrink-0">Grifo:</label>
@@ -137,7 +138,7 @@
                         </div>
 
                         <!-- Panel: Lectura -->
-                        <div class="bg-slate-50 border border-slate-200 rounded-[20px] p-5 shadow-sm">
+                        <div class="bg-slate-50 border border-slate-200 rounded-[20px] p-5 shadow-sm animate-fade-in-up anim-delay-150">
                             <h4 class="text-[9px] font-black text-slate-800 uppercase tracking-[0.15em] border-b border-slate-200 pb-2 mb-4 flex items-center gap-2">
                                 <span class="w-1.5 h-3 bg-[#0f172a] rounded-full"></span> Coordenadas de Lectura
                             </h4>
@@ -355,7 +356,7 @@
                          </div>
 
                         <!-- Panel: Escritura -->
-                        <div class="bg-slate-50 border border-slate-200 rounded-[20px] p-5 shadow-sm">
+                        <div class="bg-slate-50 border border-slate-200 rounded-[20px] p-5 shadow-sm animate-fade-in-up anim-delay-225">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 pb-2 mb-4 gap-2">
                                 <h4 class="text-[9px] font-black text-slate-800 uppercase tracking-[0.15em] flex items-center gap-2">
                                     <span class="w-1.5 h-3 bg-slate-500 rounded-full"></span> Columnas Excel Maestro
@@ -390,7 +391,7 @@
                         </div>
 
                         <!-- Panel: Authorized clients -->
-                        <div class="bg-slate-50 border border-slate-200 rounded-[20px] p-5 shadow-sm flex flex-col flex-grow flex-1 min-h-[220px] mb-2">
+                        <div class="bg-slate-50 border border-slate-200 rounded-[20px] p-5 shadow-sm flex flex-col flex-grow flex-1 min-h-[220px] mb-2 animate-fade-in-up anim-delay-300">
                             <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-3.5">
                                 <h4 class="text-[9px] font-black text-slate-800 uppercase tracking-[0.15em] flex items-center gap-2">
                                     <span class="w-1.5 h-3 bg-[#0f172a] rounded-full"></span> Clientes Autorizados

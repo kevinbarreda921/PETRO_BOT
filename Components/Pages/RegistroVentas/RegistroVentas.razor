@@ -18,7 +18,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 
         <!-- Left Column: Control & Upload boxes, styled EXACTLY like the Transaction Performance mockup -->
-        <div class="lg:col-span-5 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col hover:border-slate-300 hover:shadow-lg transition-all duration-300 overflow-y-auto custom-scrollbar relative" style="height: calc(100vh - 160px);">
+        <div class="lg:col-span-5 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col hover:border-slate-300 hover:shadow-lg transition-all duration-300 overflow-y-auto custom-scrollbar relative animate-fade-in-up anim-delay-75" style="height: calc(100vh - 160px);">
             @if (isLoading)
             {
                 <LoadingRayo />
@@ -213,7 +213,7 @@
         </div>
 
         <!-- Right Column: Processed logs table, styled EXACTLY like the Asset rows in Mockup -->
-        <div class="lg:col-span-7 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col hover:border-slate-300 hover:shadow-lg transition-all duration-300" style="height: calc(100vh - 160px);">
+        <div class="lg:col-span-7 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col hover:border-slate-300 hover:shadow-lg transition-all duration-300 animate-fade-in-up anim-delay-150" style="height: calc(100vh - 160px);">
             <div class="flex flex-col h-full overflow-hidden">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4 shrink-0">
                     <div class="flex items-center gap-2">

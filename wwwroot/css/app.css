@@ -127,4 +127,31 @@ body {
 .bg-slate-50 {
   background-color: #f8fafc !important;
 }
+
+/* Minimalist and Modern entrance animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Stagger animation delays for high performance cascading entrance */
+.anim-delay-75 { animation-delay: 75ms !important; }
+.anim-delay-100 { animation-delay: 100ms !important; }
+.anim-delay-150 { animation-delay: 150ms !important; }
+.anim-delay-200 { animation-delay: 200ms !important; }
+.anim-delay-225 { animation-delay: 225ms !important; }
+.anim-delay-300 { animation-delay: 300ms !important; }
+.anim-delay-375 { animation-delay: 375ms !important; }
+.anim-delay-450 { animation-delay: 450ms !important; }
+
 
