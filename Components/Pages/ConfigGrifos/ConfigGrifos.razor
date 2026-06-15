@@ -1284,6 +1284,9 @@
     }
     .excel-preview-table tbody tr td {
         font-size: 10px !important;
+        border-bottom: 1px solid #cbd5e1 !important; /* horizontal borders */
+        border-right: 1px solid #cbd5e1 !important;  /* vertical borders */
+        background-clip: padding-box !important;
     }
     
     /* Sticky Top Headers (A, B, C...) */
@@ -1296,6 +1299,7 @@
         border-right: 1px solid #cbd5e1 !important;
         padding-top: 0.5rem !important; /* py-2 equivalent */
         padding-bottom: 0.5rem !important;
+        background-clip: padding-box !important;
     }
     
     /* Sticky Left Columns (1, 2, 3...) */
@@ -1312,6 +1316,7 @@
         padding-bottom: 0.5rem !important;
         padding-left: 0.75rem !important; /* px-3 equivalent */
         padding-right: 0.75rem !important;
+        background-clip: padding-box !important;
     }
     
     /* Sticky Corner Cell (top-left empty header) */
@@ -1325,6 +1330,7 @@
         border-bottom: 2px solid #cbd5e1 !important;
         padding-top: 0.5rem !important; /* py-2 equivalent */
         padding-bottom: 0.5rem !important;
+        background-clip: padding-box !important;
     }
     
     /* Interactive hover cell styles with minimalist border animation scoped only to the Excel template preview */
