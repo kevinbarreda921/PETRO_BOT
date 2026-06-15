@@ -130,6 +130,7 @@
                             <!-- Right: General buttons -->
                             <div class="flex flex-row flex-wrap items-center gap-1.5 shrink-0 justify-center w-full md:w-auto">
                                 <button @onclick="ConfirmarEliminarGrifo" class="px-3 py-1.5 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer shrink-0">Eliminar</button>
+                                <button @onclick="ConfirmarEliminarConfiguracion" class="px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer shrink-0">Eliminar configuración</button>
                                 <button @onclick="CancelarEdicion" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-55 hover:text-slate-950 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer shrink-0">Cancelar</button>
                                 <button @onclick="GuardarConfiguracion" class="px-4 py-1.5 bg-[#0f172a] text-white hover:bg-slate-800 rounded-xl text-[9px] font-black uppercase tracking-wider shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all select-none cursor-pointer shrink-0">Guardar</button>
                             </div>
@@ -1153,6 +1154,58 @@
     </div>
 }
 
+<!-- 4. MODAL CONFIRMACION MODERN Y MINIMALISTA -->
+@if (mostrarModalConfirm)
+{
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[1000] animate-modal-in">
+        <div class="fixed inset-0 z-[-1]" @onclick="CancelarConfirmacion"></div>
+        <div class="bg-white border border-slate-100 w-full max-w-sm rounded-[32px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col p-8 gap-6 transition-all duration-300 animate-modal-in">
+            <!-- Icon and Headings -->
+            <div class="flex flex-col items-center text-center gap-4">
+                @if (confirmTipo == "danger")
+                {
+                    <div class="w-14 h-14 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center shadow-sm">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </div>
+                }
+                else
+                {
+                    <div class="w-14 h-14 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center shadow-sm">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                }
+                <div class="flex flex-col gap-2">
+                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">@confirmTitulo</h3>
+                    <p class="text-[11px] font-bold text-slate-400 leading-relaxed max-w-[280px]">@confirmMensaje</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons (Full width stacked) -->
+            <div class="flex flex-col gap-2">
+                @if (confirmTipo == "danger")
+                {
+                    <button @onclick="AceptarConfirmacion" type="button" class="w-full py-3 bg-rose-500 hover:bg-rose-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-wider shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all select-none cursor-pointer text-center">
+                        Confirmar Eliminación
+                    </button>
+                }
+                else
+                {
+                    <button @onclick="AceptarConfirmacion" type="button" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-wider shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all select-none cursor-pointer text-center">
+                        Confirmar Restablecer
+                    </button>
+                }
+                <button @onclick="CancelarConfirmacion" type="button" class="w-full py-3 bg-slate-50 border border-slate-200/65 hover:bg-slate-100 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all select-none cursor-pointer text-center">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
 <style>
     .config-grid {
         display: grid !important;
@@ -1414,6 +1467,35 @@
     private RegistroVentasGrifo? grifoSeleccionado = null;
     private bool _shouldScrollSelectedCell = false;
     private List<string> clientesLeidosModal = new();
+
+    // Custom modern confirmation modal state
+    private bool mostrarModalConfirm = false;
+    private string confirmTitulo = "";
+    private string confirmMensaje = "";
+    private string confirmTipo = "danger"; // "danger" or "warning"
+    private Action? confirmAccion = null;
+
+    private void MostrarConfirmacion(string titulo, string mensaje, string tipo, Action accion)
+    {
+        confirmTitulo = titulo;
+        confirmMensaje = mensaje;
+        confirmTipo = tipo;
+        confirmAccion = accion;
+        mostrarModalConfirm = true;
+    }
+
+    private void AceptarConfirmacion()
+    {
+        mostrarModalConfirm = false;
+        confirmAccion?.Invoke();
+        confirmAccion = null;
+    }
+
+    private void CancelarConfirmacion()
+    {
+        mostrarModalConfirm = false;
+        confirmAccion = null;
+    }
 
     public class CeldaExcelInfo
     {
@@ -1731,14 +1813,103 @@
         }
     }
 
-    private async Task ConfirmarEliminarGrifo()
+    private void ConfirmarEliminarGrifo()
     {
         if (grifoSeleccionado == null) return;
 
-        bool confirm = await JSRuntime.InvokeAsync<bool>("confirm", $"¿Estás seguro de que deseas eliminar permanentemente el grifo {grifoSeleccionado.Nombre}?");
-        if (confirm)
+        MostrarConfirmacion(
+            "Eliminar Grifo", 
+            $"¿Estás seguro de que deseas eliminar permanentemente el grifo {grifoSeleccionado.Nombre}? Esta acción no se puede deshacer.", 
+            "danger", 
+            () => EliminarGrifoActual()
+        );
+    }
+
+    private void ConfirmarEliminarConfiguracion()
+    {
+        if (grifoSeleccionado == null) return;
+
+        MostrarConfirmacion(
+            "Restablecer Configuración", 
+            $"¿Estás seguro de que deseas eliminar todas las configuraciones del grifo {grifoSeleccionado.Nombre}? Esto restablecerá las coordenadas de lectura, columnas de escritura y clientes autorizados.", 
+            "warning", 
+            () => EliminarConfiguracionGrifoActual()
+        );
+    }
+
+    private void EliminarConfiguracionGrifoActual()
+    {
+        if (grifoSeleccionado == null) return;
+        string name = grifoSeleccionado.Nombre;
+        try
         {
-            EliminarGrifoActual();
+            grifoSeleccionado.Configuracion = new RegistroVentasConfiguracion
+            {
+                GrifoId = grifoSeleccionado.Id,
+                ColumnaEESS = -1,
+                FilaEESS = -1,
+                EESS = "",
+                ColumnaFecha = -1,
+                FilaFecha = 0,
+                ColumnaCreditoNombre = -1,
+                FilaCreditosNombre = 0,
+                ColumnaCreditoMonto = -1,
+                FilaCreditosMonto = 0,
+                ColumnaVariaCombusNombre = -1,
+                FilaVariaCombusNombre = -1,
+                ColumnaVariaCombusMonto = -1,
+                FilaVariaCombusMonto = -1,
+                VariaCombusNombre = "",
+                ColumnaHermesMonto = 14,
+                FilaHermesMonto = -1,
+                ColumnaHermesBanco = -1,
+                FilaHermesBanco = -1,
+                ColumnaHermesTipo = -1,
+                FilaHermesTipo = -1,
+                HermesPalabraClaveMonto = "",
+                FilaFinal = 0
+            };
+
+            grifoSeleccionado.RegistroVentasWrite = new RegistroVentasWriteConfig
+            {
+                GrifoId = grifoSeleccionado.Id,
+                NombreHoja = "",
+                FilaSeleccion = 10,
+                Venta_GPL = "",
+                Venta_GNV = "",
+                Total_venta_acumulada = "",
+                Total_Tarjeta_de_Credito_Liquidos = "",
+                Total_Tarjeta_de_Credito_GLP = "",
+                Total_Tarjeta_de_Credito_GNV = "",
+                ErrorMaquina = "",
+                Recaudo_Cofide_GNV = "",
+                Gastos = "",
+                Ventas_con_transferencia = "",
+                DescuentoLiquidos = "",
+                DescuentoGLP = "",
+                Hermes_monto_liquido = "",
+                Hermes_monto_GLP = "",
+                Hermes_monto_GNV1 = "",
+                Hermes_monto_GNV2 = ""
+            };
+
+            grifoSeleccionado.ClientesCredito.Clear();
+
+            ConfiguracionService.GuardarGrifoCompletoDB(grifoSeleccionado);
+            CargarConfiguracion();
+            
+            // Re-select fresh configurations from loaded list
+            var fresh = grifosList.Find(g => g.Id == grifoSeleccionado.Id);
+            if (fresh != null)
+            {
+                grifoSeleccionado = fresh;
+            }
+
+            ToastService.Success($"La configuración del grifo {name} ha sido restablecida.");
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al restablecer la configuración: " + ex.Message);
         }
     }
 
