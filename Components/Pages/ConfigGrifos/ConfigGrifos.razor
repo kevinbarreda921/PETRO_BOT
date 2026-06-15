@@ -395,7 +395,12 @@
                                 <h4 class="text-[9px] font-black text-slate-800 uppercase tracking-[0.15em] flex items-center gap-2">
                                     <span class="w-1.5 h-3 bg-[#0f172a] rounded-full"></span> Clientes Autorizados
                                 </h4>
-                                <button @onclick="AbrirModalAgregarCliente" class="bg-[#0f172a] hover:bg-slate-800 text-white px-3.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer shadow-sm hover:scale-[1.01] active:scale-[0.98]">Agregar</button>
+                                <button @onclick="AbrirModalAgregarCliente" 
+                                        disabled="@(grifoSeleccionado.Configuracion.ColumnaCreditoNombre < 0 || grifoSeleccionado.Configuracion.FilaCreditosNombre < 1)" 
+                                        class="bg-[#0f172a] hover:bg-slate-800 text-white disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed px-3.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer shadow-sm hover:scale-[1.01] active:scale-[0.98]"
+                                        title="@(grifoSeleccionado.Configuracion.ColumnaCreditoNombre < 0 || grifoSeleccionado.Configuracion.FilaCreditosNombre < 1 ? "Configura primero 'Crédito Nombre' en Coordenadas de Lectura" : "Agregar Clientes")">
+                                    Agregar
+                                </button>
                             </div>
                             <div class="overflow-auto custom-scrollbar bg-white border border-slate-200 rounded-2xl shadow-sm" style="flex: 1; min-height: 150px;">
                                 <table class="w-full text-left border-collapse">
@@ -496,7 +501,7 @@
 {
     <div class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[999] animate-modal-in">
         <div class="fixed inset-0 z-[-1]" @onclick="CerrarModalAgregarCliente"></div>
-        <div class="bg-white border border-slate-200 w-fit min-w-[380px] max-w-[90vw] rounded-[28px] shadow-2xl overflow-hidden flex flex-col transition-all duration-300 animate-modal-in" style="max-height: 85vh;">
+        <div class="bg-white border border-slate-200 w-fit min-w-[520px] max-w-[95vw] rounded-[28px] shadow-2xl overflow-hidden flex flex-col transition-all duration-300 animate-modal-in" style="max-height: 85vh;">
             <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
                 <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Importador de Clientes de Crédito</h3>
                 <button @onclick="CerrarModalAgregarCliente" class="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-55 transition-all cursor-pointer">
@@ -553,7 +558,7 @@
                                         
                                         <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition-all">
                                             <td class="py-2 px-4 font-mono text-slate-400 font-bold">@importadorIdx</td>
-                                            <td class="py-2 px-2 text-slate-800 font-bold uppercase truncate max-w-[220px]" title="@clientName">@clientName</td>
+                                            <td class="py-2 px-2 text-slate-800 font-bold uppercase whitespace-nowrap" title="@clientName">@clientName</td>
                                             <td class="py-2 px-2">
                                                 @if (yaExiste)
                                                 {
@@ -587,8 +592,14 @@
                 </div>
 
             </div>
-            <div class="px-6 py-4.5 border-t border-slate-100 flex justify-end bg-slate-50">
+            <div class="px-6 py-4.5 border-t border-slate-100 flex justify-end gap-2 bg-slate-50">
                 <button @onclick="CerrarModalAgregarCliente" class="px-5 py-2.5 bg-slate-200 text-slate-700 hover:bg-slate-300 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all select-none cursor-pointer">Cerrar Importer</button>
+                @if (clientesLeidosModal != null && clientesLeidosModal.Any(name => !(grifoSeleccionado?.ClientesCredito?.Any(c => string.Equals(c.ClienteNombre, name, StringComparison.OrdinalIgnoreCase)) ?? false)))
+                {
+                    <button @onclick="ImportarTodosLosClientes" class="px-5 py-2.5 bg-[#0f172a] hover:bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all select-none cursor-pointer">
+                        Importar Todos
+                    </button>
+                }
             </div>
         </div>
     </div>
@@ -1942,6 +1953,12 @@
 
     private void AbrirModalAgregarCliente()
     {
+        if (grifoSeleccionado == null) return;
+        if (grifoSeleccionado.Configuracion.ColumnaCreditoNombre < 0 || grifoSeleccionado.Configuracion.FilaCreditosNombre < 1)
+        {
+            ToastService.Error("Debes configurar primero la celda 'Crédito Nombre' en las Coordenadas de Lectura antes de poder importar clientes.");
+            return;
+        }
         isEditingClient = false;
         nuevoClienteColumna = "";
         nuevoClienteNombre = "";
@@ -2045,6 +2062,53 @@
         }
         
         clientesLeidosModal.Remove(name);
+        StateHasChanged();
+    }
+
+    private void ImportarTodosLosClientes()
+    {
+        if (grifoSeleccionado == null || clientesLeidosModal == null || !clientesLeidosModal.Any()) return;
+        
+        int agregadosCount = 0;
+        var listCopy = clientesLeidosModal.ToList();
+        
+        foreach (var name in listCopy)
+        {
+            bool yaExiste = grifoSeleccionado.ClientesCredito?.Any(c => string.Equals(c.ClienteNombre, name, StringComparison.OrdinalIgnoreCase)) ?? false;
+            if (!yaExiste)
+            {
+                int tempId = -1;
+                if (grifoSeleccionado.ClientesCredito.Any())
+                {
+                    int minId = grifoSeleccionado.ClientesCredito.Min(c => c.Id);
+                    if (minId < 0)
+                    {
+                        tempId = minId - 1;
+                    }
+                }
+                
+                grifoSeleccionado.ClientesCredito.Add(new RegistroVentasClienteCredito
+                {
+                    Id = tempId,
+                    GrifoId = grifoSeleccionado.Id,
+                    Columna = "",
+                    ClienteNombre = name
+                });
+                
+                agregadosCount++;
+                clientesLeidosModal.Remove(name);
+            }
+        }
+        
+        if (agregadosCount > 0)
+        {
+            ToastService.Success($"Se agregaron {agregadosCount} clientes correctamente. Recuerda guardar los cambios.");
+        }
+        else
+        {
+            ToastService.Info("No hay nuevos clientes para agregar.");
+        }
+        
         StateHasChanged();
     }
 
