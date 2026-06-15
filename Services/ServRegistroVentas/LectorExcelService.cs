@@ -35,28 +35,22 @@ namespace PETRO_BOT.Services.Services
                 .ToDictionary(p => p.Name, p => p, StringComparer.Ordinal);
 
             var grifosList = ConfiguracionService.ObtenerGrifosDB();
-            var listadoClavesGrifos = grifosList.Select(g => g.Nombre).ToList();
 
             Parallel.ForEach(archivos, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, (ruta) =>
             {
                 string nombreGrifoDetectadoStr = "DESCONOCIDO";
                 try
                 {
-                    string nombreArchivoCompleto = Path.GetFileNameWithoutExtension(ruta);
-                    string nombreArchivoMin = nombreArchivoCompleto.ToLower();
+                    var grifoDB = DetectarGrifoPorCeldaEESS(ruta, grifosList);
 
-                    string? nombreGrifoDetectado = listadoClavesGrifos.FirstOrDefault(clave => nombreArchivoMin.Contains(clave.ToLower()));
-
-                    if (nombreGrifoDetectado == null)
+                    if (grifoDB == null)
                     {
                         LoggerService.Error("DESCONOCIDO", Path.GetFileName(ruta), $"NO REGISTRADO: El archivo a procesar no se encuentra registrado en el sistema.");
                         return;
                     }
                     
+                    string nombreGrifoDetectado = grifoDB.Nombre;
                     nombreGrifoDetectadoStr = nombreGrifoDetectado;
-
-                    var grifoDB = grifosList.FirstOrDefault(g => g.Nombre.Equals(nombreGrifoDetectado, StringComparison.OrdinalIgnoreCase));
-                    if (grifoDB == null) return;
 
                     var configGrifo = grifoDB.Configuracion;
 
@@ -409,7 +403,6 @@ namespace PETRO_BOT.Services.Services
                 .ToDictionary(p => p.Name, p => p, StringComparer.Ordinal);
 
             var grifosList = ConfiguracionService.ObtenerGrifosDB();
-            var listadoClavesGrifos = grifosList.Select(g => g.Nombre).ToList();
 
             var fechasABuscar = (fechaAProcesar ?? "")
                 .Split(';', StringSplitOptions.RemoveEmptyEntries)
@@ -421,21 +414,16 @@ namespace PETRO_BOT.Services.Services
                 string nombreGrifoDetectadoStr = "DESCONOCIDO";
                 try
                 {
-                    string nombreArchivoCompleto = Path.GetFileNameWithoutExtension(ruta);
-                    string nombreArchivoMin = nombreArchivoCompleto.ToLower();
+                    var grifoDB = DetectarGrifoPorCeldaEESS(ruta, grifosList);
 
-                    string? nombreGrifoDetectado = listadoClavesGrifos.FirstOrDefault(clave => nombreArchivoMin.Contains(clave.ToLower()));
-
-                    if (nombreGrifoDetectado == null)
+                    if (grifoDB == null)
                     {
                         LoggerService.Error("DESCONOCIDO", Path.GetFileName(ruta), $"NO REGISTRADO: El archivo a procesar no se encuentra registrado en el sistema.");
                         return;
                     }
                     
+                    string nombreGrifoDetectado = grifoDB.Nombre;
                     nombreGrifoDetectadoStr = nombreGrifoDetectado;
-
-                    var grifoDB = grifosList.FirstOrDefault(g => g.Nombre.Equals(nombreGrifoDetectado, StringComparison.OrdinalIgnoreCase));
-                    if (grifoDB == null) return;
 
                     var configGrifo = grifoDB.Configuracion;
 
@@ -814,6 +802,66 @@ namespace PETRO_BOT.Services.Services
             if (index < 0 || index >= reader.FieldCount)
                 return null;
             return reader.GetValue(index);
+        }
+
+        private static RegistroVentasGrifo? DetectarGrifoPorCeldaEESS(string ruta, List<RegistroVentasGrifo> grifos)
+        {
+            try
+            {
+                using var stream = new FileStream(ruta, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, FileOptions.SequentialScan);
+                using var reader = ExcelReaderFactory.CreateOpenXmlReader(stream);
+                
+                int maxFilaToCheck = grifos.Any() ? grifos.Max(g => g.Configuracion.FilaEESS) : 10;
+                if (maxFilaToCheck < 10) maxFilaToCheck = 10;
+                
+                do
+                {
+                    int filaActual = 1;
+                    var valoresPorCelda = new Dictionary<(int Col, int Row), string>();
+                    
+                    while (reader.Read() && filaActual <= maxFilaToCheck)
+                    {
+                        foreach (var g in grifos)
+                        {
+                            var config = g.Configuracion;
+                            if (config.ColumnaEESS >= 0 && config.FilaEESS == filaActual)
+                            {
+                                var val = GetValueSafe(reader, config.ColumnaEESS);
+                                if (val != null)
+                                {
+                                    string valStr = val.ToString()?.Trim() ?? "";
+                                    if (!string.IsNullOrEmpty(valStr))
+                                    {
+                                        valoresPorCelda[(config.ColumnaEESS, config.FilaEESS)] = valStr;
+                                    }
+                                }
+                            }
+                        }
+                        filaActual++;
+                    }
+                    
+                    // Compare values for this sheet
+                    foreach (var g in grifos)
+                    {
+                        var config = g.Configuracion;
+                        if (config.ColumnaEESS >= 0 && config.FilaEESS >= 1 && !string.IsNullOrWhiteSpace(config.EESS))
+                        {
+                            if (valoresPorCelda.TryGetValue((config.ColumnaEESS, config.FilaEESS), out string? valorLeido))
+                            {
+                                if (valorLeido.Equals(config.EESS.Trim(), StringComparison.OrdinalIgnoreCase))
+                                {
+                                    return g; // Match found!
+                                }
+                            }
+                        }
+                    }
+                } while (reader.NextResult());
+            }
+            catch
+            {
+                // If any error reading this file, return null
+            }
+            return null;
         }
     }
 }
