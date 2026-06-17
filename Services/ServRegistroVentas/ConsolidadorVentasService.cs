@@ -40,7 +40,7 @@ namespace PETRO_BOT.Services.Services
             var archivosExcel = Directory.GetFiles(carpetaRegistroVentas, "*.xlsx");
             if (archivosExcel.Length == 0)
             {
-                Console.WriteLine("[x] No se encontró ningún archivo Excel maestro en la carpeta Registro_ventas.");
+                LoggerService.Error("MAESTRO", "MAESTRO", "No se encontró ningún archivo Excel maestro en la carpeta Registro_ventas.");
                 return;
             }
             string rutaExcel = archivosExcel[0];
@@ -67,7 +67,7 @@ namespace PETRO_BOT.Services.Services
                 var grifoDB = grifosList.FirstOrDefault(g => g.Nombre.Equals(grifoObjetivo, StringComparison.OrdinalIgnoreCase));
                 if (grifoDB == null)
                 {
-                    Console.WriteLine($"[!] No se encontró configuración en la base de datos para el grifo: {grifoObjetivo}");
+                    LoggerService.Error(grifoObjetivo, "MAESTRO", $"El grifo {grifoObjetivo}, Estación: N/A del dia N/A: ERROR: No se encontró configuración en la base de datos para el grifo: {grifoObjetivo}");
                     continue;
                 }
 
@@ -177,7 +177,7 @@ namespace PETRO_BOT.Services.Services
                             }
 
                             string eessMsg = !string.IsNullOrWhiteSpace(ventaParaEscribir.EESS) ? $", Estación: {ventaParaEscribir.EESS}" : "";
-                            LoggerService.Info(grifoObjetivo, archivoGrifoActual.Archivo ?? "DESCONOCIDO", $" El grifo {grifoObjetivo}{eessMsg} del dia {fechaABuscar} procesado correctamente");
+                            LoggerService.Info(grifoObjetivo, archivoGrifoActual.Archivo ?? "DESCONOCIDO", $"El grifo {grifoObjetivo}{eessMsg} del dia {fechaABuscar} guardado con éxito");
                             
                             if (!string.IsNullOrWhiteSpace(ventaParaEscribir.EESS))
                             {
@@ -192,7 +192,9 @@ namespace PETRO_BOT.Services.Services
                     }
                     else
                     {
-                        Console.WriteLine($"[x] La fecha {fechaABuscar} NO EXISTE en el Maestro para el grifo {grifoObjetivo}");
+                        var vEscribir = archivoGrifoActual.ListVenta.FirstOrDefault(v => v.Dia == fechaABuscar);
+                        string est = vEscribir != null ? vEscribir.EESS ?? "N/A" : "N/A";
+                        LoggerService.Error(grifoObjetivo, archivoGrifoActual.Archivo ?? "DESCONOCIDO", $"El grifo {grifoObjetivo}, Estación: {est} del dia {fechaABuscar}: ERROR: La fecha {fechaABuscar} NO EXISTE en el Maestro. No se pudo guardar la data.");
                     }
                 }
             }

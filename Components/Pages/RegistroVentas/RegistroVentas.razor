@@ -35,11 +35,11 @@
                 <div class="grid grid-cols-1 @(showDiaActivar ? "sm:grid-cols-2" : "sm:grid-cols-1") gap-4 mb-4">
                     
                     <!-- Select item 1 (Trabajo) -->
-                    <div class="p-3 bg-slate-50 border border-slate-150 rounded-2xl relative">
-                        <label class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
+                    <div class="p-3 @(trabajoSeleccionado != "Seleccionar" ? "bg-emerald-50 border-emerald-200 shadow-sm" : "bg-slate-50 border-slate-150") border rounded-2xl relative transition-all">
+                        <label class="block text-[8px] font-black uppercase tracking-widest mb-1.5 ml-0.5 @(trabajoSeleccionado != "Seleccionar" ? "text-emerald-600" : "text-slate-400")">
                             Acción de Trabajo
                         </label>
-                        <div class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 flex items-center justify-between cursor-pointer hover:border-slate-300 hover:bg-slate-100/50 transition-all select-none"
+                        <div class="w-full @(trabajoSeleccionado != "Seleccionar" ? "bg-emerald-100/30 border-emerald-300 text-emerald-900" : "bg-white border-slate-200 text-slate-800") border rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer hover:border-slate-300 transition-all select-none"
                              @onclick="ToggleTrabajo">
                             <span>@trabajoSeleccionado</span>
                             <svg class="w-4 h-4 text-slate-500 transition-transform duration-200 @(showTrabajo ? "rotate-180 text-slate-800" : "")"
@@ -225,6 +225,54 @@
         <!-- Right Column: Processed logs table, styled EXACTLY like the Asset rows in Mockup -->
         <div class="lg:col-span-7 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col hover:border-slate-300 hover:shadow-lg transition-all duration-300 animate-fade-in-up anim-delay-150" style="height: calc(100vh - 160px);">
             <div class="flex flex-col h-full overflow-hidden">
+                
+                @if (archivoRegistroVentasInfo != null)
+                {
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4 shrink-0">
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest">Archivo Registro de Ventas</h3>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-hidden bg-white border border-slate-200 rounded-2xl shadow-sm mb-6 shrink-0">
+                        <table class="w-full text-left border-collapse">
+                            <thead style="background-color: #1e293b !important;">
+                                <tr class="text-[10px] font-black uppercase tracking-wider" style="color: #ffffff !important;">
+                                    <th class="py-3 px-4" style="background-color: #1e293b !important; color: #ffffff !important;">Archivo</th>
+                                    <th class="py-3 px-4 w-28 text-center" style="background-color: #1e293b !important; color: #ffffff !important;">Estado</th>
+                                    <th class="py-3 px-4 text-right w-40" style="background-color: #1e293b !important; color: #ffffff !important;">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-xs text-slate-700">
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="py-3.5 px-4 font-bold text-slate-800">
+                                        @archivoRegistroVentasInfo.File
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center">
+                                        @if (archivoRegistroVentasInfo.Estado == 1)
+                                        {
+                                            <div class="inline-flex p-1 bg-emerald-500 border border-emerald-400 rounded-lg text-white shadow-sm">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="inline-flex p-1 bg-rose-500 border border-rose-400 rounded-lg text-white shadow-sm">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td class="py-3.5 px-4 text-right">
+                                        <button @onclick="() => AbrirModal(archivoRegistroVentasInfo)" class="inline-flex items-center gap-1.5 px-4 py-1.5 bg-[#0f172a] hover:bg-slate-800 text-white rounded-full text-[10px] font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98] shadow-sm cursor-pointer select-none">
+                                            Detalles
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
                 <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4 shrink-0">
                     <div class="flex items-center gap-2">
                         <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest">Archivos Procesados</h3>
@@ -402,14 +450,15 @@
 
             <!-- Details logs table custom-scrollbar -->
             <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
-                <table class="w-full text-left">
-                    <thead>
-                        <tr class="text-slate-400 text-[9px] uppercase tracking-wider border-b border-slate-100">
-                            <th class="pb-3 font-black w-24">Estado</th>
-                            <th class="pb-3 font-black">Descripción</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-xs">
+                <div class="overflow-hidden bg-white border border-slate-200 rounded-2xl shadow-sm">
+                    <table class="w-full text-left border-collapse">
+                        <thead style="background-color: #1e293b !important;">
+                            <tr class="text-[10px] font-black uppercase tracking-wider" style="color: #ffffff !important;">
+                                <th class="py-3 px-4 w-32" style="background-color: #1e293b !important; color: #ffffff !important;">Estado</th>
+                                <th class="py-3 px-4" style="background-color: #1e293b !important; color: #ffffff !important;">Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-xs text-slate-700 divide-y divide-slate-100">
                         @{
                             var mensajesMostrados = archivoSeleccionado.Mensajes.Where(m => 
                                 filtroModal == "TODOS" || 
@@ -429,8 +478,8 @@
                         {
                             @foreach (var msg in mensajesMostrados)
                             {
-                                <tr class="border-b border-slate-100/60 hover:bg-slate-50/50">
-                                    <td class="py-3.5 vertical-top whitespace-nowrap pr-4">
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="py-3.5 px-4 vertical-top whitespace-nowrap">
                                         @if (msg.Estado.Equals("INFO", StringComparison.OrdinalIgnoreCase))
                                         {
                                             <span class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider">
@@ -444,14 +493,15 @@
                                             </span>
                                         }
                                     </td>
-                                    <td class="py-3.5 text-slate-700 font-medium text-xs leading-relaxed select-all">
+                                    <td class="py-3.5 px-4 font-medium leading-relaxed select-all">
                                         @msg.Descripcion
                                     </td>
                                 </tr>
                             }
                         }
                     </tbody>
-                </table>
+                    </table>
+                </div>
             </div>
 
             <!-- Footer close -->
@@ -766,6 +816,7 @@
         EstadoAdjuntadoRegistroVentas = false;
         EstadoAdjuntadoReportediario = false;
         archivosProcesados.Clear();
+        archivoRegistroVentasInfo = null;
         listaArchivossubir.Clear();
         archivosRegistroVentas.Clear();
         archivosReporteDiario.Clear();
@@ -830,6 +881,7 @@
                         isLoading = true;
                         LimpiarArchivoReporteProceso();
                         archivosProcesados.Clear();
+                        archivoRegistroVentasInfo = null;
                         StateHasChanged();
                         await ProcesarArchivos(trabajoSeleccionado, fechaFormateada);
                         await CargarReporteProceso();
@@ -848,6 +900,7 @@
                         isLoading = true;
                         LimpiarArchivoReporteProceso();
                         archivosProcesados.Clear();
+                        archivoRegistroVentasInfo = null;
                         StateHasChanged();
                         await ProcesarArchivos(trabajoSeleccionado, fechaFormateada);
                         await CargarReporteProceso();
@@ -858,13 +911,24 @@
                         isLoading = true;
                         LimpiarArchivoReporteProceso();
                         archivosProcesados.Clear();
+                        archivoRegistroVentasInfo = null;
                         StateHasChanged();
                         await ProcesarArchivos(trabajoSeleccionado, "");
                         await CargarReporteProceso();
                     }
 
-                    // Descargar automáticamente el archivo consolidado
-                    await DescargarArchivoConsolidado();
+                    // Descargar automáticamente el archivo consolidado solo si hubo escritura
+                    bool seEscribioAlgo = archivoRegistroVentasInfo != null && 
+                                          archivoRegistroVentasInfo.Mensajes.Any(m => m.Descripcion.Contains("guardado con éxito"));
+
+                    if (seEscribioAlgo)
+                    {
+                        await DescargarArchivoConsolidado();
+                    }
+                    else
+                    {
+                        ToastService.Warning("No se registraron datos nuevos. Descarga omitida.");
+                    }
                     
                     isLoading = false;
                 }
@@ -926,21 +990,58 @@
                 if (logsProcesados != null)
                 {
                     archivosProcesados.Clear();
+                    var mensajesEscritura = new List<LogDetalle>();
+
                     foreach (var log in logsProcesados)
                     {
-                        int estado = log.Mensajes.All(m => m.Estado.Equals("INFO", StringComparison.OrdinalIgnoreCase)) ? 1 : 2;
-                        
-                        var nuevoArchivo = new ArchivoInfo
+                        var mensajesLectura = new List<LogDetalle>();
+
+                        foreach (var msg in log.Mensajes)
+                        {
+                            bool isWritingError = (msg.Descripcion.TrimStart().StartsWith("El grifo", StringComparison.OrdinalIgnoreCase) && !msg.Descripcion.Contains("procesado correctamente")) || 
+                                                  msg.Descripcion.StartsWith("No se encontró", StringComparison.OrdinalIgnoreCase) ||
+                                                  log.Archivo == "MAESTRO";
+
+                            if (isWritingError)
+                            {
+                                mensajesEscritura.Add(msg);
+                            }
+                            else
+                            {
+                                mensajesLectura.Add(msg);
+                            }
+                        }
+
+                        if (log.Archivo != "MAESTRO")
+                        {
+                            int estado = mensajesLectura.All(m => m.Estado.Equals("INFO", StringComparison.OrdinalIgnoreCase)) ? 1 : 2;
+                            archivosProcesados.Add(new ArchivoInfo
+                            {
+                                Id = Guid.NewGuid(),
+                                Grifo = log.Grifo,
+                                File = log.Archivo,
+                                Estado = estado,
+                                Mensajes = mensajesLectura
+                            });
+                        }
+                    }
+
+                    if (mensajesEscritura.Any())
+                    {
+                        archivoRegistroVentasInfo = new ArchivoInfo
                         {
                             Id = Guid.NewGuid(),
-                            Grifo = log.Grifo,
-                            File = log.Archivo,
-                            Estado = estado,
-                            Mensajes = log.Mensajes
+                            Grifo = "MAESTRO",
+                            File = archivosRegistroVentas.FirstOrDefault() ?? "registro_ventas.xlsx",
+                            Estado = mensajesEscritura.All(m => m.Estado.Equals("INFO", StringComparison.OrdinalIgnoreCase)) ? 1 : 2,
+                            Mensajes = mensajesEscritura
                         };
-                        archivosProcesados.Add(nuevoArchivo);
-                        StateHasChanged();
                     }
+                    else
+                    {
+                        archivoRegistroVentasInfo = null;
+                    }
+                    StateHasChanged();
                 }
             }
         }
@@ -1087,6 +1188,7 @@
 
     private bool mostrarModal = false;
     private ArchivoInfo? archivoSeleccionado;
+    private ArchivoInfo? archivoRegistroVentasInfo;
     private string filtroModal = "TODOS";
 
     private void AbrirModal(ArchivoInfo archivo)

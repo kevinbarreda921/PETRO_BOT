@@ -340,6 +340,8 @@ namespace PETRO_BOT.Services.Services
 
                         if (cumpleReglas)
                         {
+                            LoggerService.Info(nombreGrifoDetectadoStr, Path.GetFileName(ruta), $"El grifo {nombreGrifoDetectadoStr}, Estación: {registro.EESS} del dia {registro.Dia} procesado correctamente");
+                            
                             // Llenado de variables si cumple las reglas
                             registro.Hermes_monto_liquido = liquidosScotia.Any() ? liquidosScotia.Sum(x => x.Monto) : 0m;
                             registro.Hermes_monto_GLP = glpScotia.Any() ? glpScotia.Sum(x => x.Monto) : 0m;
@@ -742,6 +744,8 @@ namespace PETRO_BOT.Services.Services
 
                             if (cumpleReglas)
                             {
+                                LoggerService.Info(nombreGrifoDetectadoStr, Path.GetFileName(ruta), $"El grifo {nombreGrifoDetectadoStr}, Estación: {registro.EESS} del dia {registro.Dia} procesado correctamente");
+                                
                                 // Llenado de variables si cumple las reglas
                                 registro.Hermes_monto_liquido = liquidosScotia.Any() ? liquidosScotia.Sum(x => x.Monto) : 0m;
                                 registro.Hermes_monto_GLP = glpScotia.Any() ? glpScotia.Sum(x => x.Monto) : 0m;
