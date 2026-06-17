@@ -137,6 +137,8 @@ namespace PETRO_BOT.Services.Services
                 {
                     if (mapaFechasFilas.TryGetValue(fechaABuscar, out int filaDestino))
                     {
+                        var ventaParaEscribir = archivoGrifoActual.ListVenta.FirstOrDefault(v => v.Dia == fechaABuscar);
+                        
                         // Validar si ya existe información en las columnas de escritura configuradas en la fila de destino
                         bool yaTieneData = false;
                         string columnaConData = "";
@@ -160,11 +162,11 @@ namespace PETRO_BOT.Services.Services
 
                         if (yaTieneData)
                         {
-                            LoggerService.Error(grifoObjetivo, archivoGrifoActual.Archivo ?? "DESCONOCIDO", $"El grifo {grifoObjetivo}, Estación: {ventaParaEscribir.EESS} del dia {fechaABuscar}: ERROR: El día {fechaABuscar} ya tiene data en el Registro de Ventas (Celda {columnaConData}{filaDestino}). No se sobrescribió.");
+                            string estacion = ventaParaEscribir != null ? ventaParaEscribir.EESS ?? "N/A" : "N/A";
+                            LoggerService.Error(grifoObjetivo, archivoGrifoActual.Archivo ?? "DESCONOCIDO", $"El grifo {grifoObjetivo}, Estación: {estacion} del dia {fechaABuscar}: ERROR: El día {fechaABuscar} ya tiene data en el Registro de Ventas (Celda {columnaConData}{filaDestino}). No se sobrescribió.");
                             continue;
                         }
 
-                        var ventaParaEscribir = archivoGrifoActual.ListVenta.FirstOrDefault(v => v.Dia == fechaABuscar);
                         if (ventaParaEscribir != null)
                         {
                             _escritor.EscribirFila(hojaEPPlus, ventaParaEscribir, filaDestino, columnasEscritura);

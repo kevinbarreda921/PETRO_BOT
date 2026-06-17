@@ -40,10 +40,6 @@
         "Descripcion": " El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 9/03/2026 procesado correctamente"
       },
       {
-        "Estado": "ERROR",
-        "Descripcion": "El cliente \u0027LUIS RODRIGUEZ\u0027 no existe en la configuraci\u00F3n de la Base de Datos"
-      },
-      {
         "Estado": "INFO",
         "Descripcion": " El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 10/03/2026 procesado correctamente"
       },
@@ -60,10 +56,6 @@
         "Descripcion": " El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 13/03/2026 procesado correctamente"
       },
       {
-        "Estado": "ERROR",
-        "Descripcion": "El cliente \u0027LUIS RODRIGUEZ\u0027 no existe en la configuraci\u00F3n de la Base de Datos"
-      },
-      {
         "Estado": "INFO",
         "Descripcion": " El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 14/03/2026 procesado correctamente"
       },
@@ -74,10 +66,6 @@
       {
         "Estado": "INFO",
         "Descripcion": " El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 16/03/2026 procesado correctamente"
-      },
-      {
-        "Estado": "ERROR",
-        "Descripcion": "El cliente \u0027LUIS RODRIGUEZ\u0027 no existe en la configuraci\u00F3n de la Base de Datos"
       },
       {
         "Estado": "INFO",
@@ -96,10 +84,6 @@
         "Descripcion": " El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 20/03/2026 procesado correctamente"
       },
       {
-        "Estado": "ERROR",
-        "Descripcion": "El cliente \u0027LUIS RODRIGUEZ\u0027 no existe en la configuraci\u00F3n de la Base de Datos"
-      },
-      {
         "Estado": "INFO",
         "Descripcion": " El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 21/03/2026 procesado correctamente"
       },
@@ -110,10 +94,6 @@
       {
         "Estado": "INFO",
         "Descripcion": " El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 23/03/2026 procesado correctamente"
-      },
-      {
-        "Estado": "ERROR",
-        "Descripcion": "El cliente \u0027LUIS RODRIGUEZ\u0027 no existe en la configuraci\u00F3n de la Base de Datos"
       },
       {
         "Estado": "INFO",
@@ -150,16 +130,6 @@
     ]
   },
   {
-    "Grifo": "DESCONOCIDO",
-    "Archivo": "50 TULIS  MARZO 2026.xlsx",
-    "Mensajes": [
-      {
-        "Estado": "ERROR",
-        "Descripcion": "NO REGISTRADO: El archivo a procesar no se encuentra registrado en el sistema."
-      }
-    ]
-  },
-  {
     "Grifo": "BRASIL",
     "Archivo": "PARTE DIARIO 3 ABRIL---BRASIL.xlsx",
     "Mensajes": [
@@ -178,10 +148,6 @@
       {
         "Estado": "INFO",
         "Descripcion": " El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 4/04/2026 procesado correctamente"
-      },
-      {
-        "Estado": "ERROR",
-        "Descripcion": "El cliente \u0027LUIS RODRIGUEZ\u0027 no existe en la configuraci\u00F3n de la Base de Datos"
       },
       {
         "Estado": "INFO",
@@ -204,10 +170,6 @@
         "Descripcion": " El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 9/04/2026 procesado correctamente"
       },
       {
-        "Estado": "ERROR",
-        "Descripcion": "El cliente \u0027LUIS RODRIGUEZ\u0027 no existe en la configuraci\u00F3n de la Base de Datos"
-      },
-      {
         "Estado": "INFO",
         "Descripcion": " El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 10/04/2026 procesado correctamente"
       },
@@ -226,10 +188,6 @@
       {
         "Estado": "INFO",
         "Descripcion": " El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 14/04/2026 procesado correctamente"
-      },
-      {
-        "Estado": "ERROR",
-        "Descripcion": "El cliente \u0027LUIS RODRIGUEZ\u0027 no existe en la configuraci\u00F3n de la Base de Datos"
       },
       {
         "Estado": "INFO",
@@ -300,16 +258,6 @@
   {
     "Grifo": "DESCONOCIDO",
     "Archivo": "50 TULIS  FEBRERO 2026.xlsx",
-    "Mensajes": [
-      {
-        "Estado": "ERROR",
-        "Descripcion": "NO REGISTRADO: El archivo a procesar no se encuentra registrado en el sistema."
-      }
-    ]
-  },
-  {
-    "Grifo": "DESCONOCIDO",
-    "Archivo": "50 TULIS  ABRIL 2026.xlsx",
     "Mensajes": [
       {
         "Estado": "ERROR",
