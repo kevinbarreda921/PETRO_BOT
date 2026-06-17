@@ -151,10 +151,10 @@
                     {
                         <div class="group relative w-full">
                             <label for="file-upload" class="w-full bg-slate-50 border-2 border-dashed border-slate-200 hover:border-slate-400 hover:bg-slate-100/50 rounded-2xl px-4 py-3.5 flex items-center justify-between transition-all duration-300 cursor-pointer select-none">
-                                <div class="flex flex-col">
+                                <span class="flex flex-col">
                                     <span class="text-[11px] font-black text-slate-800">Registro de Ventas</span>
                                     <span class="text-[8px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Formatos de planilla admitidos: (.xlsx)</span>
-                                </div>
+                                </span>
                                 <span class="p-1.5 bg-white border border-slate-200 rounded-lg group-hover:bg-[#0f172a] group-hover:text-white group-hover:border-[#0f172a] text-slate-600 transition-all shrink-0">
                                     <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                 </span>
@@ -171,10 +171,10 @@
                     {
                         <div class="group relative w-full">
                             <label for="file-upload_multi" class="w-full bg-slate-50 border-2 border-dashed border-slate-200 hover:border-slate-400 hover:bg-slate-100/50 rounded-2xl px-4 py-3.5 flex items-center justify-between transition-all duration-300 cursor-pointer select-none">
-                                <div class="flex flex-col">
+                                <span class="flex flex-col">
                                     <span class="text-[11px] font-black text-slate-800">Reportes Diarios Consolidados</span>
                                     <span class="text-[8px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Se pueden adjuntar múltiples archivos (.xlsx)</span>
-                                </div>
+                                </span>
                                 <span class="p-1.5 bg-white border border-slate-200 rounded-lg group-hover:bg-[#0f172a] group-hover:text-white group-hover:border-[#0f172a] text-slate-600 transition-all shrink-0">
                                     <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                 </span>
@@ -184,7 +184,17 @@
                     }
                     else
                     {
-                        <SuccessCargaFile File="@($"{archivosReporteDiario.Count} reportes diarios consolidados")" />
+                        <div class="relative w-full group">
+                            <label for="file-upload_multi_add" class="cursor-pointer block w-full">
+                                <SuccessCargaFile File="@($"{archivosReporteDiario.Count} reportes diarios consolidados")" />
+                                <div class="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-500/10 rounded-2xl transition-all flex items-center justify-end px-4 pointer-events-none">
+                                    <span class="text-[10px] font-black text-emerald-800 bg-emerald-100 px-2 py-1 rounded-md shadow-sm border border-emerald-300 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        + Adjuntar más
+                                    </span>
+                                </div>
+                            </label>
+                            <InputFile id="file-upload_multi_add" OnChange="SubirArchivoMulti" multiple accept=".xlsx" class="hidden" />
+                        </div>
                     }
 
                 </div>
@@ -225,58 +235,102 @@
                     <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest cursor-pointer hover:text-slate-800" @onclick='() => ToastService.Info("Ver logs históricos")'>Historial</span>
                 </div>
 
-                <!-- Circular asset row items styled exactly like mockup 1 -->
-                <div class="flex flex-col gap-3.5 overflow-y-auto custom-scrollbar flex-1 pr-1">
-                    @if (archivosProcesados == null || !archivosProcesados.Any())
-                    {
-                        <div class="py-12 text-center text-slate-400 italic text-xs font-bold uppercase tracking-widest">
-                            Sin archivos procesados
-                        </div>
-                    }
-                    else
-                    {
-                        @foreach (var archivo in archivosProcesados)
-                        {
-                            <div class="flex items-center justify-between group/ch hover:bg-slate-50/55 p-2 rounded-2xl border border-transparent hover:border-slate-200 transition-all">
-                                <div class="flex items-center gap-3 min-w-0">
-                                    
-                                    <!-- LED circles in shape of mockup icons -->
-                                    <div class="w-9 h-9 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 shadow-sm">
-                                        @if (archivo.Estado == 1)
-                                        {
-                                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-md shadow-emerald-500/20"></span>
-                                        }
-                                        else
-                                        {
-                                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-md shadow-rose-500/20"></span>
-                                        }
-                                    </div>
+                <!-- Table layout exactly like mockup -->
+                <div class="overflow-auto custom-scrollbar bg-white border border-slate-200 rounded-2xl shadow-sm flex-1">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 z-10" style="background-color: #1e293b !important;">
+                            <tr class="text-[10px] font-black uppercase tracking-wider" style="color: #ffffff !important;">
+                                <th class="py-3 px-4 w-12 text-center" style="background-color: #1e293b !important; color: #ffffff !important;">#</th>
+                                <th class="py-3 px-4" style="background-color: #1e293b !important; color: #ffffff !important;">Grifo</th>
+                                <th class="py-3 px-4 w-28 text-center" style="background-color: #1e293b !important; color: #ffffff !important;">Estado</th>
+                                <th class="py-3 px-4 text-right w-40" style="background-color: #1e293b !important; color: #ffffff !important;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-xs text-slate-700 divide-y divide-slate-100">
+                            @if (archivosProcesados == null || !archivosProcesados.Any())
+                            {
+                                @if (!estaProcesando)
+                                {
+                                    <tr>
+                                        <td colspan="4" class="py-12 text-center text-slate-400 italic font-bold uppercase tracking-widest bg-white text-xs">
+                                            Sin archivos procesados
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                int contador = 1;
+                                @foreach (var archivo in archivosProcesados)
+                                {
+                                    <tr class="hover:bg-slate-50/50 transition-all duration-205">
+                                        <td class="py-2.5 px-4 bg-white text-center font-black text-slate-400 text-[10px]">
+                                            @contador.
+                                        </td>
+                                        <td class="py-2.5 px-4 bg-white">
+                                            <div class="flex items-center gap-3">
+                                                @if (archivo.Estado == 1)
+                                                {
+                                                    <div class="inline-flex items-center justify-center p-1 bg-emerald-500 border border-emerald-400 rounded-lg text-white shadow-sm shrink-0" title="Success">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="inline-flex items-center justify-center p-1 bg-rose-500 border border-rose-400 rounded-lg text-white shadow-sm shrink-0" title="Error">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                    </div>
+                                                }
+                                                <div class="flex flex-col">
+                                                    <span class="text-xs font-black text-slate-850 block uppercase tracking-wide truncate">@archivo.Grifo</span>
+                                                    <span class="text-[9px] text-slate-400 font-mono block break-all whitespace-normal" title="@archivo.File">@archivo.File</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-2.5 px-4 bg-white text-center">
+                                            @if (archivo.Estado == 1)
+                                            {
+                                                <span class="text-[9px] bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5 rounded-md font-black uppercase inline-block">Success</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-[9px] bg-rose-50 text-rose-700 border border-rose-100 px-2 py-0.5 rounded-md font-black uppercase inline-block">Error</span>
+                                            }
+                                        </td>
+                                        <td class="py-2.5 px-4 bg-white text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <button @onclick="() => AbrirModal(archivo)"
+                                                        class="bg-[#0f172a] text-white hover:bg-slate-800 px-3.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all shadow-sm hover:scale-[1.01] active:scale-[0.98] select-none cursor-pointer">
+                                                    Detalles
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    contador++;
+                                }
+                            }
 
-                                    <div class="min-w-0 flex-1">
-                                        <span class="text-xs font-black text-slate-850 block uppercase tracking-wide truncate">@archivo.Grifo</span>
-                                        <span class="text-[9px] text-slate-400 font-mono block break-all whitespace-normal" title="@archivo.File">@archivo.File</span>
-                                    </div>
-                                </div>
-
-                                <div class="text-right shrink-0 flex items-center gap-2">
-                                    <div class="hidden sm:block">
-                                        @if (archivo.Estado == 1)
-                                        {
-                                            <span class="text-[9px] bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5 rounded-md font-black uppercase">Success</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-[9px] bg-rose-50 text-rose-700 border border-rose-100 px-2 py-0.5 rounded-md font-black uppercase">Error</span>
-                                        }
-                                    </div>
-                                    <button @onclick="() => AbrirModal(archivo)"
-                                            class="bg-[#0f172a] text-white hover:bg-slate-800 px-3.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all shadow-md hover:scale-[1.01] active:scale-[0.98] select-none cursor-pointer">
-                                        Detalles
-                                    </button>
-                                </div>
-                            </div>
-                        }
-                    }
+                            @if (estaProcesando)
+                            {
+                                <tr class="animate-pulse bg-slate-50/50">
+                                    <td class="py-2.5 px-4 bg-white text-center">
+                                        <div class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-200 border border-slate-300 shadow-sm">
+                                            <svg class="w-3.5 h-3.5 text-slate-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                        </div>
+                                    </td>
+                                    <td class="py-2.5 px-4 bg-white">
+                                        <span class="text-xs font-black text-slate-500 block uppercase tracking-wide truncate">Procesando y Consolidando...</span>
+                                        <span class="text-[9px] text-slate-400 font-mono block break-all whitespace-normal">Por favor espere, leyendo datos</span>
+                                    </td>
+                                    <td class="py-2.5 px-4 bg-white text-center">
+                                    </td>
+                                    <td class="py-2.5 px-4 bg-white text-right">
+                                        <span class="text-[9px] bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-md font-black uppercase inline-block">En progreso</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -294,7 +348,7 @@
         <div class="fixed inset-0 z-[-1]" @onclick="CerrarModal"></div>
         
         <!-- Modal Card container -->
-        <div class="bg-white border border-slate-200 rounded-[28px] shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden relative z-10"
+        <div class="bg-white border border-slate-200 rounded-[28px] shadow-2xl w-max max-w-[95vw] max-h-[85vh] flex flex-col overflow-hidden relative z-10"
              @onclick:stopPropagation="true">
             
             <!-- Header bar of popover -->
@@ -314,7 +368,8 @@
             <!-- SUB-DASHBOARD STATISTIC COUNTS -->
             <div class="grid grid-cols-2 gap-4 px-6 pt-5">
                 <!-- Info count glass card -->
-                <div class="bg-blue-50 border border-blue-100 rounded-2xl p-3.5 flex items-center justify-between shadow-sm">
+                <div class="bg-blue-50 border border-blue-100 rounded-2xl p-3.5 flex items-center justify-between shadow-sm cursor-pointer transition-all hover:bg-blue-100/50 @(filtroModal == "INFO" ? "ring-2 ring-blue-400 shadow-md scale-[1.02]" : "opacity-80 hover:opacity-100 hover:scale-[1.01]")"
+                     @onclick='() => filtroModal = (filtroModal == "INFO" ? "TODOS" : "INFO")'>
                     <div>
                         <span class="text-[9px] font-black text-blue-600 uppercase tracking-wider block mb-1">Informes Info</span>
                         <span class="text-xl font-black text-blue-800 line-height-1">
@@ -329,7 +384,8 @@
                 </div>
 
                 <!-- Error count glass card -->
-                <div class="bg-rose-50 border border-rose-100 rounded-2xl p-3.5 flex items-center justify-between shadow-sm">
+                <div class="bg-rose-50 border border-rose-100 rounded-2xl p-3.5 flex items-center justify-between shadow-sm cursor-pointer transition-all hover:bg-rose-100/50 @(filtroModal == "ERROR" ? "ring-2 ring-rose-400 shadow-md scale-[1.02]" : "opacity-80 hover:opacity-100 hover:scale-[1.01]")"
+                     @onclick='() => filtroModal = (filtroModal == "ERROR" ? "TODOS" : "ERROR")'>
                     <div>
                         <span class="text-[9px] font-black text-rose-600 uppercase tracking-wider block mb-1">Alertas Error</span>
                         <span class="text-xl font-black text-rose-800 line-height-1">
@@ -354,17 +410,24 @@
                         </tr>
                     </thead>
                     <tbody class="text-xs">
-                        @if (archivoSeleccionado.Mensajes == null || !archivoSeleccionado.Mensajes.Any())
+                        @{
+                            var mensajesMostrados = archivoSeleccionado.Mensajes.Where(m => 
+                                filtroModal == "TODOS" || 
+                                (filtroModal == "INFO" && m.Estado.Equals("INFO", StringComparison.OrdinalIgnoreCase)) ||
+                                (filtroModal == "ERROR" && !m.Estado.Equals("INFO", StringComparison.OrdinalIgnoreCase))
+                            ).ToList();
+                        }
+                        @if (mensajesMostrados == null || !mensajesMostrados.Any())
                         {
                             <tr>
                                 <td colspan="2" class="py-8 text-center text-slate-400 italic font-medium">
-                                    No hay mensajes registrados para este proceso.
+                                    No hay mensajes para mostrar.
                                 </td>
                             </tr>
                         }
                         else
                         {
-                            @foreach (var msg in archivoSeleccionado.Mensajes)
+                            @foreach (var msg in mensajesMostrados)
                             {
                                 <tr class="border-b border-slate-100/60 hover:bg-slate-50/50">
                                     <td class="py-3.5 vertical-top whitespace-nowrap pr-4">
@@ -862,6 +925,7 @@
                 
                 if (logsProcesados != null)
                 {
+                    archivosProcesados.Clear();
                     foreach (var log in logsProcesados)
                     {
                         int estado = log.Mensajes.All(m => m.Estado.Equals("INFO", StringComparison.OrdinalIgnoreCase)) ? 1 : 2;
@@ -991,7 +1055,10 @@
 
     private async Task ProcesarArchivos(string tarea, string dia)
     {
+        estaProcesando = true;
         archivosProcesados.Clear();
+        StateHasChanged();
+
         Stopwatch timerGlobal = Stopwatch.StartNew();
         try
         {
@@ -1007,6 +1074,9 @@
         {
             string rutaLog = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Json\JsonRegistroVentas\", "reporte_proceso.json"));
             LoggerService.GuardarJson(rutaLog);
+            await CargarReporteProceso();
+            estaProcesando = false;
+            await InvokeAsync(StateHasChanged);
         }
         timerGlobal.Stop();
         Console.WriteLine("\n" + new string('=', 30));
@@ -1017,10 +1087,12 @@
 
     private bool mostrarModal = false;
     private ArchivoInfo? archivoSeleccionado;
+    private string filtroModal = "TODOS";
 
     private void AbrirModal(ArchivoInfo archivo)
     {
         archivoSeleccionado = archivo;
+        filtroModal = "TODOS";
         mostrarModal = true;
     }
 
@@ -1127,9 +1199,9 @@
     public class ArchivoInfo
     {
         public Guid Id { get; set; }
-        public string Grifo { get; set; }
-        public string File { get; set; }
-        public int Estado { get; set; }
+        public string Grifo { get; set; } = string.Empty;
+        public string File { get; set; } = string.Empty;
+        public int Estado { get; set; } // 1: Success, 2: Error
         public List<LogDetalle> Mensajes { get; set; } = new();
     }
 }

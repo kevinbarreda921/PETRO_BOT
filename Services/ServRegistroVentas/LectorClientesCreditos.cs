@@ -51,7 +51,7 @@ namespace PETRO_BOT.Services.Services
                                 var valorNombre = (colLetraCreditoNombre >= 0 && colLetraCreditoNombre < reader.FieldCount) ? reader.GetValue(colLetraCreditoNombre) : null;
                                 if (valorNombre != null && !string.IsNullOrWhiteSpace(valorNombre.ToString()))
                                 {
-                                    string nombreLimpio = valorNombre.ToString().Trim();
+                                    string nombreLimpio = valorNombre.ToString()?.Trim() ?? string.Empty;
                                     if (grifo.Nombre.Equals("ACAPULCO", StringComparison.OrdinalIgnoreCase))
                                     {
                                         nombreLimpio = nombreLimpio.Length > 20 ? nombreLimpio.Substring(0, 20) : nombreLimpio;

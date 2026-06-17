@@ -39,6 +39,13 @@ namespace PETRO_BOT.Services.Services
             }
         }
 
+        public static LogProcesoGrifo? ObtenerLog(string grifo, string archivo)
+        {
+            string key = $"{grifo}_{archivo}";
+            _logs.TryGetValue(key, out var log);
+            return log;
+        }
+
         public static void GuardarJson(string rutaArchivo)
         {
             try

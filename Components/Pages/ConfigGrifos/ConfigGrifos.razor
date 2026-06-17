@@ -555,7 +555,7 @@
                                     {
                                         var importadorIdx = i + 1;
                                         var clientName = clientesLeidosModal[i];
-                                        bool yaExiste = grifoSeleccionado.ClientesCredito?.Any(c => string.Equals(c.ClienteNombre, clientName, StringComparison.OrdinalIgnoreCase)) ?? false;
+                                        bool yaExiste = grifoSeleccionado?.ClientesCredito?.Any(c => string.Equals(c.ClienteNombre, clientName, StringComparison.OrdinalIgnoreCase)) ?? false;
                                         
                                         <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition-all">
                                             <td class="py-2 px-4 font-mono text-slate-400 font-bold">@importadorIdx</td>
@@ -808,7 +808,7 @@
                                                     }
 
                                                     RegistroVentasClienteCredito? mappedClient = null;
-                                                    if (grifoSeleccionado.ClientesCredito != null)
+                                                    if (grifoSeleccionado?.ClientesCredito != null)
                                                     {
                                                         mappedClient = grifoSeleccionado.ClientesCredito.FirstOrDefault(cli => string.Equals(cli.Columna, colLetter, StringComparison.OrdinalIgnoreCase));
                                                     }
@@ -1560,7 +1560,9 @@
     private string nuevoGrifoNombre = "";
 
     private bool mostrarModalCliente = false;
+#pragma warning disable CS0414
     private bool isEditingClient = false;
+#pragma warning restore CS0414
     private int editingClienteId = 0;
     private string nuevoClienteColumna = "";
     private string nuevoClienteNombre = "";
@@ -2078,26 +2080,27 @@
         
         int agregadosCount = 0;
         var listCopy = clientesLeidosModal.ToList();
+        if (grifoSeleccionado?.ClientesCredito == null) return;
         
         foreach (var name in listCopy)
         {
-            bool yaExiste = grifoSeleccionado.ClientesCredito?.Any(c => string.Equals(c.ClienteNombre, name, StringComparison.OrdinalIgnoreCase)) ?? false;
+            bool yaExiste = grifoSeleccionado?.ClientesCredito?.Any(c => string.Equals(c.ClienteNombre, name, StringComparison.OrdinalIgnoreCase)) ?? false;
             if (!yaExiste)
             {
                 int tempId = -1;
-                if (grifoSeleccionado.ClientesCredito.Any())
+                if (grifoSeleccionado!.ClientesCredito!.Any())
                 {
-                    int minId = grifoSeleccionado.ClientesCredito.Min(c => c.Id);
+                    int minId = grifoSeleccionado!.ClientesCredito!.Min(c => c.Id);
                     if (minId < 0)
                     {
                         tempId = minId - 1;
                     }
                 }
                 
-                grifoSeleccionado.ClientesCredito.Add(new RegistroVentasClienteCredito
+                grifoSeleccionado!.ClientesCredito!.Add(new RegistroVentasClienteCredito
                 {
                     Id = tempId,
-                    GrifoId = grifoSeleccionado.Id,
+                    GrifoId = grifoSeleccionado!.Id,
                     Columna = "",
                     ClienteNombre = name
                 });
@@ -3034,7 +3037,7 @@
         }
     }
 
-    private string GetMappedPropertyNameForCell(int localRow, int localCol)
+    private string? GetMappedPropertyNameForCell(int localRow, int localCol)
     {
         if (grifoSeleccionado == null) return null;
         var config = grifoSeleccionado.Configuracion;
@@ -3157,8 +3160,9 @@
         return columnName;
     }
 
-    private string GetFriendlyLabel(string propName)
+    private string GetFriendlyLabel(string? propName)
     {
+        if (propName == null) return string.Empty;
         return propName switch
         {
             "Venta_GPL" => "Venta GLP",

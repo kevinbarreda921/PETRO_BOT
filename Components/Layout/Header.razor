@@ -240,11 +240,11 @@
     public class NotificationItem
     {
         public int Id { get; set; }
-        public string Tipo { get; set; }
-        public string Titulo { get; set; }
-        public string Subtitulo { get; set; }
-        public string Cuerpo { get; set; }
-        public string Tiempo { get; set; }
-        public bool Leida { get; set; }
+        public string Tipo { get; set; } = string.Empty; // "venta", "precio", "sistema", "seguridad"
+        public string Titulo { get; set; } = string.Empty;
+        public string Subtitulo { get; set; } = string.Empty;
+        public string Cuerpo { get; set; } = string.Empty;
+        public string Tiempo { get; set; } = string.Empty;
+        public bool Leida { get; set; } = false;
     }
 }

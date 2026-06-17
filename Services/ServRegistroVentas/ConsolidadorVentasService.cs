@@ -160,7 +160,7 @@ namespace PETRO_BOT.Services.Services
 
                         if (yaTieneData)
                         {
-                            LoggerService.Error(grifoObjetivo, archivoGrifoActual.Archivo ?? "DESCONOCIDO", $"ERROR: El día {fechaABuscar} ya tiene data en el Registro de Ventas (Celda {columnaConData}{filaDestino}). No se sobrescribió.");
+                            LoggerService.Error(grifoObjetivo, archivoGrifoActual.Archivo ?? "DESCONOCIDO", $"El grifo {grifoObjetivo}, Estación: {ventaParaEscribir.EESS} del dia {fechaABuscar}: ERROR: El día {fechaABuscar} ya tiene data en el Registro de Ventas (Celda {columnaConData}{filaDestino}). No se sobrescribió.");
                             continue;
                         }
 
@@ -175,7 +175,7 @@ namespace PETRO_BOT.Services.Services
                             }
 
                             string eessMsg = !string.IsNullOrWhiteSpace(ventaParaEscribir.EESS) ? $", Estación: {ventaParaEscribir.EESS}" : "";
-                            LoggerService.Info(grifoObjetivo, archivoGrifoActual.Archivo, $" El grifo {grifoObjetivo}{eessMsg} del dia {fechaABuscar} procesado correctamente");
+                            LoggerService.Info(grifoObjetivo, archivoGrifoActual.Archivo ?? "DESCONOCIDO", $" El grifo {grifoObjetivo}{eessMsg} del dia {fechaABuscar} procesado correctamente");
                             
                             if (!string.IsNullOrWhiteSpace(ventaParaEscribir.EESS))
                             {
@@ -183,7 +183,7 @@ namespace PETRO_BOT.Services.Services
                                 string grifoLimpio = grifoObjetivo.ToLower();
                                 if (!eessLimpio.Contains(grifoLimpio) && !grifoLimpio.Contains(eessLimpio))
                                 {
-                                    LoggerService.Error(grifoObjetivo, archivoGrifoActual.Archivo, $"ADVERTENCIA: El nombre de la estación leído en el Parte Diario ('{ventaParaEscribir.EESS}') no coincide con el grifo configurado '{grifoObjetivo}'");
+                                    LoggerService.Error(grifoObjetivo, archivoGrifoActual.Archivo ?? "DESCONOCIDO", $"El grifo {grifoObjetivo}, Estación: {ventaParaEscribir.EESS} del dia {fechaABuscar}: ADVERTENCIA: El nombre de la estación leído en el Parte Diario ('{ventaParaEscribir.EESS}') no coincide con el grifo configurado '{grifoObjetivo}'");
                                 }
                             }
                         }

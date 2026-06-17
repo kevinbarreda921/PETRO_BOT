@@ -117,7 +117,7 @@ namespace PETRO_BOT.Services.Services
                 }
                 else
                 {
-                    LoggerService.Error(grifoObjetivo, archivo, $"El cliente '{nombreLimpio}' no existe en la configuración de la Base de Datos");
+                    LoggerService.Error(grifoObjetivo, archivo, $"El grifo {grifoObjetivo}, Estación: {venta.EESS} del dia {venta.Dia}: El cliente '{nombreLimpio}' no existe en la configuración de la Base de Datos");
                 }
             }
         }
