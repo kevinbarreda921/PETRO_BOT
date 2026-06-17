@@ -482,7 +482,7 @@ namespace PETRO_BOT.Services.Services
                     using var stream = new FileStream(ruta, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, FileOptions.SequentialScan);
                     using var reader = ExcelReaderFactory.CreateOpenXmlReader(stream);
 
-                    bool diaEncontrado = false;
+                    var diasEncontrados = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                     ArchivoGrifo? nuevoGrifo = null;
 
                     // Buscar la hoja que corresponde a la fecha a procesar
@@ -540,10 +540,10 @@ namespace PETRO_BOT.Services.Services
                             filaCheck++;
                         }
 
-                        // Si coincide, procesamos esta hoja
-                        if (fechasABuscar.Contains(fechaHojaDetectada))
+                        // Si coincide (o si no se especificaron fechas), procesamos esta hoja
+                        if (fechasABuscar.Count == 0 || fechasABuscar.Contains(fechaHojaDetectada))
                         {
-                            diaEncontrado = true;
+                            if (!string.IsNullOrWhiteSpace(fechaHojaDetectada)) diasEncontrados.Add(fechaHojaDetectada);
                             
                             if (nuevoGrifo == null)
                             {
@@ -787,9 +787,17 @@ namespace PETRO_BOT.Services.Services
                         listaGrifosProcesar.Add(nuevoGrifo);
                     }
 
-                    if (!diaEncontrado)
+                    if (fechasABuscar.Any())
                     {
-                        LoggerService.Error(nombreGrifoDetectadoStr, Path.GetFileName(ruta), $"El archivo no contiene ninguno de los días seleccionados: {fechaAProcesar}");
+                        var diasFaltantes = fechasABuscar.Except(diasEncontrados);
+                        foreach (var diaFaltante in diasFaltantes)
+                        {
+                            LoggerService.Error(nombreGrifoDetectadoStr, Path.GetFileName(ruta), $"El archivo no contiene el día seleccionado: {diaFaltante}");
+                        }
+                    }
+                    else if (!diasEncontrados.Any())
+                    {
+                        LoggerService.Error(nombreGrifoDetectadoStr, Path.GetFileName(ruta), $"El archivo no contiene hojas válidas para procesar.");
                     }
                 }
                 catch (Exception ex)
