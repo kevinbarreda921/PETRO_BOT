@@ -65,18 +65,17 @@
                     <!-- Select item 2 (Fecha with DatePicker, visible only when showDiaActivar is true) -->
                     @if (showDiaActivar)
                     {
-                        <div class="p-3 bg-slate-50 border border-slate-150 rounded-2xl relative">
-                            <label class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-0.5">
+                        <div class="p-3 border rounded-2xl relative transition-all @(fechasSeleccionadas.Count > 0 ? "bg-emerald-50 border-emerald-300" : "bg-slate-50 border-slate-150")">
+                            <label class="block text-[8px] font-black uppercase tracking-widest mb-1.5 ml-0.5 transition-colors @(fechasSeleccionadas.Count > 0 ? "text-emerald-700" : "text-slate-400")">
                                 Fecha de Conciliación
                             </label>
                             <div @onclick="ToggleCalendario" 
-                                 class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 outline-none hover:border-slate-300 transition-all cursor-pointer flex items-center justify-between select-none @(mostrarCalendario ? "border-slate-400 ring-2 ring-slate-200/50" : "")">
-                                <span class="font-mono">
+                                 class="w-full border rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all cursor-pointer flex items-center justify-between select-none @(fechasSeleccionadas.Count > 0 ? "bg-white border-emerald-200 text-emerald-900 hover:border-emerald-400 shadow-sm" : "bg-white border-slate-200 text-slate-800 hover:border-slate-300") @(mostrarCalendario ? (fechasSeleccionadas.Count > 0 ? "ring-2 ring-emerald-200" : "border-slate-400 ring-2 ring-slate-200/50") : "")">
+                                <span class="font-mono truncate mr-2" title="@(string.Join(", ", fechasSeleccionadas.OrderBy(d => d).Select(d => d.ToString("dd/MM/yyyy"))))">
                                     @(fechasSeleccionadas.Count == 0 ? "Seleccionar días" : 
-                                      fechasSeleccionadas.Count == 1 ? fechasSeleccionadas.First().ToString("dd/MM/yyyy") : 
-                                      $"{fechasSeleccionadas.Count} días seleccionados")
+                                      string.Join(", ", fechasSeleccionadas.OrderBy(d => d).Select(d => d.ToString("dd/MM"))))
                                 </span>
-                                <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 @(fechasSeleccionadas.Count > 0 ? "text-emerald-600" : "text-slate-700")" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
                             </div>
@@ -231,6 +230,100 @@
                 </div>
 
             </div>
+
+            <!-- NEW DASHBOARD -->
+            @if (MostrarDashboard)
+            {
+                <div class="mt-auto pt-6 border-t border-slate-100 animate-fade-in-up">
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        Resumen de Ejecución
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Archivos procesados -->
+                        <div class="bg-[#1e293b] rounded-2xl p-3 flex flex-col justify-center shadow-sm relative overflow-hidden h-[54px]">
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-40">
+                                <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                            <div class="relative z-10">
+                                <span class="text-[8px] font-black text-slate-400 uppercase tracking-wider block mb-0.5">Archivos</span>
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-base font-black text-white leading-none">@TotalArchivosProcesados</span>
+                                    <span class="text-[9px] font-bold text-slate-500">proc.</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Días procesados -->
+                        <div class="bg-[#1e293b] rounded-2xl p-3 flex flex-col justify-center shadow-sm relative overflow-hidden h-[54px]">
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-40">
+                                <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            </div>
+                            <div class="relative z-10">
+                                <span class="text-[8px] font-black text-slate-400 uppercase tracking-wider block mb-0.5">Días Totales</span>
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-base font-black text-white leading-none">@TotalDiasProcesados</span>
+                                    <span class="text-[9px] font-bold text-slate-500">días</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Días Correctos -->
+                        <div class="bg-[#1e293b] rounded-2xl p-3 flex flex-col justify-center shadow-sm relative overflow-hidden h-[54px] border-l-2 border-emerald-500">
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-40">
+                                <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <div class="relative z-10">
+                                <span class="text-[8px] font-black text-slate-400 uppercase tracking-wider block mb-0.5">Días Correctos</span>
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-base font-black text-white leading-none">@TotalDiasCorrectos</span>
+                                    <span class="text-[9px] font-bold text-slate-500">días</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Días Error -->
+                        <div class="bg-[#1e293b] rounded-2xl p-3 flex flex-col justify-center shadow-sm relative overflow-hidden h-[54px] border-l-2 border-rose-500">
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-40">
+                                <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <div class="relative z-10">
+                                <span class="text-[8px] font-black text-slate-400 uppercase tracking-wider block mb-0.5">Días Error</span>
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-base font-black text-white leading-none">@TotalDiasError</span>
+                                    <span class="text-[9px] font-bold text-slate-500">días</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tiempo demora -->
+                        <div class="bg-[#1e293b] rounded-2xl p-3 flex flex-col justify-center shadow-sm relative overflow-hidden h-[54px]">
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-40">
+                                <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <div class="relative z-10">
+                                <span class="text-[8px] font-black text-slate-400 uppercase tracking-wider block mb-0.5">Duración</span>
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-sm font-black text-white leading-none">@TiempoDemoraProceso</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tiempo ahorrado -->
+                        <div class="bg-[#1e293b] rounded-2xl p-3 flex flex-col justify-center shadow-sm relative overflow-hidden h-[54px]">
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-40">
+                                <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            </div>
+                            <div class="relative z-10">
+                                <span class="text-[8px] font-black text-emerald-500 uppercase tracking-wider block mb-0.5">Tiempo Ahorrado</span>
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-sm font-black text-white leading-none">@TiempoAhorrado</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
 
         <!-- Right Column: Processed logs table, styled EXACTLY like the Asset rows in Mockup -->
@@ -678,7 +771,7 @@
     string trabajoSeleccionado = "Seleccionar";
     int diaSeleccionado = 0;
     private DateTime fechaSeleccionada = DateTime.Today;
-    private HashSet<DateTime> fechasSeleccionadas = new HashSet<DateTime> { DateTime.Today };
+    private HashSet<DateTime> fechasSeleccionadas = new HashSet<DateTime>();
     private DateTime mesVisualizado = DateTime.Today;
     private bool mostrarCalendario = false;
 
@@ -746,7 +839,6 @@
     {
         fechaSeleccionada = DateTime.Today;
         fechasSeleccionadas.Clear();
-        fechasSeleccionadas.Add(DateTime.Today);
         mesVisualizado = DateTime.Today;
         mostrarCalendario = false;
     }
@@ -786,10 +878,8 @@
         switch (trabajo)
         {
             case "Procesar Día":
-                showDiaActivar = true;
-                break;
             case "Procesar Mes":
-                showDiaActivar = false;
+                showDiaActivar = true;
                 break;
             default:
                 break;
@@ -818,6 +908,14 @@
         CancelarRegistroVentasInternal(true);
     }
 
+    private int TotalArchivosProcesados = 0;
+    private int TotalDiasProcesados = 0;
+    private int TotalDiasCorrectos = 0;
+    private int TotalDiasError = 0;
+    private string TiempoDemoraProceso = "";
+    private string TiempoAhorrado = "";
+    private bool MostrarDashboard = false;
+
     void CancelarRegistroVentasInternal(bool mostrarToast)
     {
         EstadoAdjuntadoRegistroVentas = false;
@@ -830,8 +928,8 @@
         trabajoSeleccionado = "Seleccionar";
         showDiaActivar = false;
         fechasSeleccionadas.Clear();
-        fechasSeleccionadas.Add(DateTime.Today);
         fechaSeleccionada = DateTime.Today;
+        MostrarDashboard = false;
         StateHasChanged();
         // Limpiar reporte_proceso.json
         LimpiarArchivoReporteProceso();
@@ -1164,6 +1262,7 @@
     {
         estaProcesando = true;
         archivosProcesados.Clear();
+        MostrarDashboard = false;
         StateHasChanged();
 
         Stopwatch timerGlobal = Stopwatch.StartNew();
@@ -1182,10 +1281,83 @@
             string rutaLog = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Json\JsonRegistroVentas\", "reporte_proceso.json"));
             LoggerService.GuardarJson(rutaLog);
             await CargarReporteProceso();
+            
+            timerGlobal.Stop();
+            if (timerGlobal.Elapsed.TotalMinutes >= 1)
+            {
+                TiempoDemoraProceso = $"{(int)timerGlobal.Elapsed.TotalMinutes}m {timerGlobal.Elapsed.Seconds}s";
+            }
+            else
+            {
+                TiempoDemoraProceso = $"{timerGlobal.Elapsed.TotalSeconds:F1}s";
+            }
+
+            int diasPorArchivo = 0;
+            if (tarea == "Procesar Día")
+            {
+                diasPorArchivo = fechasSeleccionadas.Count;
+            }
+            else
+            {
+                if (fechasSeleccionadas.Any())
+                {
+                    var fechaRef = fechasSeleccionadas.First();
+                    diasPorArchivo = DateTime.DaysInMonth(fechaRef.Year, fechaRef.Month);
+                }
+                else
+                {
+                    diasPorArchivo = 30;
+                }
+            }
+
+            TotalArchivosProcesados = archivosProcesados.Count;
+            TotalDiasProcesados = TotalArchivosProcesados * diasPorArchivo;
+            
+            TotalDiasCorrectos = 0;
+            if (archivoRegistroVentasInfo != null && archivoRegistroVentasInfo.Mensajes != null)
+            {
+                TotalDiasCorrectos = archivoRegistroVentasInfo.Mensajes.Count(m => 
+                    m.Descripcion.Contains("guardado con éxito", StringComparison.OrdinalIgnoreCase));
+            }
+            
+            TotalDiasError = TotalDiasProcesados - TotalDiasCorrectos;
+            if (TotalDiasError < 0) TotalDiasError = 0;
+            
+            int minutosAhorrados = TotalDiasCorrectos * 10;
+            int totalHoras = minutosAhorrados / 60;
+            int minutosRestantes = minutosAhorrados % 60;
+            int diasLaborables = totalHoras / 8;
+            int horasRestantes = totalHoras % 8;
+
+            if (diasLaborables > 0)
+            {
+                string dias = diasLaborables == 1 ? "1 día lab." : $"{diasLaborables} días lab.";
+                if (horasRestantes > 0)
+                {
+                    TiempoAhorrado = $"{dias} y {horasRestantes} h";
+                }
+                else if (minutosRestantes > 0)
+                {
+                    TiempoAhorrado = $"{dias} y {minutosRestantes} min";
+                }
+                else
+                {
+                    TiempoAhorrado = dias;
+                }
+            }
+            else if (totalHoras > 0)
+            {
+                TiempoAhorrado = $"{totalHoras}h {minutosRestantes}m";
+            }
+            else
+            {
+                TiempoAhorrado = $"{minutosRestantes} min";
+            }
+
+            MostrarDashboard = true;
             estaProcesando = false;
             await InvokeAsync(StateHasChanged);
         }
-        timerGlobal.Stop();
         Console.WriteLine("\n" + new string('=', 30));
         Console.WriteLine($"PROCESO FINALIZADO");
         Console.WriteLine($"Tiempo total: {timerGlobal.Elapsed.TotalSeconds:F2} segundos");
