@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "60253f2c-c309-4f68-8cf5-ed99af369cc0",
+    "RobotNombre": "Registro de Ventas",
+    "FechaHora": "2026-06-19T02:44:19.2283596-05:00",
+    "TotalArchivos": 1,
+    "TotalDiasCorrectos": 1,
+    "TiempoEjecucionSegundos": 2.1229832
+  },
+  {
+    "Id": "7d631f89-7f5f-400d-a2a3-653f98f5bbe2",
+    "RobotNombre": "Registro de Ventas",
+    "FechaHora": "2026-06-19T02:45:49.8943492-05:00",
+    "TotalArchivos": 4,
+    "TotalDiasCorrectos": 120,
+    "TiempoEjecucionSegundos": 2.3230826
+  },
+  {
+    "Id": "9756c3e3-45e9-4a4e-9231-4edabace3dde",
+    "RobotNombre": "Registro de Ventas",
+    "FechaHora": "2026-06-19T02:46:28.3918828-05:00",
+    "TotalArchivos": 4,
+    "TotalDiasCorrectos": 120,
+    "TiempoEjecucionSegundos": 1.9647902
+  },
+  {
+    "Id": "3cc125a3-6cfe-435d-b04b-1797f6ed0bbc",
+    "RobotNombre": "Registro de Ventas",
+    "FechaHora": "2026-06-19T02:46:29.7616481-05:00",
+    "TotalArchivos": 4,
+    "TotalDiasCorrectos": 0,
+    "TiempoEjecucionSegundos": 0.9207817
+  },
+  {
+    "Id": "1fec5bf9-93c6-4dfd-9593-776419be2aac",
+    "RobotNombre": "Registro de Ventas",
+    "FechaHora": "2026-06-19T02:46:31.1110071-05:00",
+    "TotalArchivos": 4,
+    "TotalDiasCorrectos": 0,
+    "TiempoEjecucionSegundos": 0.8062022
+  },
+  {
+    "Id": "f6859139-1e13-4acc-80eb-247437901011",
+    "RobotNombre": "Registro de Ventas",
+    "FechaHora": "2026-06-19T02:46:32.4894174-05:00",
+    "TotalArchivos": 4,
+    "TotalDiasCorrectos": 0,
+    "TiempoEjecucionSegundos": 0.8429137
+  },
+  {
+    "Id": "7ec88a26-964b-4895-b1de-398ecee53325",
+    "RobotNombre": "Registro de Ventas",
+    "FechaHora": "2026-06-19T02:46:33.7670213-05:00",
+    "TotalArchivos": 4,
+    "TotalDiasCorrectos": 0,
+    "TiempoEjecucionSegundos": 0.8307482
+  },
+  {
+    "Id": "ce0c4909-7c1b-4e3d-b01c-c05ff08006c1",
+    "RobotNombre": "Registro de Ventas",
+    "FechaHora": "2026-06-19T02:46:35.0578081-05:00",
+    "TotalArchivos": 4,
+    "TotalDiasCorrectos": 0,
+    "TiempoEjecucionSegundos": 0.8015548
+  },
+  {
+    "Id": "78a0a259-6524-46f8-a5cf-342cbb3932d6",
+    "RobotNombre": "Registro de Ventas",
+    "FechaHora": "2026-06-19T02:46:36.3915658-05:00",
+    "TotalArchivos": 4,
+    "TotalDiasCorrectos": 0,
+    "TiempoEjecucionSegundos": 0.7400501
+  }
+]

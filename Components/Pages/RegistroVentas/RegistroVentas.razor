@@ -8,7 +8,9 @@
 @using PETRO_BOT.Services.Services
 @using System.Diagnostics
 @using PETRO_BOT.Models.Log
+@using PETRO_BOT.Services.Shared
 
+@inject HistorialService HistorialService
 <div class="flex flex-col gap-6 animate-new-row">
 
 
@@ -1322,6 +1324,15 @@
             
             TotalDiasError = TotalDiasProcesados - TotalDiasCorrectos;
             if (TotalDiasError < 0) TotalDiasError = 0;
+            
+            try
+            {
+                HistorialService.RegistrarEjecucion("Registro de Ventas", TotalArchivosProcesados, TotalDiasCorrectos, timerGlobal.Elapsed.TotalSeconds);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[x] Error guardando historial: {ex.Message}");
+            }
             
             int minutosAhorrados = TotalDiasCorrectos * 10;
             int totalHoras = minutosAhorrados / 60;

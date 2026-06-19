@@ -1,5 +1,6 @@
 using PETRO_BOT.Components;
 using PETRO_BOT.Services.Toast;
+using PETRO_BOT.Services.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddSingleton<ToastService>();
+builder.Services.AddSingleton<HistorialService>();
 
 var app = builder.Build();
 
