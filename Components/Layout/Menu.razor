@@ -9,6 +9,13 @@
         position: relative;
         display: flex;
         align-items: center;
+        transition: transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
+        transform-origin: left center;
+    }
+
+    .sidebar-btn-wrap:hover {
+        transform: scale(1.2);
+        z-index: 10;
     }
 
     #sidebar-thin .sidebar-circle-btn {
@@ -32,7 +39,6 @@
         background-color: #f8fafc;
         border-color: #cbd5e1;
         color: #0f172a;
-        transform: scale(1.05);
     }
 
     #sidebar-thin .sidebar-circle-btn.active {
@@ -43,7 +49,6 @@
     }
 
     #sidebar-thin .sidebar-circle-btn.active:hover {
-        transform: scale(1.05);
     }
 
     /* Pill extension that slides out from behind the button */
@@ -73,7 +78,7 @@
         z-index: 1;
     }
 
-    .sidebar-btn-wrap:hover .sidebar-tooltip {
+    #sidebar-thin:hover .sidebar-tooltip {
         opacity: 1;
         transform: translateX(0);
         pointer-events: auto;
@@ -146,7 +151,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
             </button>
-            <span class="sidebar-tooltip">Ventas</span>
+            <span class="sidebar-tooltip">Registro de ventas</span>
         </div>
 
         <!-- Button 3: Chart -->

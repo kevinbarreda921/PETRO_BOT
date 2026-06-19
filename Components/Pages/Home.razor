@@ -3,12 +3,26 @@
 @using PETRO_BOT.Models.Log
 @inject HistorialService HistorialService
 
-<div class="flex flex-col gap-6 animate-fade-in-up">
+<style>
+    @@keyframes slideUpFade {
+        0% { opacity: 0; transform: translateY(40px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .stagger-1 { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.1s; }
+    .stagger-2 { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.2s; }
+    .stagger-3 { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.3s; }
+    .stagger-4 { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.4s; }
+    .stagger-5 { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.5s; }
+    .stagger-6 { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.6s; }
+    .stagger-7 { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.7s; }
+</style>
+
+<div class="flex flex-col gap-6">
     <!-- 1. Top 4 Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         
         <!-- Card 1: Total días de ejecución -->
-        <div class="bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-lg transition-all duration-300">
+        <div class="stagger-1 bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Total días de ejecución</span>
             <div class="flex items-center justify-between">
                 <h3 class="text-3xl font-black text-slate-800">@TotalDiasUso <span class="text-sm text-slate-500 font-bold">días</span></h3>
@@ -20,7 +34,7 @@
         </div>
 
         <!-- Card 2: Racha de uso -->
-        <div class="bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-lg transition-all duration-300">
+        <div class="stagger-2 bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Racha de uso</span>
             <div class="flex items-center justify-between">
                 <h3 class="text-3xl font-black text-slate-800">@RachaUso <span class="text-sm text-slate-500 font-bold">consecutivos</span></h3>
@@ -32,7 +46,7 @@
         </div>
 
         <!-- Card 3: Tiempo total de ejecución -->
-        <div class="bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-lg transition-all duration-300">
+        <div class="stagger-3 bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Tiempo de Ejecución</span>
             <div class="flex items-center justify-between">
                 <h3 class="text-3xl font-black text-slate-800">@TiempoTotalFormateado</h3>
@@ -44,7 +58,7 @@
         </div>
 
         <!-- Card 4: Tiempo manual ahorrado -->
-        <div class="bg-slate-800 border border-slate-700 rounded-3xl p-6 hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+        <div class="stagger-4 bg-slate-800 border border-slate-700 rounded-3xl p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 relative overflow-hidden">
             <div class="absolute -right-6 -top-6 w-24 h-24 bg-slate-700/50 rounded-full blur-xl"></div>
             <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-2 relative z-10">Tiempo Manual Ahorrado</span>
             <div class="flex items-center justify-between relative z-10">
@@ -59,7 +73,7 @@
 
     <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
         <!-- 2. Gráfico Dona -->
-        <div class="xl:col-span-4 bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300">
+        <div class="stagger-5 xl:col-span-4 bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300">
             <div>
                 <h3 class="text-sm font-black text-slate-800 mb-1">Tiempo de Ejecución vs Ahorro Manual</h3>
                 <span class="text-xs text-slate-400 font-medium block mb-6">Proporción de eficiencia generada</span>
@@ -94,7 +108,7 @@
         </div>
 
         <!-- 3. Panel Totales -->
-        <div class="xl:col-span-4 bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-lg transition-all duration-300">
+        <div class="stagger-6 xl:col-span-4 bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-lg transition-all duration-300">
             <h3 class="text-sm font-black text-slate-800 mb-6">Totales Globales</h3>
             <div class="space-y-4">
                 <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100">
@@ -125,7 +139,7 @@
         </div>
 
         <!-- 4. Calendario -->
-        <div class="xl:col-span-4 bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-lg transition-all duration-300">
+        <div class="stagger-7 xl:col-span-4 bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-lg transition-all duration-300">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-sm font-black text-slate-800">Calendario de Ejecuciones</h3>
                 <div class="flex gap-2">
@@ -167,11 +181,32 @@
     </div>
 
     <!-- 5. Reporte Final (Últimos 30 Procesos) -->
-    <div class="bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-lg transition-all duration-300 mb-6">
+    <div class="stagger-5 bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-lg transition-all duration-300 mb-6">
         <h3 class="text-sm font-black text-slate-800 mb-1">Últimos 30 Procesos</h3>
         <span class="text-xs text-slate-400 font-medium block mb-6">Rendimiento e historial reciente</span>
         
+        <style>
+            @@keyframes growUp {
+                0% { transform: scaleY(0); }
+                100% { transform: scaleY(1); }
+            }
+            .animate-bar {
+                animation: growUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                transform-origin: bottom;
+                transform: scaleY(0);
+            }
+        </style>
+
         <div class="w-full h-64 relative flex items-end justify-center gap-2 px-2 pt-10">
+            <!-- Grid Lines Background -->
+            <div class="absolute inset-0 flex flex-col justify-between pt-10 pb-0 z-0">
+                <div class="w-full border-t border-slate-200 border-dashed"></div>
+                <div class="w-full border-t border-slate-200 border-dashed"></div>
+                <div class="w-full border-t border-slate-200 border-dashed"></div>
+                <div class="w-full border-t border-slate-200 border-dashed"></div>
+                <div class="w-full border-t border-slate-200"></div>
+            </div>
+
             @if (UltimosProcesos.Any())
             {
                 var maxArchivos = UltimosProcesos.Max(x => x.TotalArchivos) == 0 ? 1 : UltimosProcesos.Max(x => x.TotalArchivos);
@@ -186,7 +221,7 @@
                     var heightPercentTiempo = (double)proceso.TiempoEjecucionSegundos / maxTiempo * 100;
                     if (heightPercentTiempo < 5) heightPercentTiempo = 5;
 
-                    <div class="flex-1 max-w-[48px] flex items-end justify-center group relative h-full gap-0.5">
+                    <div class="flex-1 max-w-[48px] flex items-end justify-center group relative h-full gap-0.5 z-10">
                         <!-- Tooltip Hover -->
                         <div class="absolute bottom-full mb-2 bg-slate-900 text-white text-[10px] p-2 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
                             <div class="font-black border-b border-slate-700 pb-1 mb-1">@proceso.FechaHora.ToString("dd/MM/yy HH:mm")</div>
@@ -196,16 +231,16 @@
                         </div>
 
                         <!-- Barra de Archivos -->
-                        <div class="w-1/2 bg-slate-800 rounded-t-sm hover:bg-slate-700 transition-colors" style="height: @(heightPercentArchivos)%;"></div>
+                        <div class="w-1/2 bg-slate-800 rounded-t-sm hover:bg-slate-700 transition-colors animate-bar" style="height: @(heightPercentArchivos.ToString("F2", System.Globalization.CultureInfo.InvariantCulture))%; animation-delay: @((i * 0.03).ToString("F2", System.Globalization.CultureInfo.InvariantCulture))s;"></div>
 
                         <!-- Barra de Tiempo -->
-                        <div class="w-1/2 bg-slate-400 rounded-t-sm hover:bg-slate-300 transition-colors" style="height: @(heightPercentTiempo)%;"></div>
+                        <div class="w-1/2 bg-slate-400 rounded-t-sm hover:bg-slate-300 transition-colors animate-bar" style="height: @(heightPercentTiempo.ToString("F2", System.Globalization.CultureInfo.InvariantCulture))%; animation-delay: @((i * 0.03).ToString("F2", System.Globalization.CultureInfo.InvariantCulture))s;"></div>
                     </div>
                 }
             }
             else
             {
-                <div class="w-full h-full flex items-center justify-center text-slate-400 text-sm font-bold">
+                <div class="w-full h-full flex items-center justify-center text-slate-400 text-sm font-bold z-10">
                     No hay datos suficientes para mostrar el gráfico.
                 </div>
             }

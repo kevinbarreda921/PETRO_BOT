@@ -880,10 +880,13 @@
         switch (trabajo)
         {
             case "Procesar Día":
-            case "Procesar Mes":
                 showDiaActivar = true;
                 break;
+            case "Procesar Mes":
+                showDiaActivar = false;
+                break;
             default:
+                showDiaActivar = false;
                 break;
         };
         ToastService.Info($"Trabajo cambiado a: {trabajo}");
