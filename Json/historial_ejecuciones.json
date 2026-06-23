@@ -70,5 +70,37 @@
     "TotalArchivos": 4,
     "TotalDiasCorrectos": 0,
     "TiempoEjecucionSegundos": 0.7400501
+  },
+  {
+    "Id": "e9db4a63-6c2a-44ce-9e1f-d6f47267aac7",
+    "RobotNombre": "Registro de Ventas",
+    "FechaHora": "2026-06-22T20:26:53.7949259-05:00",
+    "TotalArchivos": 4,
+    "TotalDiasCorrectos": 120,
+    "TiempoEjecucionSegundos": 4.5007235
+  },
+  {
+    "Id": "a9cb0a63-ecaa-4f61-b830-848362a2fe61",
+    "RobotNombre": "Registro de Ventas",
+    "FechaHora": "2026-06-22T20:41:52.4355616-05:00",
+    "TotalArchivos": 4,
+    "TotalDiasCorrectos": 120,
+    "TiempoEjecucionSegundos": 1.7685309
+  },
+  {
+    "Id": "f8999f45-5aed-4d3a-bd84-4f0e51968330",
+    "RobotNombre": "Registro de Ventas",
+    "FechaHora": "2026-06-22T20:43:06.5348575-05:00",
+    "TotalArchivos": 4,
+    "TotalDiasCorrectos": 120,
+    "TiempoEjecucionSegundos": 1.2452507
+  },
+  {
+    "Id": "0923d69d-c3ce-49ce-9adc-e26a07c43919",
+    "RobotNombre": "Registro de Ventas",
+    "FechaHora": "2026-06-22T20:58:47.1215133-05:00",
+    "TotalArchivos": 4,
+    "TotalDiasCorrectos": 120,
+    "TiempoEjecucionSegundos": 1.174876
   }
 ]
