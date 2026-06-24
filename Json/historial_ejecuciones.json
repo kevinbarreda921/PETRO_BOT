@@ -110,5 +110,13 @@
     "TotalArchivos": 9,
     "TotalDiasCorrectos": 61,
     "TiempoEjecucionSegundos": 0.8986225
+  },
+  {
+    "Id": "48c067a4-a92d-4f20-a3e6-8a8ee482b583",
+    "RobotNombre": "Registro de Ventas",
+    "FechaHora": "2026-06-23T21:16:15.6009877-05:00",
+    "TotalArchivos": 4,
+    "TotalDiasCorrectos": 120,
+    "TiempoEjecucionSegundos": 1.3501821
   }
 ]

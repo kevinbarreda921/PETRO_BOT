@@ -670,7 +670,7 @@
                             </div>
                             <div>
                                 <span class="text-[9px] font-black text-emerald-800 uppercase tracking-widest block">Modo Selección de Columna Maestro</span>
-                                <span class="text-[10px] text-emerald-650 font-bold block mt-0.5">Haga clic sobre cualquier celda de la <strong>Fila 10</strong> para establecer su letra como la columna para "<strong>@GetActiveSelectionLabel()</strong>".</span>
+                                <span class="text-[10px] text-emerald-650 font-bold block mt-0.5">Haga clic <strong>ÚNICAMENTE</strong> sobre una celda de la <strong>Fila 10</strong> para establecer su letra como la columna para "<strong>@GetActiveSelectionLabel()</strong>".</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
@@ -793,8 +793,13 @@
                                     {
                                         var rowData = plantillaExcelFilas[r];
                                         var displayRowNumber = r + 1;
-                                        <tr class="hover:bg-slate-50/40 border-b border-slate-200/70">
-                                            <td class="bg-slate-100 text-center text-[10px] font-mono font-black text-slate-600 border-r border-slate-300/80 select-none py-2 px-3 w-12 notranslate" translate="no">
+                                        bool isSelectingWriteColTr = columnasEscrituraKeys.Contains(campoSeleccionandoModal) || (campoSeleccionandoModal != null && campoSeleccionandoModal.StartsWith("ClienteColumna_"));
+                                        bool isRow10Tr = (r == 9);
+                                        string trClass = (isSelectingWriteColTr && isRow10Tr) ? "border-b border-slate-700 bg-black text-white" : "hover:bg-slate-50/40 border-b border-slate-200/70";
+                                        string tdNumClass = (isSelectingWriteColTr && isRow10Tr) ? "bg-black text-center text-[10px] font-mono font-black text-white border-r border-slate-700 select-none py-2 px-3 w-12 notranslate" : "bg-slate-100 text-center text-[10px] font-mono font-black text-slate-600 border-r border-slate-300/80 select-none py-2 px-3 w-12 notranslate";
+                                        
+                                        <tr class="@trClass">
+                                            <td class="@tdNumClass" translate="no" style="@((isSelectingWriteColTr && isRow10Tr) ? "background-color: #000000; color: #ffffff;" : "")">
                                                 @displayRowNumber
                                             </td>
                                             @for (int c = 0; c < maxColCount; c++)
@@ -863,8 +868,8 @@
                                                             else if (tieneMapeo)
                                                             {
                                                                 string occupiedBy = !string.IsNullOrEmpty(mappedProp) ? GetFriendlyLabel(mappedProp) : (mappedClient != null ? "Cliente: " + mappedClient.ClienteNombre : "");
-                                                                <td class="px-3 py-1.5 text-xs border-r text-center select-none border-slate-200 cursor-not-allowed font-medium relative overflow-visible"
-                                                                    style="@GetCeldaStyle(celda, esElMismo, tieneMapeo)">
+                                                                <td class="px-3 py-1.5 text-xs border-r text-center select-none border-slate-600 cursor-not-allowed font-medium relative overflow-visible"
+                                                                    style="@(GetCeldaStyle(celda, esElMismo, tieneMapeo) + "; background-color: #000000 !important; color: #94a3b8 !important;")">
                                                                     <div class="relative w-full h-full flex items-center justify-center overflow-visible">
                                                                         <span>@cellValue</span>
                                                                         <div class="premium-tooltip-vertical-gray premium-tooltip-breath-vertical-gray">
@@ -879,8 +884,8 @@
                                                             else
                                                             {
                                                                 <td @onclick="() => SeleccionarCeldaWriteColDesdePlantilla(localCol)"
-                                                                    class="px-3 py-1.5 text-xs border-r font-black transition-all select-none cursor-pointer text-center border border-dashed border-slate-200 hover:border-emerald-500 hover:scale-[1.01]"
-                                                                    style="@GetCeldaStyle(celda, esElMismo, tieneMapeo)"
+                                                                    class="px-3 py-1.5 text-xs border-r font-black transition-all select-none cursor-pointer text-center border border-dashed border-slate-600 hover:border-emerald-500 hover:scale-[1.01]"
+                                                                    style="@(GetCeldaStyle(celda, esElMismo, tieneMapeo) + "; background-color: #000000 !important; color: #ffffff !important;")"
                                                                     title="Haga clic para asignar la columna @colLetter para @GetActiveSelectionLabel()">
                                                                     @cellValue
                                                                 </td>
