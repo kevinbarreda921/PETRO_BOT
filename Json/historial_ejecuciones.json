@@ -118,5 +118,13 @@
     "TotalArchivos": 4,
     "TotalDiasCorrectos": 120,
     "TiempoEjecucionSegundos": 1.3501821
+  },
+  {
+    "Id": "6b92c4de-0077-45b5-9515-25491c3d320c",
+    "RobotNombre": "Registro de Descuentos",
+    "FechaHora": "2026-06-24T03:13:31.0774753-05:00",
+    "TotalArchivos": 1,
+    "TotalDiasCorrectos": 3,
+    "TiempoEjecucionSegundos": 1.295984
   }
 ]

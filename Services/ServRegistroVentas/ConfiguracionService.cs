@@ -183,10 +183,26 @@ namespace PETRO_BOT.Services.Services
                     FOREIGN KEY (GrifoId) REFERENCES REGISTRO_VENTAS_GRIFOS (Id) ON DELETE CASCADE
                 );";
 
+            string createDescuentosWriteConfigTable = @"
+                CREATE TABLE IF NOT EXISTS REGISTRO_DESCUENTOS_WRITE (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    GrifoId INTEGER NOT NULL,
+                    NombreHoja TEXT,
+                    Plantilla TEXT,
+                    FilaSeleccion INTEGER NOT NULL DEFAULT 10,
+                    ColumnaFecha TEXT,
+                    TarjetaLiquidos TEXT,
+                    TarjetaGLP TEXT,
+                    DescLiquidos TEXT,
+                    DescGLP TEXT,
+                    FOREIGN KEY (GrifoId) REFERENCES REGISTRO_VENTAS_GRIFOS (Id) ON DELETE CASCADE
+                );";
+
             using (var cmd = new SqliteCommand(createGrifosTable, connection)) cmd.ExecuteNonQuery();
             using (var cmd = new SqliteCommand(createConfiguracionTable, connection)) cmd.ExecuteNonQuery();
             using (var cmd = new SqliteCommand(createClientesTable, connection)) cmd.ExecuteNonQuery();
             using (var cmd = new SqliteCommand(createWriteConfigTable, connection)) cmd.ExecuteNonQuery();
+            using (var cmd = new SqliteCommand(createDescuentosWriteConfigTable, connection)) cmd.ExecuteNonQuery();
         }
 
         private static void MigrarJsonSiEsNecesario()
@@ -893,6 +909,25 @@ namespace PETRO_BOT.Services.Services
                             {
                                 cmdWrite.ExecuteNonQuery();
                             }
+
+                            // Ensure REGISTRO_DESCUENTOS_WRITE table is created dynamically
+                            using (var cmdDescWrite = new SqliteCommand(@"
+                                CREATE TABLE IF NOT EXISTS REGISTRO_DESCUENTOS_WRITE (
+                                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                    GrifoId INTEGER NOT NULL,
+                                    NombreHoja TEXT,
+                                    Plantilla TEXT,
+                                    FilaSeleccion INTEGER NOT NULL DEFAULT 10,
+                                    ColumnaFecha TEXT,
+                                    TarjetaLiquidos TEXT,
+                                    TarjetaGLP TEXT,
+                                    DescLiquidos TEXT,
+                                    DescGLP TEXT,
+                                    FOREIGN KEY (GrifoId) REFERENCES REGISTRO_VENTAS_GRIFOS (Id) ON DELETE CASCADE
+                                );", connection))
+                            {
+                                cmdDescWrite.ExecuteNonQuery();
+                            }
                         }
                     }
                 }
@@ -1128,10 +1163,14 @@ namespace PETRO_BOT.Services.Services
                                 w.DescuentoLiquidos, w.DescuentoGLP, w.Hermes_monto_liquido, w.Hermes_monto_GLP, 
                                 w.Hermes_monto_GNV1, w.Hermes_monto_GNV2, w.Id,
                                 c.FilaVariaCombusNombre, c.FilaVariaCombusMonto, c.VariaCombusNombre,
-                                c.ColumnaEESS, c.FilaEESS, c.EESS
+                                c.ColumnaEESS, c.FilaEESS, c.EESS,
+                                -- REGISTRO_DESCUENTOS_WRITE columns (72 to 80)
+                                dw.Id, dw.NombreHoja, dw.Plantilla, dw.FilaSeleccion, dw.ColumnaFecha,
+                                dw.TarjetaLiquidos, dw.TarjetaGLP, dw.DescLiquidos, dw.DescGLP
                         FROM REGISTRO_VENTAS_GRIFOS g
                         INNER JOIN REGISTRO_VENTAS_CONFIGURACION c ON g.Id = c.GrifoId
                         LEFT JOIN REGISTRO_VENTAS_WRITE w ON g.Id = w.GrifoId
+                        LEFT JOIN REGISTRO_DESCUENTOS_WRITE dw ON g.Id = dw.GrifoId
                         ORDER BY g.Nombre ASC;";
 
                     var grifoMap = new Dictionary<int, RegistroVentasGrifo>();
@@ -1228,6 +1267,19 @@ namespace PETRO_BOT.Services.Services
                                     Hermes_monto_GNV1 = reader.IsDBNull(63) ? "" : reader.GetString(63),
                                     Hermes_monto_GNV2 = reader.IsDBNull(64) ? "" : reader.GetString(64),
                                     Id = reader.IsDBNull(65) ? 0 : reader.GetInt32(65)
+                                },
+                                RegistroDescuentosWrite = new RegistroDescuentosWriteConfig
+                                {
+                                    Id = reader.IsDBNull(72) ? 0 : reader.GetInt32(72),
+                                    GrifoId = gId,
+                                    NombreHoja = reader.IsDBNull(73) ? "" : reader.GetString(73),
+                                    Plantilla = reader.IsDBNull(74) ? "" : reader.GetString(74),
+                                    FilaSeleccion = reader.IsDBNull(75) ? 10 : reader.GetInt32(75),
+                                    ColumnaFecha = reader.IsDBNull(76) ? "" : reader.GetString(76),
+                                    TarjetaLiquidos = reader.IsDBNull(77) ? "" : reader.GetString(77),
+                                    TarjetaGLP = reader.IsDBNull(78) ? "" : reader.GetString(78),
+                                    DescLiquidos = reader.IsDBNull(79) ? "" : reader.GetString(79),
+                                    DescGLP = reader.IsDBNull(80) ? "" : reader.GetString(80)
                                 }
                             };
                             grifos.Add(grifo);
@@ -1464,6 +1516,37 @@ namespace PETRO_BOT.Services.Services
                     cmd.Parameters.AddWithValue("@Hermes_monto_GLP", w.Hermes_monto_GLP ?? "");
                     cmd.Parameters.AddWithValue("@Hermes_monto_GNV1", w.Hermes_monto_GNV1 ?? "");
                     cmd.Parameters.AddWithValue("@Hermes_monto_GNV2", w.Hermes_monto_GNV2 ?? "");
+                    cmd.ExecuteNonQuery();
+                }
+
+                // 2.6 Save REGISTRO_DESCUENTOS_WRITE config
+                string insertDescWriteConfig = @"
+                    INSERT INTO REGISTRO_DESCUENTOS_WRITE (
+                        GrifoId, NombreHoja, Plantilla, FilaSeleccion,
+                        ColumnaFecha, TarjetaLiquidos, TarjetaGLP, DescLiquidos, DescGLP
+                    ) VALUES (
+                        @GrifoId, @NombreHoja, @Plantilla, @FilaSeleccion,
+                        @ColumnaFecha, @TarjetaLiquidos, @TarjetaGLP, @DescLiquidos, @DescGLP
+                    );";
+
+                using (var cmd = new SqliteCommand("DELETE FROM REGISTRO_DESCUENTOS_WRITE WHERE GrifoId = @GrifoId;", connection, transaction))
+                {
+                    cmd.Parameters.AddWithValue("@GrifoId", grifoId);
+                    cmd.ExecuteNonQuery();
+                }
+
+                var dw = grifo.RegistroDescuentosWrite ?? new RegistroDescuentosWriteConfig();
+                using (var cmd = new SqliteCommand(insertDescWriteConfig, connection, transaction))
+                {
+                    cmd.Parameters.AddWithValue("@GrifoId", grifoId);
+                    cmd.Parameters.AddWithValue("@NombreHoja", dw.NombreHoja ?? "");
+                    cmd.Parameters.AddWithValue("@Plantilla", dw.Plantilla ?? "");
+                    cmd.Parameters.AddWithValue("@FilaSeleccion", dw.FilaSeleccion);
+                    cmd.Parameters.AddWithValue("@ColumnaFecha", dw.ColumnaFecha ?? "");
+                    cmd.Parameters.AddWithValue("@TarjetaLiquidos", dw.TarjetaLiquidos ?? "");
+                    cmd.Parameters.AddWithValue("@TarjetaGLP", dw.TarjetaGLP ?? "");
+                    cmd.Parameters.AddWithValue("@DescLiquidos", dw.DescLiquidos ?? "");
+                    cmd.Parameters.AddWithValue("@DescGLP", dw.DescGLP ?? "");
                     cmd.ExecuteNonQuery();
                 }
 

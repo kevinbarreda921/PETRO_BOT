@@ -1,0 +1,2193 @@
+@page "/ConfigDescuentos"
+@using PETRO_BOT.Services.Toast
+@using PETRO_BOT.Components.Pages.Elementos
+@rendermode InteractiveServer
+@inject IWebHostEnvironment env
+@inject ToastService ToastService
+@inject IJSRuntime JSRuntime
+@using PETRO_BOT.Services.Services
+@using PETRO_BOT.Models.Configuracion
+@using System.IO
+@using System.Text.Json
+@using ExcelDataReader
+@using OfficeOpenXml
+@using OfficeOpenXml.Style
+@using Microsoft.AspNetCore.Components.Routing
+
+<NavigationLock ConfirmExternalNavigation="@HayCambiosSinGuardar()" OnBeforeInternalNavigation="ConfirmExit" />
+
+<div class="flex flex-col gap-6 animate-new-row">
+
+    <!-- ============================================== -->
+    <!-- MAIN GRID: THE SYSTEM CONTROL & CONFIGURATION -->
+    <!-- ============================================== -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+
+        <!-- Left Column (col-span-4): Fuel stations selector list, styled like mockup breakdown -->
+        <div class="lg:col-span-4 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col hover:border-slate-300 hover:shadow-lg transition-all duration-300 animate-fade-in-up anim-delay-75" style="height: calc(100vh - 160px);">
+            <div class="flex flex-col h-full overflow-hidden">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4 shrink-0">
+                    <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest">Config. Descuentos - Grifos</h3>
+                    <button @onclick="AbrirModalAgregarGrifo" class="bg-[#0f172a] hover:bg-slate-800 text-white text-[9px] font-black uppercase tracking-wider rounded-xl px-3.5 py-2 shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 cursor-pointer">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+                        <span>Agregar nuevo grifo</span>
+                    </button>
+                </div>
+
+                <!-- Custom station rows in Mockup style -->
+                <div class="flex flex-col gap-3 overflow-y-auto custom-scrollbar flex-1 pr-1">
+                    @{ int idx = 1; }
+                    @foreach (var grifo in grifosList)
+                    {
+                        var gName = grifo.Nombre;
+                        var esSeleccionado = grifoSeleccionado != null && grifo.Id == grifoSeleccionado.Id;
+                        var currentIdx = idx++;
+                        <div @onclick="() => SeleccionarGrifo(grifo.Id)" 
+                             class="flex items-center justify-between group/ch p-3 rounded-2xl border transition-all cursor-pointer animate-fade-in-up @(esSeleccionado ? "bg-[#0f172a] border-[#0f172a] text-white shadow-lg scale-[1.01]" : "bg-transparent border-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900")"
+                             style="animation-delay: @(currentIdx * 30)ms;">
+                            
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 @(esSeleccionado ? "bg-slate-800 border border-slate-700" : "bg-slate-100 border border-slate-200")">
+                                    <span class="text-xs font-black @(esSeleccionado ? "text-slate-200" : "text-slate-500")">#@currentIdx</span>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-black block uppercase tracking-wide">@gName</span>
+                                    <span class="text-[8px] text-slate-400 font-bold block mt-0.5">Configurado</span>
+                                </div>
+                            </div>
+
+                            <button class="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer @(esSeleccionado ? "bg-slate-800 border border-slate-750 text-white hover:text-slate-100" : "bg-white border border-slate-200 text-slate-700 hover:text-slate-900 hover:border-slate-350")">
+                                Config
+                            </button>
+
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column (col-span-8): Form and active mapping editors, styled like Transaction Perf -->
+        <div class="lg:col-span-8 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col hover:border-slate-300 hover:shadow-lg transition-all duration-300 overflow-y-auto custom-scrollbar animate-fade-in-up anim-delay-150" style="height: calc(100vh - 160px);">
+            <div class="flex flex-col h-full">
+                
+                @if (grifoSeleccionado == null)
+                {
+                    <div class="py-24 flex flex-col items-center justify-center gap-4">
+                        <div class="bg-slate-50 p-6 rounded-full border border-slate-200 text-slate-400 shadow-sm">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                        </div>
+                        <span class="text-[10px] font-black text-slate-450 uppercase tracking-[0.25em]">Selecciona un grifo para editar su mapeo</span>
+                    </div>
+                }
+                else
+                {
+                    <!-- Active Edit Board form -->
+                    <div @key="grifoSeleccionado.Id" class="flex flex-col gap-6 flex-1 min-h-0">
+                        
+                                        <!-- Header and action bar in ONE row -->
+                        <div class="flex flex-col md:flex-row flex-wrap md:items-center justify-between border-b border-slate-150 pb-4 gap-3 w-full animate-fade-in-up anim-delay-75">
+                            <!-- Left: Nombre del Grifo Inline -->
+                            <div class="flex items-center gap-2 shrink-0 justify-center md:justify-start w-full md:w-auto">
+                                <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest shrink-0">Grifo:</label>
+                                <input type="text" @bind="grifoSeleccionado.Nombre" class="text-xs font-black text-slate-900 uppercase tracking-wider border border-slate-200 rounded-xl px-3 py-1.5 outline-none focus:border-slate-450 focus:bg-white bg-slate-50 w-32 sm:w-40 transition-all font-bold shrink-0" />
+                            </div>
+
+
+                      
+
+                            <!-- Right: General buttons -->
+                            <div class="flex flex-row flex-wrap items-center gap-1.5 shrink-0 justify-center w-full md:w-auto">
+                                <button @onclick="ConfirmarEliminarGrifo" class="px-3 py-1.5 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer shrink-0">Eliminar</button>
+                                <button @onclick="ConfirmarEliminarConfiguracion" class="px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer shrink-0">Eliminar configuración</button>
+                                <button @onclick="CancelarEdicion" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-55 hover:text-slate-950 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer shrink-0">Cancelar</button>
+                                <button @onclick="GuardarConfiguracion" class="px-4 py-1.5 bg-[#0f172a] text-white hover:bg-slate-800 rounded-xl text-[9px] font-black uppercase tracking-wider shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all select-none cursor-pointer shrink-0">Guardar</button>
+                            </div>
+                        </div>
+
+                        
+                        <!-- Caja 1: Coordenadas de Lectura (Read-only) -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-[20px] p-5 shadow-sm animate-fade-in-up anim-delay-150">
+                            <div class="flex items-center justify-between border-b border-slate-200 pb-2 mb-4">
+                                <h4 class="text-[9px] font-black text-slate-800 uppercase tracking-[0.15em] flex items-center gap-2">
+                                    <span class="w-1.5 h-3 bg-[#0f172a] rounded-full"></span> Coordenadas de Lectura (Heredado de Config. Grifos)
+                                </h4>
+                                <!-- Origen pill moved here -->
+                                <div class="flex flex-row items-center gap-2 bg-white border border-slate-200 rounded-xl p-1 px-3 shadow-sm">
+                                    <span class="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0"></span>
+                                    <span class="text-[10px] font-bold text-slate-700 truncate max-w-[150px]" title="@archivoRegistroVentasNombre">
+                                        @(string.IsNullOrWhiteSpace(archivoRegistroVentasNombre) ? "Reg. Ventas sin cargar" : archivoRegistroVentasNombre)
+                                    </span>
+                                    <div class="flex items-center gap-1 shrink-0 ml-1">
+                                        <InputFile id="registroVentasUpload" OnChange="CargarRegistroVentasArchivo" accept=".xlsx" class="hidden" />
+                                        <label for="registroVentasUpload" class="px-3 py-1 bg-[#0f172a] hover:bg-slate-800 text-white rounded-lg text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer flex items-center justify-center gap-1.5 shadow-sm">
+                                            <svg class="w-3 h-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                            <span>Cargar Origen</span>
+                                        </label>
+                                        <button @onclick="AbrirModalVerRegistroVentas" disabled="@(string.IsNullOrWhiteSpace(archivoRegistroVentasNombre))" class="px-3 py-1 bg-[#0f172a] hover:bg-slate-800 text-white disabled:bg-slate-250 disabled:text-slate-400 disabled:cursor-not-allowed rounded-lg text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer flex items-center justify-center gap-1.5 shadow-sm">
+                                            <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                            <span>Ver</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[8px] font-black text-slate-500 uppercase">Hoja Excel</label>
+                                    <input type="text" readonly class="w-full rounded-xl px-3 py-2 text-xs font-bold border border-slate-200 bg-slate-100 text-slate-600 select-none outline-none min-h-[34px]" value="@(grifoSeleccionado.RegistroVentasWrite?.NombreHoja)" />
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[8px] font-black text-slate-500 uppercase">Tarjeta Líquidos</label>
+                                    <input type="text" readonly class="w-full rounded-xl px-3 py-2 text-xs font-bold border border-slate-200 bg-slate-100 text-slate-600 select-none outline-none min-h-[34px]" value="@(grifoSeleccionado.RegistroVentasWrite?.Total_Tarjeta_de_Credito_Liquidos)" />
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[8px] font-black text-slate-500 uppercase">Tarjeta GLP</label>
+                                    <input type="text" readonly class="w-full rounded-xl px-3 py-2 text-xs font-bold border border-slate-200 bg-slate-100 text-slate-600 select-none outline-none min-h-[34px]" value="@(grifoSeleccionado.RegistroVentasWrite?.Total_Tarjeta_de_Credito_GLP)" />
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[8px] font-black text-slate-500 uppercase">Desc. Líquidos</label>
+                                    <input type="text" readonly class="w-full rounded-xl px-3 py-2 text-xs font-bold border border-slate-200 bg-slate-100 text-slate-600 select-none outline-none min-h-[34px]" value="@(grifoSeleccionado.RegistroVentasWrite?.DescuentoLiquidos)" />
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[8px] font-black text-slate-500 uppercase">Desc. GLP</label>
+                                    <input type="text" readonly class="w-full rounded-xl px-3 py-2 text-xs font-bold border border-slate-200 bg-slate-100 text-slate-600 select-none outline-none min-h-[34px]" value="@(grifoSeleccionado.RegistroVentasWrite?.DescuentoGLP)" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Caja 2: Coordenadas de Escritura -->
+                        <div class="bg-indigo-50/50 border border-indigo-100 rounded-[20px] p-5 shadow-sm animate-fade-in-up anim-delay-200 mt-6 mb-8">
+                            <div class="flex items-center justify-between border-b border-indigo-200 pb-2 mb-4">
+                                <h4 class="text-[9px] font-black text-indigo-800 uppercase tracking-[0.15em] flex items-center gap-2">
+                                    <span class="w-1.5 h-3 bg-indigo-600 rounded-full"></span> Coordenadas de Escritura (Mapeo de Descuentos)
+                                </h4>
+                                <!-- Destino pill moved here -->
+                                <div class="flex flex-row items-center gap-2 bg-white border border-indigo-200 rounded-xl p-1 px-3 shadow-sm">
+                                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0"></span>
+                                    <span class="text-[10px] font-bold text-indigo-900 truncate max-w-[150px]" title="@grifoSeleccionado.RegistroDescuentosWrite?.Plantilla">
+                                        @(string.IsNullOrWhiteSpace(grifoSeleccionado.RegistroDescuentosWrite?.Plantilla) ? "Plantilla sin cargar" : grifoSeleccionado.RegistroDescuentosWrite?.Plantilla)
+                                    </span>
+                                    <div class="flex items-center gap-1 shrink-0 ml-1">
+                                        <InputFile id="fileUpload" OnChange="CargarPlantillaArchivo" accept=".xlsx" class="hidden" />
+                                        <label for="fileUpload" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer flex items-center justify-center gap-1.5 shadow-sm">
+                                            <svg class="w-3 h-3 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                            <span>Cargar Destino</span>
+                                        </label>
+                                        <button @onclick="AbrirModalVerPlantillaSoloVer" disabled="@(string.IsNullOrWhiteSpace(grifoSeleccionado.RegistroDescuentosWrite?.Plantilla))" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white disabled:bg-indigo-200 disabled:text-indigo-400 disabled:cursor-not-allowed rounded-lg text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer flex items-center justify-center gap-1.5 shadow-sm">
+                                            <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                            <span>Ver</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Hoja Excel Input -->
+                            <div class="flex flex-col gap-1 mb-4 w-1/3">
+                                <label class="text-[8px] font-black text-indigo-600 uppercase tracking-wider shrink-0">Hoja Excel:</label>
+                                <div class="relative flex items-center">
+                                    <button @onclick="AbrirModalHojasRegistroDescuentos" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-left select-none cursor-pointer flex items-center justify-between gap-1 min-h-[34px]" style='@(!string.IsNullOrWhiteSpace(grifoSeleccionado.RegistroDescuentosWrite?.NombreHoja) ? "background-color: #4f46e5 !important; border-color: #4f46e5 !important; color: #ffffff !important;" : "background-color: #e0e7ff !important; border-color: #c7d2fe !important; color: #4338ca !important;")' title='@(!string.IsNullOrWhiteSpace(grifoSeleccionado.RegistroDescuentosWrite?.NombreHoja) ? grifoSeleccionado.RegistroDescuentosWrite.NombreHoja : "ELEGIR HOJA")'>
+                                        <span class="truncate">@(!string.IsNullOrWhiteSpace(grifoSeleccionado.RegistroDescuentosWrite?.NombreHoja) ? grifoSeleccionado.RegistroDescuentosWrite.NombreHoja : "ELEGIR HOJA")</span>
+                                        <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                    </button>
+                                    @if (!string.IsNullOrWhiteSpace(grifoSeleccionado.RegistroDescuentosWrite?.NombreHoja))
+                                    {
+                                        <button @onclick="LimpiarHojaExcelDescuentos" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+                                @foreach (var prop in writeProps)
+                                {
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-[8px] font-black text-indigo-600 uppercase truncate" title="@prop">@GetFriendlyWriteLabel(prop)</label>
+                                        <div class="relative flex items-center">
+                                            <button @onclick="() => ActivarSeleccionWriteCol(prop)" type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style='@(!string.IsNullOrWhiteSpace(GetWriteConfigValue(prop)) ? "background-color: #4f46e5 !important; border-color: #4f46e5 !important; color: #ffffff !important;" : "background-color: #e0e7ff !important; border-color: #c7d2fe !important; color: #4338ca !important;")' title='@(!string.IsNullOrWhiteSpace(GetWriteConfigValue(prop)) ? GetWriteConfigValue(prop) : "Sin Asignar")'>
+                                                <span>@(!string.IsNullOrWhiteSpace(GetWriteConfigValue(prop)) ? GetWriteConfigValue(prop) : "Sin Valor")</span>
+                                                <svg class="w-3 h-3 ml-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                            </button>
+                                            @if (!string.IsNullOrWhiteSpace(GetWriteConfigValue(prop)))
+                                            {
+                                                <button @onclick="() => LimpiarWriteCol(prop)" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold" title="Limpiar valor">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ============================================== -->
+<!-- ELASIC DIALOG MODALS IN DARK GLASSMORPHISM -->
+<!-- ============================================== -->
+
+<!-- 1. MODAL NUEVO GRIFO -->
+@if (mostrarModalNuevoGrifo)
+{
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[999] animate-modal-in">
+        <div class="fixed inset-0 z-[-1]" @onclick="CerrarModalAgregarGrifo"></div>
+        <div class="bg-white border border-slate-200 w-full max-w-md rounded-[28px] shadow-2xl overflow-hidden flex flex-col">
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Agregar Nuevo Grifo</h3>
+                <button @onclick="CerrarModalAgregarGrifo" class="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-55 transition-all cursor-pointer">
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6 flex flex-col gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[9px] font-black text-slate-500 uppercase tracking-wider ml-1">Nombre del Grifo</label>
+                    <input type="text" @bind="nuevoGrifoNombre" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-slate-450 transition-all text-center uppercase font-bold" placeholder="EJ: BRASIL" />
+                </div>
+            </div>
+            <div class="px-6 py-4.5 border-t border-slate-100 flex justify-end gap-2 bg-slate-50">
+                <button @onclick="CerrarModalAgregarGrifo" class="px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all select-none cursor-pointer">Cancelar</button>
+                <button @onclick="AgregarNuevoGrifo" class="px-5 py-2.5 bg-[#0f172a] text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md hover:bg-slate-800 hover:scale-[1.01] active:scale-[0.98] transition-all select-none cursor-pointer">Crear Grifo</button>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+<!-- 3. MODAL VER PLANTILLA EXCEL -->
+@if (mostrarModalVerPlantilla)
+{
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[999] animate-modal-in">
+        <div class="fixed inset-0 z-[-1]" @onclick="CerrarModalVerPlantilla"></div>
+        <div class="bg-white border border-slate-200 w-full max-w-[96vw] rounded-[28px] shadow-2xl overflow-hidden flex flex-col hover:border-slate-350 transition-all duration-300 animate-modal-in" style="max-height: 90vh;">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-5 border-b border-slate-150 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center border border-emerald-200">
+                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Previsualización de Plantilla</h3>
+                        <span class="text-[9px] text-slate-450 font-bold block uppercase mt-0.5">Archivo: @plantillaExcelNombre</span>
+                    </div>
+                </div>
+                <button @onclick="CerrarModalVerPlantilla" class="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all cursor-pointer">
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <!-- Sheet Selector Tabs -->
+            @if (!viendoRegistroVentasModal)
+            {
+                <div class="px-6 py-3 border-b border-slate-100 bg-white flex items-center gap-3 overflow-hidden">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider shrink-0">Hojas de Trabajo:</span>
+                    <div class="flex items-center gap-2 overflow-x-auto pb-1.5 custom-scrollbar flex-1 whitespace-nowrap scroll-smooth">
+                        @foreach (var sheet in plantillaExcelHojas)
+                        {
+                            var esHojaActiva = string.Equals(sheet, plantillaExcelHojaSeleccionada, StringComparison.OrdinalIgnoreCase);
+                            <button @onclick="() => CargarDatosHojaExcel(sheet)" 
+                                    class="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all select-none cursor-pointer flex items-center gap-1.5 shrink-0 @(esHojaActiva ? "bg-emerald-600 text-white shadow-md scale-[1.01]" : "bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 border border-transparent")">
+                                <span class="w-1.5 h-1.5 rounded-full @(esHojaActiva ? "bg-white animate-pulse" : "bg-slate-400")"></span>
+                                <span>@sheet</span>
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Modal Body (Excel-like Grid) -->
+            <div class="p-6 overflow-hidden bg-slate-50/50 flex-1 flex flex-col">
+                @if (columnasEscrituraKeys.Contains(campoSeleccionandoModal) || (campoSeleccionandoModal != null && campoSeleccionandoModal.StartsWith("ClienteColumna_")))
+                {
+                    <div class="mb-4 bg-emerald-55 border border-emerald-200/80 rounded-2xl p-4 flex items-center justify-between shadow-sm animate-modal-in" style="background-color: #f0fdf4;">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 border border-emerald-200 animate-pulse">
+                                <span class="text-emerald-755 text-xs font-black">●</span>
+                            </div>
+                            <div>
+                                <span class="text-[9px] font-black text-emerald-800 uppercase tracking-widest block">Modo Selección de Columna Maestro</span>
+                                <span class="text-[10px] text-emerald-650 font-bold block mt-0.5">Haga clic <strong>ÚNICAMENTE</strong> sobre una celda de la <strong>Fila 10</strong> para establecer su letra como la columna para "<strong>@GetActiveSelectionLabel()</strong>".</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button @onclick="() => SeleccionarCeldaWriteColDesdePlantilla(-1)" type="button" class="px-3.5 py-2 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm select-none">
+                                Eliminar Valor / Sin Asignar
+                            </button>
+                            <button @onclick="CerrarModalVerPlantilla" type="button" class="px-3.5 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm select-none">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                }
+                else if (campoSeleccionandoModal == "ColumnaFecha")
+                {
+                    var titleText = "Columna/Fila Fecha";
+                    <div class="mb-4 bg-emerald-55 border border-emerald-200/80 rounded-2xl p-4 flex items-center justify-between shadow-sm animate-modal-in" style="background-color: #f0fdf4;">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 border border-emerald-200 animate-pulse">
+                                <span class="text-emerald-755 text-xs font-black">●</span>
+                            </div>
+                            <div>
+                                <span class="text-[9px] font-black text-emerald-800 uppercase tracking-widest block">Modo Selección Activo</span>
+                                <span class="text-[10px] text-emerald-650 font-bold block mt-0.5">Haga clic sobre una celda para establecerla como "<strong>@titleText</strong>".</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button @onclick="() => SeleccionarCeldaDesdePlantilla(-1, -1)" type="button" class="px-3.5 py-2 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm select-none">
+                                Eliminar Valor / Sin Asignar
+                            </button>
+                            <button @onclick="CerrarModalVerPlantilla" type="button" class="px-3.5 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm select-none">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                }
+
+
+                @if (plantillaExcelFilas == null || !plantillaExcelFilas.Any())
+                {
+                    <div class="py-24 flex flex-col items-center justify-center gap-3">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                        <span class="text-[10px] font-black text-slate-450 uppercase tracking-[0.2em]">Cargando datos de Excel...</span>
+                    </div>
+                }
+                else
+                {
+                    var maxColCount = plantillaExcelFilas.Max(r => r.Count);
+                    
+                    <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white flex-1 flex flex-col">
+                        <div id="excelPreviewContainer" class="overflow-auto excel-preview-scrollbar flex-1" style="max-height: calc(90vh - 220px);">
+                            <table class="w-full border-collapse text-left excel-preview-table">
+                                <thead>
+                                    <tr class="bg-slate-100 select-none">
+                                        <!-- Corner cell -->
+                                        <th class="w-12 bg-slate-100 border-r border-b border-slate-300"></th>
+                                        @for (int c = 0; c < maxColCount; c++)
+                                        {
+                                            var letter = GetExcelColumnName(c);
+                                            var widthChar = c < plantillaExcelColumnWidths.Count ? plantillaExcelColumnWidths[c] : 12;
+                                            var widthPx = Math.Max(60, (int)(widthChar * 8.5));
+                                            <th class="px-3 py-2 text-center text-[10px] font-mono font-black text-slate-600 border-r border-b border-slate-300/80 bg-slate-100 notranslate" style="width: @(widthPx)px; min-width: @(widthPx)px; max-width: @(widthPx)px;" translate="no">
+                                                @letter
+                                            </th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int r = 0; r < plantillaExcelFilas.Count; r++)
+                                    {
+                                        var rowData = plantillaExcelFilas[r];
+                                        var displayRowNumber = r + 1;
+                                        bool isSelectingWriteColTr = columnasEscrituraKeys.Contains(campoSeleccionandoModal) || (campoSeleccionandoModal != null && campoSeleccionandoModal.StartsWith("ClienteColumna_"));
+                                        bool isRow10Tr = (r == 9);
+                                        string trClass = (isSelectingWriteColTr && isRow10Tr) ? "border-b border-slate-700 bg-black text-white" : "hover:bg-slate-50/40 border-b border-slate-200/70";
+                                        string tdNumClass = (isSelectingWriteColTr && isRow10Tr) ? "bg-black text-center text-[10px] font-mono font-black text-white border-r border-slate-700 select-none py-2 px-3 w-12 notranslate" : "bg-slate-100 text-center text-[10px] font-mono font-black text-slate-600 border-r border-slate-300/80 select-none py-2 px-3 w-12 notranslate";
+                                        
+                                        <tr class="@trClass">
+                                            <td class="@tdNumClass" translate="no" style="@((isSelectingWriteColTr && isRow10Tr) ? "background-color: #000000; color: #ffffff;" : "")">
+                                                @displayRowNumber
+                                            </td>
+                                            @for (int c = 0; c < maxColCount; c++)
+                                            {
+                                                var localCol = c;
+                                                var celda = localCol < rowData.Count ? rowData[localCol] : null;
+                                                var cellValue = celda?.Valor ?? "";
+                                                @if (viendoRegistroVentasModal)
+                                                {
+                                                    var localRow = r;
+                                                    bool isRow10 = localRow == 9;
+                                                    string mappedProp = "";
+                                                    
+                                                    string colLetter = GetExcelColumnName(localCol);
+
+                                                    if (grifoSeleccionado?.RegistroVentasWrite != null && isRow10)
+                                                    {
+                                                        var rv = grifoSeleccionado.RegistroVentasWrite;
+                                                        if (string.Equals(rv.Total_Tarjeta_de_Credito_Liquidos, colLetter, StringComparison.OrdinalIgnoreCase)) mappedProp = "Tarjeta Líquidos";
+                                                        else if (string.Equals(rv.Total_Tarjeta_de_Credito_GLP, colLetter, StringComparison.OrdinalIgnoreCase)) mappedProp = "Tarjeta GLP";
+                                                        else if (string.Equals(rv.DescuentoLiquidos, colLetter, StringComparison.OrdinalIgnoreCase)) mappedProp = "Desc. Líquidos";
+                                                        else if (string.Equals(rv.DescuentoGLP, colLetter, StringComparison.OrdinalIgnoreCase)) mappedProp = "Desc. GLP";
+                                                    }
+
+                                                    bool tieneMapeo = !string.IsNullOrEmpty(mappedProp);
+
+                                                    if (tieneMapeo)
+                                                    {
+                                                        string extraClass = (mappedProp == "Tarjeta Líquidos") ? "cell-selected" : "";
+                                                        <td class="px-3 py-1.5 text-xs border-r text-center select-none cursor-not-allowed font-medium relative overflow-visible @extraClass"
+                                                            style="@GetCeldaStyle(celda, false, tieneMapeo)">
+                                                            <div class="relative w-full h-full flex items-center justify-center overflow-visible">
+                                                                <span>@cellValue</span>
+                                                                <div class="premium-tooltip-vertical-gray premium-tooltip-breath-vertical-gray">
+                                                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse shrink-0"></span>
+                                                                    <span class="font-mono text-[11px]">(@colLetter)</span>
+                                                                    <span class="text-center font-extrabold text-blue-200">ASIGNADO A:</span>
+                                                                    <span class="text-center font-black">@mappedProp.ToUpper()</span>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td class="px-3 py-1.5 text-xs border-r select-none text-center border-slate-200"
+                                                            style="@GetCeldaStyle(celda, false, false)"
+                                                            title="@cellValue">
+                                                            @cellValue
+                                                        </td>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    var localRow = r;
+                                                    bool isRow10 = localRow == 9;
+                                                    
+                                                    string mappedProp = "";
+                                                    string currentCellLetter = GetExcelColumnName(localCol);
+                                                    
+                                                    if (isRow10 && grifoSeleccionado?.RegistroDescuentosWrite != null)
+                                                    {
+                                                        if (string.Equals(grifoSeleccionado.RegistroDescuentosWrite.ColumnaFecha, currentCellLetter, StringComparison.OrdinalIgnoreCase)) mappedProp = "ColumnaFecha";
+                                                        else if (string.Equals(grifoSeleccionado.RegistroDescuentosWrite.TarjetaLiquidos, currentCellLetter, StringComparison.OrdinalIgnoreCase)) mappedProp = "TarjetaLiquidos";
+                                                        else if (string.Equals(grifoSeleccionado.RegistroDescuentosWrite.TarjetaGLP, currentCellLetter, StringComparison.OrdinalIgnoreCase)) mappedProp = "TarjetaGLP";
+                                                        else if (string.Equals(grifoSeleccionado.RegistroDescuentosWrite.DescLiquidos, currentCellLetter, StringComparison.OrdinalIgnoreCase)) mappedProp = "DescLiquidos";
+                                                        else if (string.Equals(grifoSeleccionado.RegistroDescuentosWrite.DescGLP, currentCellLetter, StringComparison.OrdinalIgnoreCase)) mappedProp = "DescGLP";
+                                                    }
+                                                    
+                                                    bool tieneMapeo = !string.IsNullOrEmpty(mappedProp);
+                                                    string propColLetter = GetWriteConfigValue(campoSeleccionandoModal);
+                                                    
+                                                    // A cell is "esElMismo" if it is row 10 AND its column letter matches what's currently configured for campoSeleccionandoModal
+                                                    bool esElMismo = (isRow10 && !string.IsNullOrEmpty(campoSeleccionandoModal) && string.Equals(propColLetter, currentCellLetter, StringComparison.OrdinalIgnoreCase));
+                                                    
+                                                    string tooltipText = string.IsNullOrEmpty(campoSeleccionandoModal) ? "" : $"{GetFriendlyWriteLabel(campoSeleccionandoModal)} ({currentCellLetter}{localRow + 1})";
+                                                    
+                                                    if (esElMismo)
+                                                    {
+                                                        string extraClass = "cell-selected";
+                                                        <td @onclick="() => SeleccionarCeldaWriteColDesdePlantilla(localCol)"
+                                                            class="px-3 py-1.5 text-xs border-r border-l border-emerald-500 font-black transition-all select-none cursor-pointer text-center relative overflow-visible shadow-lg scale-[1.02] z-10 @extraClass"
+                                                            style="@(GetCeldaStyle(celda, esElMismo, tieneMapeo) + "; background-color: #000000 !important; color: #ffffff !important;")"
+                                                            title="Haga clic para deseleccionar o reasignar @tooltipText">
+                                                            <div class="relative w-full h-full flex items-center justify-center overflow-visible">
+                                                                <span>@cellValue</span>
+                                                                <div class="premium-tooltip-vertical premium-tooltip-breath-vertical">
+                                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-450 animate-pulse shrink-0"></span>
+                                                                    <span class="font-mono text-[11px]">(@currentCellLetter@(localRow + 1))</span>
+                                                                    <span class="text-center font-extrabold text-emerald-350">ASIGNANDO A:</span>
+                                                                    <span class="text-center font-black">@GetFriendlyWriteLabel(campoSeleccionandoModal).ToUpper()</span>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else if (tieneMapeo)
+                                                    {
+                                                        string extraClass = (string.IsNullOrEmpty(campoSeleccionandoModal) && (mappedProp == "TarjetaLiquidos" || mappedProp == "Tarjeta Líquidos")) ? "cell-selected" : "";
+                                                        <td class="px-3 py-1.5 text-xs border-r text-center select-none cursor-not-allowed font-medium relative overflow-visible @extraClass"
+                                                            style="@(GetCeldaStyle(celda, esElMismo, tieneMapeo) + "; background-color: #000000 !important; color: #94a3b8 !important;")">
+                                                            <div class="relative w-full h-full flex items-center justify-center overflow-visible">
+                                                                <span>@cellValue</span>
+                                                                <div class="premium-tooltip-vertical-gray premium-tooltip-breath-vertical-gray">
+                                                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-350 animate-pulse shrink-0"></span>
+                                                                    <span class="font-mono text-[11px]">(@currentCellLetter@(localRow + 1))</span>
+                                                                    <span class="text-center font-extrabold text-slate-300">OCUPADO POR:</span>
+                                                                    <span class="text-center font-black">@GetFriendlyWriteLabel(mappedProp).ToUpper()</span>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else if (isRow10)
+                                                    {
+                                                        string cursorClass = string.IsNullOrEmpty(campoSeleccionandoModal) ? "cursor-default opacity-80" : "cursor-pointer hover:border-emerald-500 hover:scale-[1.01]";
+                                                        <td @onclick="() => SeleccionarCeldaWriteColDesdePlantilla(localCol)"
+                                                            class="px-3 py-1.5 text-xs border-r font-black transition-all select-none text-center border border-dashed border-slate-400 @cursorClass"
+                                                            style="@(GetCeldaStyle(celda, esElMismo, tieneMapeo) + "; background-color: #000000 !important; color: #ffffff !important;")"
+                                                            title="@(string.IsNullOrEmpty(campoSeleccionandoModal) ? "" : "Haga clic para asignar " + tooltipText)">
+                                                            @cellValue
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td class="px-3 py-1.5 text-xs border-r select-none text-center font-medium opacity-50 cursor-not-allowed"
+                                                            style="@GetCeldaStyle(celda, false, false)"
+                                                            title="Solo se permite asignar celdas de la fila 10">
+                                                            @cellValue
+                                                        </td>
+                                                    }
+                                                }
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4.5 border-t border-slate-150 flex justify-end gap-2 bg-slate-50">
+                <button @onclick="CerrarModalVerPlantilla" class="px-5 py-2.5 bg-[#0f172a] hover:bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all select-none cursor-pointer">
+                    Cerrar Vista
+                </button>
+            </div>
+            
+        </div>
+    </div>
+}
+
+<!-- 4. MODAL CONFIRMACION MODERN Y MINIMALISTA -->
+@if (mostrarModalConfirm)
+{
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[1000] animate-modal-in">
+        <div class="fixed inset-0 z-[-1]" @onclick="CancelarConfirmacion"></div>
+        <div class="bg-white border border-slate-200 w-full max-w-sm rounded-[28px] shadow-2xl overflow-hidden flex flex-col">
+            <!-- Modal Header -->
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">@confirmTitulo</h3>
+                <button @onclick="CancelarConfirmacion" class="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-all cursor-pointer">
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-8 flex flex-col items-center text-center gap-5">
+                @if (confirmTipo == "danger")
+                {
+                    <div class="w-16 h-16 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center shadow-sm border border-rose-100">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </div>
+                }
+                else
+                {
+                    <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center shadow-sm border border-amber-100">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                }
+                
+                <p class="text-xs font-bold text-slate-600 leading-relaxed max-w-[280px]">
+                    @confirmMensaje
+                </p>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="px-6 py-4.5 border-t border-slate-100 flex justify-end gap-2 bg-slate-50">
+                <button @onclick="CancelarConfirmacion" type="button" class="px-4.5 py-2.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all select-none cursor-pointer">
+                    Cancelar
+                </button>
+                @if (confirmTipo == "danger")
+                {
+                    <button @onclick="AceptarConfirmacion" type="button" class="px-5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all select-none cursor-pointer">
+                        Confirmar Eliminación
+                    </button>
+                }
+                else
+                {
+                    <button @onclick="AceptarConfirmacion" type="button" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all select-none cursor-pointer">
+                        Confirmar Restablecer
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .config-grid {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+    .config-grid .flex-col label {
+        font-size: 8px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        text-transform: uppercase !important;
+        display: block !important;
+        max-width: 100% !important;
+    }
+    .config-grid-7 {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+    @@media (min-width: 1400px) {
+        .config-grid-7 {
+            grid-template-columns: repeat(7, 1fr) !important;
+        }
+    }
+    .config-grid-7 .flex-col label {
+        font-size: 8px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        text-transform: uppercase !important;
+        display: block !important;
+        max-width: 100% !important;
+    }
+    @@keyframes pulse-breath {
+        0%, 100% {
+            opacity: 0.20;
+            transform: translate(-50%, -6px) scale(0.95);
+        }
+        50% {
+            opacity: 1;
+            transform: translate(-50%, -20px) scale(1.02);
+        }
+    }
+    .premium-tooltip-breath {
+        animation: pulse-breath 2.5s ease-in-out infinite !important;
+    }
+    
+    /* Excel Table Sticky Headers and Columns (Freeze Panes) */
+    .excel-preview-table {
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+    }
+    .excel-preview-table tbody tr td {
+        font-size: 10px !important;
+        border-bottom: 1px solid #cbd5e1 !important; /* horizontal borders */
+        border-right: 1px solid #cbd5e1 !important;  /* vertical borders */
+        background-clip: padding-box !important;
+    }
+    
+    /* Sticky Top Headers (A, B, C...) */
+    .excel-preview-table thead tr th {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 20 !important;
+        background-color: #f1f5f9 !important; /* bg-slate-100 uniform background */
+        border-bottom: 2px solid #cbd5e1 !important; /* border-slate-300 */
+        border-right: 1px solid #cbd5e1 !important;
+        padding-top: 0.5rem !important; /* py-2 equivalent */
+        padding-bottom: 0.5rem !important;
+        background-clip: padding-box !important;
+    }
+    
+    /* Sticky Left Columns (1, 2, 3...) */
+    .excel-preview-table tbody tr td:first-child {
+        position: sticky !important;
+        left: 0 !important;
+        z-index: 10 !important;
+        background-color: #f1f5f9 !important; /* bg-slate-100 uniform background */
+        border-right: 2px solid #cbd5e1 !important; /* border-slate-300 */
+        border-bottom: 2px solid #cbd5e1 !important; /* matches corner and top headers */
+        font-weight: 900 !important;
+        color: #475569 !important; /* slate-600 */
+        padding-top: 0.5rem !important; /* py-2 equivalent */
+        padding-bottom: 0.5rem !important;
+        padding-left: 0.75rem !important; /* px-3 equivalent */
+        padding-right: 0.75rem !important;
+        background-clip: padding-box !important;
+    }
+    
+    /* Sticky Corner Cell (top-left empty header) */
+    .excel-preview-table thead tr th:first-child {
+        position: sticky !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 30 !important; /* highest priority corner cell */
+        background-color: #f1f5f9 !important; /* bg-slate-100 uniform background */
+        border-right: 2px solid #cbd5e1 !important; /* border-slate-300 */
+        border-bottom: 2px solid #cbd5e1 !important;
+        padding-top: 0.5rem !important; /* py-2 equivalent */
+        padding-bottom: 0.5rem !important;
+        background-clip: padding-box !important;
+    }
+    
+    /* Interactive hover cell styles with minimalist border animation scoped only to the Excel template preview */
+    .excel-preview-table tbody tr td:not(:first-child) {
+        position: relative !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    .excel-preview-table tbody tr td:not(:first-child):not(.cell-selected):hover {
+        box-shadow: inset 0 0 0 2px #0f172a !important;
+        background-color: rgba(15, 23, 42, 0.03) !important;
+        color: #0f172a !important;
+        transform: scale(1.015) !important;
+        z-index: 5 !important;
+    }
+    
+    /* Spreadsheet style header highlighting on cell hover */
+    .excel-preview-table .header-highlight,
+    .excel-preview-table tbody tr td.header-highlight,
+    .excel-preview-table thead tr th.header-highlight {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+        transition: all 0.12s ease-in-out !important;
+    }
+
+    .cell-selected {
+        border-right: 1px solid rgba(255, 255, 255, 0.35) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.35) !important;
+    }
+
+    /* Premium vertical tooltip layout */
+    .premium-tooltip-vertical {
+        position: absolute !important;
+        top: calc(100% + 5px) !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        writing-mode: vertical-rl !important;
+        text-orientation: mixed !important;
+        white-space: nowrap !important;
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+        font-size: 11px !important;
+        font-weight: 900 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        border-radius: 8px !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
+        z-index: 100 !important;
+        border: 1px solid #334155 !important;
+        pointer-events: none !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        padding: 14px 8px !important;
+        min-height: 100px !important;
+    }
+    
+    @@keyframes pulse-breath-vertical-down {
+        0%, 100% {
+            opacity: 0.20;
+            transform: translate(-50%, 4px) scale(0.95);
+        }
+        50% {
+            opacity: 1;
+            transform: translate(-50%, 16px) scale(1.02);
+        }
+    }
+    
+    .premium-tooltip-breath-vertical {
+        animation: pulse-breath-vertical-down 2.5s ease-in-out infinite !important;
+    }
+
+    .premium-tooltip-vertical-gray {
+        position: absolute !important;
+        top: calc(100% + 5px) !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        writing-mode: vertical-rl !important;
+        text-orientation: mixed !important;
+        white-space: nowrap !important;
+        background-color: #7f8c8d !important;
+        color: #ffffff !important;
+        font-size: 11px !important;
+        font-weight: 900 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        border-radius: 8px !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
+        z-index: 100 !important;
+        border: 1px solid #bdc3c7 !important;
+        pointer-events: none !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        padding: 14px 8px !important;
+        min-height: 100px !important;
+    }
+    
+    .premium-tooltip-breath-vertical-gray {
+        animation: pulse-breath-vertical-down-gray 2.5s ease-in-out infinite !important;
+    }
+    
+    @@keyframes pulse-breath-vertical-down-gray {
+        0%, 100% {
+            opacity: 0.20;
+            transform: translate(-50%, 4px) scale(0.95);
+        }
+        50% {
+            opacity: 0.8;
+            transform: translate(-50%, 12px) scale(1.0);
+        }
+    }
+    
+    .premium-tooltip-breath-gray {
+        animation: tooltipBreathGray 2.5s infinite ease-in-out !important;
+    }
+    
+    @@keyframes tooltipBreathGray {
+        0%, 100% {
+            opacity: 0.20;
+            transform: translate(-50%, -6px) scale(0.95);
+        }
+        50% {
+            opacity: 0.8;
+            transform: translate(-50%, -20px) scale(1.02);
+        }
+    }
+    
+    /* Hover transitions to turn vertical tooltips horizontal in Sales Register mapping table */
+    .excel-preview-table tbody tr td:hover,
+    .excel-preview-table tbody tr td:hover > div {
+        z-index: 9999999 !important;
+    }
+    .excel-preview-table tbody tr td:hover .premium-tooltip-vertical,
+    .excel-preview-table tbody tr td:hover .premium-tooltip-vertical-gray {
+        writing-mode: horizontal-tb !important;
+        text-orientation: unset !important;
+        z-index: 1000000 !important;
+        opacity: 1 !important;
+        animation: none !important;
+        top: auto !important;
+        bottom: calc(100% + 8px) !important;
+        transform: translate(-50%, 0) scale(1.0) !important;
+        min-height: unset !important;
+        padding: 8px 14px !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 8px !important;
+        white-space: nowrap !important;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.5) !important;
+        background-color: rgb(15, 23, 42) !important;
+        border: 1.5px solid #334155 !important;
+    }
+</style>
+
+<NavigationLock OnBeforeInternalNavigation="ConfirmExit" />
+
+@if (mostrarModalConfirmacionCambios)
+{
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-scale-up border border-slate-100">
+            <div class="px-6 py-5 border-b border-slate-100 bg-amber-50/50 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <div>
+                    <h3 class="text-base font-black text-slate-800">Cambios sin guardar</h3>
+                    <p class="text-[11px] text-slate-500 font-medium mt-0.5">Tienes modificaciones registradas en el grifo actual.</p>
+                </div>
+            </div>
+            <div class="p-6">
+                <p class="text-sm text-slate-600 mb-6 leading-relaxed">¿Deseas guardar los cambios antes de continuar, descartarlos, o cancelar esta acción para seguir editando?</p>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button @onclick="ModalGuardarYContinuar" type="button" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all text-sm">Guardar y continuar</button>
+                    <button @onclick="ModalDescartarYContinuar" type="button" class="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all text-sm border border-rose-200">Descartar cambios</button>
+                </div>
+                <div class="mt-3">
+                    <button @onclick="ModalCancelarCambios" type="button" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 px-4 rounded-xl transition-all text-sm">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- 6. MODAL SELECCION HOJA EXCEL DESCUENTOS -->
+@if (mostrarModalHojasRegistroDescuentos)
+{
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[999] animate-modal-in">
+        <div class="fixed inset-0 z-[-1]" @onclick="CerrarModalHojasRegistroDescuentos"></div>
+        <div class="bg-white border border-slate-200 w-full max-w-sm rounded-[28px] shadow-2xl overflow-hidden flex flex-col">
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-indigo-100 text-indigo-600 rounded-xl">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-slate-800">Seleccionar Hoja</h3>
+                        <p class="text-[10px] text-slate-500 font-medium">De la plantilla de destino</p>
+                    </div>
+                </div>
+                <button @onclick="CerrarModalHojasRegistroDescuentos" class="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-full p-1.5 transition-colors cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6 max-h-[350px] overflow-y-auto custom-scrollbar">
+                @if (hojasRegistroDescuentos == null || !hojasRegistroDescuentos.Any())
+                {
+                    <div class="text-center py-6">
+                        <svg class="w-10 h-10 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <p class="text-xs text-slate-500 font-medium">No se encontraron hojas.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="flex flex-col gap-2">
+                        @foreach (var hoja in hojasRegistroDescuentos)
+                        {
+                            <button @onclick="() => SeleccionarHojaRegistroDescuentos(hoja)" class="w-full text-left px-4 py-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 transition-all group flex items-center justify-between cursor-pointer">
+                                <span class="text-xs font-bold text-slate-700 group-hover:text-indigo-700">@hoja</span>
+                                <svg class="w-4 h-4 text-slate-300 group-hover:text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool mostrarModalHojasRegistroDescuentos = false;
+    private List<string> hojasRegistroDescuentos = new List<string>();
+
+    private string? estadoOriginalJson;
+    private bool mostrarModalConfirmacionCambios = false;
+    private int? grifoPendienteSeleccionar = null;
+    private TaskCompletionSource<bool>? _tcsNavegacion;
+
+    private void AbrirModalHojasRegistroDescuentos()
+    {
+        if (grifoSeleccionado == null || string.IsNullOrWhiteSpace(grifoSeleccionado.RegistroDescuentosWrite?.Plantilla))
+        {
+            ToastService.Error("Carga primero la plantilla de destino.");
+            return;
+        }
+
+        try
+        {
+            string dir = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "bd", "RegistroVentas", "Plantillas");
+            string filePath = Path.Combine(dir, grifoSeleccionado.RegistroDescuentosWrite.Plantilla);
+            
+            if (!File.Exists(filePath))
+            {
+                ToastService.Error("El archivo de plantilla no se encuentra en el servidor.");
+                return;
+            }
+
+            hojasRegistroDescuentos.Clear();
+            ExcelPackage.License.SetNonCommercialPersonal("PETROBOT");
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var package = new ExcelPackage(stream))
+            {
+                foreach (var sheet in package.Workbook.Worksheets)
+                {
+                    hojasRegistroDescuentos.Add(sheet.Name);
+                }
+            }
+
+            mostrarModalHojasRegistroDescuentos = true;
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al leer la plantilla: " + ex.Message);
+        }
+    }
+
+    private void CerrarModalHojasRegistroDescuentos()
+    {
+        mostrarModalHojasRegistroDescuentos = false;
+    }
+
+    private void SeleccionarHojaRegistroDescuentos(string hoja)
+    {
+        if (grifoSeleccionado != null && grifoSeleccionado.RegistroDescuentosWrite != null)
+        {
+            grifoSeleccionado.RegistroDescuentosWrite.NombreHoja = hoja;
+            StateHasChanged();
+        }
+        CerrarModalHojasRegistroDescuentos();
+    }
+    
+    private void LimpiarHojaExcelDescuentos()
+    {
+        if (grifoSeleccionado != null && grifoSeleccionado.RegistroDescuentosWrite != null)
+        {
+            grifoSeleccionado.RegistroDescuentosWrite.NombreHoja = null;
+            StateHasChanged();
+        }
+    }
+
+    private void ActualizarEstadoOriginal()
+    {
+        if (grifoSeleccionado != null)
+        {
+            estadoOriginalJson = JsonSerializer.Serialize(grifoSeleccionado);
+        }
+        else
+        {
+            estadoOriginalJson = null;
+        }
+    }
+
+    private bool HayCambiosSinGuardar()
+    {
+        if (grifoSeleccionado == null || string.IsNullOrEmpty(estadoOriginalJson)) return false;
+        try
+        {
+            string estadoActual = JsonSerializer.Serialize(grifoSeleccionado);
+            return estadoOriginalJson != estadoActual;
+        }
+        catch { return false; }
+    }
+
+    private async Task ConfirmExit(LocationChangingContext context)
+    {
+        if (HayCambiosSinGuardar())
+        {
+            mostrarModalConfirmacionCambios = true;
+            _tcsNavegacion = new TaskCompletionSource<bool>();
+            
+            StateHasChanged();
+            bool proceed = await _tcsNavegacion.Task;
+            if (!proceed)
+            {
+                context.PreventNavigation();
+            }
+        }
+    }
+
+    private void ModalGuardarYContinuar()
+    {
+        GuardarConfiguracion();
+        ContinuarAccionPendiente();
+    }
+
+    private void ModalDescartarYContinuar()
+    {
+        ContinuarAccionPendiente();
+    }
+
+    private void ContinuarAccionPendiente()
+    {
+        mostrarModalConfirmacionCambios = false;
+        
+        if (grifoPendienteSeleccionar.HasValue)
+        {
+            SeleccionarGrifoInternal(grifoPendienteSeleccionar.Value);
+            grifoPendienteSeleccionar = null;
+        }
+        else if (_tcsNavegacion != null)
+        {
+            _tcsNavegacion.SetResult(true);
+            _tcsNavegacion = null;
+        }
+    }
+
+    private void ModalCancelarCambios()
+    {
+        mostrarModalConfirmacionCambios = false;
+        grifoPendienteSeleccionar = null;
+        if (_tcsNavegacion != null)
+        {
+            _tcsNavegacion.SetResult(false);
+            _tcsNavegacion = null;
+        }
+    }
+    private List<RegistroVentasGrifo> grifosList = new();
+    private RegistroVentasGrifo? grifoSeleccionado = null;
+    private bool _shouldScrollSelectedCell = false;
+    private List<string> clientesLeidosModal = new();
+
+    // Custom modern confirmation modal state
+    private bool mostrarModalConfirm = false;
+    private string confirmTitulo = "";
+    private string confirmMensaje = "";
+    private string confirmTipo = "danger"; // "danger" or "warning"
+    private Action? confirmAccion = null;
+
+    private void MostrarConfirmacion(string titulo, string mensaje, string tipo, Action accion)
+    {
+        confirmTitulo = titulo;
+        confirmMensaje = mensaje;
+        confirmTipo = tipo;
+        confirmAccion = accion;
+        mostrarModalConfirm = true;
+    }
+
+    private void AceptarConfirmacion()
+    {
+        mostrarModalConfirm = false;
+        confirmAccion?.Invoke();
+        confirmAccion = null;
+    }
+
+    private void CancelarConfirmacion()
+    {
+        mostrarModalConfirm = false;
+        confirmAccion = null;
+    }
+
+    public class CeldaExcelInfo
+    {
+        public string Valor { get; set; } = "";
+        public string ColorFondoHex { get; set; } = "";
+        public string ColorTextoHex { get; set; } = "";
+        public bool IsBold { get; set; }
+        public bool IsItalic { get; set; }
+        public int? FontSize { get; set; }
+        public string Alignment { get; set; } = ""; // "left", "center", "right"
+    }
+
+    private bool mostrarModalVerPlantilla = false;
+    private string plantillaExcelNombre = "";
+    private List<List<CeldaExcelInfo>> plantillaExcelFilas = new();
+    private List<double> plantillaExcelColumnWidths = new();
+    private List<string> plantillaExcelHojas = new();
+    private string plantillaExcelHojaSeleccionada = "";
+
+    private readonly string[] mapeoFilasKeys = { };
+
+    private readonly string[] columnasEscrituraKeys = {
+        "TarjetaLiquidos", "TarjetaGLP", "DescLiquidos", "DescGLP"
+    };
+
+    private bool mostrarModalNuevoGrifo = false;
+    private string nuevoGrifoNombre = "";
+
+    private bool mostrarModalCliente = false;
+#pragma warning disable CS0414
+    private bool isEditingClient = false;
+#pragma warning restore CS0414
+    private int editingClienteId = 0;
+    private string nuevoClienteColumna = "";
+    private string nuevoClienteNombre = "";
+
+    protected override void OnInitialized()
+    {
+        System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+        CargarConfiguracion();
+        CargarNombreArchivoRegistroVentas();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldScrollSelectedCell)
+        {
+            _shouldScrollSelectedCell = false;
+            await Task.Delay(250); // Give the modal animations and rendering enough time to stabilize
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("scrollSelectedCellIntoView");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error triggering scrollSelectedCellIntoView: " + ex.Message);
+            }
+        }
+    }
+
+    private string archivoRegistroVentasNombre = "";
+    private bool viendoRegistroVentasModal = false;
+
+    private void CargarNombreArchivoRegistroVentas()
+    {
+        try
+        {
+            string dir = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "bd", "RegistroVentas", "RegistroVentas");
+            if (Directory.Exists(dir))
+            {
+                var files = Directory.GetFiles(dir, "*.xlsx");
+                if (files.Length > 0)
+                {
+                    archivoRegistroVentasNombre = Path.GetFileName(files[0]);
+                    return;
+                }
+            }
+        }
+        catch {}
+        archivoRegistroVentasNombre = "";
+    }
+
+    private string GetWriteConfigValue(string propName)
+    {
+        if (grifoSeleccionado?.RegistroDescuentosWrite == null) return "";
+        return propName switch
+        {
+            "ColumnaFecha" => grifoSeleccionado.RegistroDescuentosWrite.ColumnaFecha,
+            "TarjetaLiquidos" => grifoSeleccionado.RegistroDescuentosWrite.TarjetaLiquidos,
+            "TarjetaGLP" => grifoSeleccionado.RegistroDescuentosWrite.TarjetaGLP,
+            "DescLiquidos" => grifoSeleccionado.RegistroDescuentosWrite.DescLiquidos,
+            "DescGLP" => grifoSeleccionado.RegistroDescuentosWrite.DescGLP,
+            _ => ""
+        };
+    }
+
+    private List<string> writeProps = new List<string> { "ColumnaFecha", "TarjetaLiquidos", "TarjetaGLP", "DescLiquidos", "DescGLP" };
+
+    private string GetFriendlyWriteLabel(string propName)
+    {
+        return propName switch
+        {
+            "ColumnaFecha" => "Columna Fecha",
+            "TarjetaLiquidos" => "Tarjeta Líquidos",
+            "TarjetaGLP" => "Tarjeta GLP",
+            "DescLiquidos" => "Desc. Líquidos",
+            "DescGLP" => "Desc. GLP",
+            _ => propName
+        };
+    }
+
+
+    private void LimpiarWriteCol(string propName)
+    {
+        SetWriteConfigValue(propName, "");
+        ToastService.Success($"Columna para {GetFriendlyWriteLabel(propName)} removida.");
+    }
+
+    private void SetWriteConfigValue(string propName, string? val)
+    {
+        if (grifoSeleccionado?.RegistroDescuentosWrite == null) return;
+        var prop = typeof(RegistroDescuentosWriteConfig).GetProperty(propName);
+        prop?.SetValue(grifoSeleccionado.RegistroDescuentosWrite, val ?? "");
+        StateHasChanged();
+    }
+
+    private void CargarConfiguracion()
+    {
+        grifosList = ConfiguracionService.ObtenerGrifosDB();
+        if (grifoSeleccionado != null)
+        {
+            var fresh = grifosList.Find(g => g.Id == grifoSeleccionado.Id);
+            if (fresh != null)
+            {
+                grifoSeleccionado = fresh;
+            }
+        }
+    }
+
+    private string GetConfigValue(string propName, bool isCol)
+    {
+        if (grifoSeleccionado == null) return "";
+        string dbFieldName = (isCol ? "Col_" : "Fila_") + propName;
+        var prop = typeof(RegistroVentasConfiguracion).GetProperty(dbFieldName);
+        return (prop?.GetValue(grifoSeleccionado.Configuracion) as string) ?? "";
+    }
+
+    private string GetConfigLabel(string propName, bool isCol)
+    {
+        string val = GetConfigValue(propName, isCol);
+        if (string.IsNullOrWhiteSpace(val)) return "Sin Valor";
+        
+        if (!isCol) // Row configurations
+        {
+            int colIndex = -1;
+            int rowIndex = -1;
+            
+            if (val.Contains(","))
+            {
+                var parts = val.Split(',');
+                if (parts.Length == 2 && int.TryParse(parts[0], out int c) && int.TryParse(parts[1], out int r))
+                {
+                    colIndex = c;
+                    rowIndex = r;
+                }
+            }
+            else if (int.TryParse(val, out int r))
+            {
+                rowIndex = r;
+                string customCol = GetConfigValue(propName, true);
+                if (!string.IsNullOrWhiteSpace(customCol))
+                {
+                    int parsedCol = ConfiguracionService.GetExcelColumnIndex(customCol);
+                    if (parsedCol >= 0)
+                    {
+                        colIndex = parsedCol;
+                    }
+                }
+            }
+            
+            if (colIndex >= 0 && rowIndex >= 1)
+            {
+                string colLetter = GetExcelColumnName(colIndex);
+                return $"{colLetter}{rowIndex}";
+            }
+            
+            return $"Fila {val}"; // legacy fallback
+        }
+        return val; // columns
+    }
+
+    private string GetConfigLabelFull(string propName)
+    {
+        string val = GetConfigValue(propName, false);
+        if (string.IsNullOrWhiteSpace(val)) return "Sin Asignar";
+        
+        int colIndex = -1;
+        int rowIndex = -1;
+        
+        if (val.Contains(","))
+        {
+            var parts = val.Split(',');
+            if (parts.Length == 2 && int.TryParse(parts[0], out int c) && int.TryParse(parts[1], out int r))
+            {
+                colIndex = c;
+                rowIndex = r;
+            }
+        }
+        else if (int.TryParse(val, out int r))
+        {
+            rowIndex = r;
+            string customCol = GetConfigValue(propName, true);
+            if (!string.IsNullOrWhiteSpace(customCol))
+            {
+                int parsedCol = ConfiguracionService.GetExcelColumnIndex(customCol);
+                if (parsedCol >= 0)
+                {
+                    colIndex = parsedCol;
+                }
+            }
+        }
+        
+        if (colIndex >= 0 && rowIndex >= 1)
+        {
+            string colLetter = GetExcelColumnName(colIndex);
+            return $"{colLetter}{rowIndex} (Columna: {colIndex}, Fila: {rowIndex})";
+        }
+        
+        return $"Fila {val}";
+    }
+
+    private void SetConfigValue(string propName, bool isCol, string val)
+    {
+        if (grifoSeleccionado == null) return;
+        string dbFieldName = (isCol ? "Col_" : "Fila_") + propName;
+        var prop = typeof(RegistroVentasConfiguracion).GetProperty(dbFieldName);
+        prop?.SetValue(grifoSeleccionado.Configuracion, val ?? "");
+    }
+
+    private void CancelarEdicion()
+    {
+        CargarConfiguracion();
+        grifoSeleccionado = null;
+        estadoOriginalJson = null;
+        ToastService.Success("Edición cancelada.");
+    }
+
+    private void SeleccionarGrifo(int id)
+    {
+        if (HayCambiosSinGuardar())
+        {
+            grifoPendienteSeleccionar = id;
+            mostrarModalConfirmacionCambios = true;
+            return;
+        }
+        SeleccionarGrifoInternal(id);
+    }
+
+    private void SeleccionarGrifoInternal(int id)
+    {
+        CargarConfiguracion();
+        grifoSeleccionado = grifosList.Find(g => g.Id == id);
+        ActualizarEstadoOriginal();
+    }
+
+    private void GuardarConfiguracion()
+    {
+        if (grifoSeleccionado == null) return;
+
+        try
+        {
+            ConfiguracionService.GuardarGrifoCompletoDB(grifoSeleccionado);
+            CargarConfiguracion();
+            ToastService.Success($"Configuración de {grifoSeleccionado.Nombre} guardada correctamente.");
+            grifoSeleccionado = null;
+            estadoOriginalJson = null;
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al guardar la configuración: " + ex.Message);
+        }
+    }
+
+    private void AbrirModalAgregarGrifo()
+    {
+        nuevoGrifoNombre = "";
+        mostrarModalNuevoGrifo = true;
+    }
+
+    private void CerrarModalAgregarGrifo()
+    {
+        mostrarModalNuevoGrifo = false;
+    }
+
+    private void AgregarNuevoGrifo()
+    {
+        if (string.IsNullOrWhiteSpace(nuevoGrifoNombre))
+        {
+            ToastService.Error("Ingresa el nombre del nuevo grifo.");
+            return;
+        }
+
+        string grifoNameUpper = nuevoGrifoNombre.Trim().ToUpper();
+        if (grifosList.Exists(g => g.Nombre.Equals(grifoNameUpper, StringComparison.OrdinalIgnoreCase)))
+        {
+            ToastService.Error("Este grifo ya existe en la configuración.");
+            return;
+        }
+
+        var nuevoGrifo = new RegistroVentasGrifo
+        {
+            Nombre = grifoNameUpper,
+            Configuracion = new RegistroVentasConfiguracion
+            {
+                ColumnaEESS = -1,
+                FilaEESS = -1,
+                EESS = "",
+                ColumnaFecha = -1,
+                FilaFecha = 0,
+                ColumnaCreditoNombre = -1,
+                FilaCreditosNombre = 0,
+                ColumnaCreditoMonto = -1,
+                FilaCreditosMonto = 0,
+                ColumnaVariaCombusNombre = -1,
+                ColumnaVariaCombusMonto = -1,
+                ColumnaHermesMonto = 14,
+                FilaHermesMonto = -1,
+                ColumnaHermesBanco = -1,
+                FilaHermesBanco = -1,
+                ColumnaHermesTipo = -1,
+                FilaHermesTipo = -1,
+                HermesPalabraClaveMonto = "",
+                FilaFinal = 0
+            }
+        };
+
+        try
+        {
+            ConfiguracionService.GuardarGrifoCompletoDB(nuevoGrifo);
+            CargarConfiguracion();
+            mostrarModalNuevoGrifo = false;
+            
+            var created = grifosList.Find(g => g.Nombre.Equals(grifoNameUpper, StringComparison.OrdinalIgnoreCase));
+            if (created != null)
+            {
+                SeleccionarGrifo(created.Id);
+            }
+            ToastService.Success($"Grifo {grifoNameUpper} creado correctamente.");
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al crear el grifo: " + ex.Message);
+        }
+    }
+
+    private void ConfirmarEliminarGrifo()
+    {
+        if (grifoSeleccionado == null) return;
+
+        MostrarConfirmacion(
+            "Eliminar Grifo", 
+            $"¿Estás seguro de que deseas eliminar permanentemente el grifo {grifoSeleccionado.Nombre}? Esta acción no se puede deshacer.", 
+            "danger", 
+            () => EliminarGrifoActual()
+        );
+    }
+
+    private void ConfirmarEliminarConfiguracion()
+    {
+        if (grifoSeleccionado == null) return;
+
+        MostrarConfirmacion(
+            "Restablecer Configuración", 
+            $"¿Estás seguro de que deseas eliminar todas las configuraciones del grifo {grifoSeleccionado.Nombre}? Esto restablecerá las coordenadas de lectura, columnas de escritura y clientes autorizados.", 
+            "warning", 
+            () => EliminarConfiguracionGrifoActual()
+        );
+    }
+
+    private void EliminarConfiguracionGrifoActual()
+    {
+        if (grifoSeleccionado == null) return;
+        string name = grifoSeleccionado.Nombre;
+        try
+        {
+            grifoSeleccionado.Configuracion = new RegistroVentasConfiguracion
+            {
+                GrifoId = grifoSeleccionado.Id,
+                ColumnaEESS = -1,
+                FilaEESS = -1,
+                EESS = "",
+                ColumnaFecha = -1,
+                FilaFecha = 0,
+                ColumnaCreditoNombre = -1,
+                FilaCreditosNombre = 0,
+                ColumnaCreditoMonto = -1,
+                FilaCreditosMonto = 0,
+                ColumnaVariaCombusNombre = -1,
+                FilaVariaCombusNombre = -1,
+                ColumnaVariaCombusMonto = -1,
+                FilaVariaCombusMonto = -1,
+                VariaCombusNombre = "",
+                ColumnaHermesMonto = 14,
+                FilaHermesMonto = -1,
+                ColumnaHermesBanco = -1,
+                FilaHermesBanco = -1,
+                ColumnaHermesTipo = -1,
+                FilaHermesTipo = -1,
+                HermesPalabraClaveMonto = "",
+                FilaFinal = 0
+            };
+
+            grifoSeleccionado.RegistroVentasWrite = new RegistroVentasWriteConfig
+            {
+                GrifoId = grifoSeleccionado.Id,
+                NombreHoja = "",
+                FilaSeleccion = 10,
+                Venta_GPL = "",
+                Venta_GNV = "",
+                Total_venta_acumulada = "",
+                Total_Tarjeta_de_Credito_Liquidos = "",
+                Total_Tarjeta_de_Credito_GLP = "",
+                Total_Tarjeta_de_Credito_GNV = "",
+                ErrorMaquina = "",
+                Recaudo_Cofide_GNV = "",
+                Gastos = "",
+                Ventas_con_transferencia = "",
+                DescuentoLiquidos = "",
+                DescuentoGLP = "",
+                Hermes_monto_liquido = "",
+                Hermes_monto_GLP = "",
+                Hermes_monto_GNV1 = "",
+                Hermes_monto_GNV2 = ""
+            };
+
+
+
+            ConfiguracionService.GuardarGrifoCompletoDB(grifoSeleccionado);
+            CargarConfiguracion();
+            
+            // Re-select fresh configurations from loaded list
+            var fresh = grifosList.Find(g => g.Id == grifoSeleccionado.Id);
+            if (fresh != null)
+            {
+                grifoSeleccionado = fresh;
+            }
+
+            ToastService.Success($"La configuración del grifo {name} ha sido restablecida.");
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al restablecer la configuración: " + ex.Message);
+        }
+    }
+
+    private void EliminarGrifoActual()
+    {
+        if (grifoSeleccionado == null) return;
+        string name = grifoSeleccionado.Nombre;
+        try
+        {
+            ConfiguracionService.EliminarGrifoPorIdDB(grifoSeleccionado.Id);
+            CargarConfiguracion();
+            grifoSeleccionado = null;
+            ToastService.Success($"El grifo {name} ha sido eliminado.");
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al eliminar: " + ex.Message);
+        }
+    }
+
+
+    private void ActivarSeleccionClienteCol(RegistroVentasClienteCredito cliente)
+    {
+        if (grifoSeleccionado == null) return;
+        if (string.IsNullOrWhiteSpace(archivoRegistroVentasNombre))
+        {
+            ToastService.Error("Carga primero el archivo de registro de ventas.");
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(grifoSeleccionado.RegistroDescuentosWrite.NombreHoja))
+        {
+            ToastService.Error("Configure primero el campo 'Hoja Excel' en Columnas Excel Maestro.");
+            return;
+        }
+
+        campoSeleccionandoModal = $"ClienteColumna_{cliente.ClienteNombre}";
+        AbrirModalVerRegistroVentas();
+    }
+
+    private void LimpiarClienteColumna(RegistroVentasClienteCredito cliente)
+    {
+        if (cliente != null)
+        {
+            cliente.Columna = "";
+            ToastService.Success($"Columna para {cliente.ClienteNombre} removida. Recuerda Guardar los cambios.");
+            StateHasChanged();
+        }
+    }
+
+    private void EliminarCliente(int id)
+    {
+        if (grifoSeleccionado == null) return;
+
+        ToastService.Success("Cliente removido temporalmente.");
+    }
+
+    private async Task CargarRegistroVentasArchivo(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            try
+            {
+                string dir = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "bd", "RegistroVentas", "RegistroVentas");
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+                else
+                {
+                    // Clean directory first to ensure only 1 active sales register Excel
+                    var existingFiles = Directory.GetFiles(dir, "*.xlsx");
+                    foreach (var oldFile in existingFiles)
+                    {
+                        try { File.Delete(oldFile); } catch {}
+                    }
+                }
+
+                string ext = Path.GetExtension(file.Name);
+                if (ext.ToLower() != ".xlsx")
+                {
+                    ToastService.Error("Solo se permiten archivos Excel (.xlsx).");
+                    return;
+                }
+
+                string fileName = file.Name;
+                string filePath = Path.Combine(dir, fileName);
+
+                using (var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024))
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await stream.CopyToAsync(fileStream);
+                }
+
+                CargarNombreArchivoRegistroVentas();
+                ToastService.Success($"Archivo de registro de ventas '{fileName}' cargado exitosamente.");
+            }
+            catch (Exception ex)
+            {
+                ToastService.Error("Error al cargar el archivo de registro de ventas: " + ex.Message);
+            }
+        }
+    }
+
+    private async Task CargarPlantillaArchivo(InputFileChangeEventArgs e)
+    {
+        if (grifoSeleccionado == null) return;
+        var file = e.File;
+        if (file != null)
+        {
+            try
+            {
+                string plantillasDir = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "bd", "RegistroVentas", "Plantillas");
+                if (!Directory.Exists(plantillasDir))
+                {
+                    Directory.CreateDirectory(plantillasDir);
+                }
+
+                string ext = Path.GetExtension(file.Name);
+                if (ext.ToLower() != ".xlsx")
+                {
+                    ToastService.Error("Solo se permiten archivos Excel (.xlsx).");
+                    return;
+                }
+
+                string fileName = file.Name;
+                string filePath = Path.Combine(plantillasDir, fileName);
+
+                using (var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024))
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await stream.CopyToAsync(fileStream);
+                }
+
+                grifoSeleccionado.RegistroDescuentosWrite.Plantilla = fileName;
+                ConfiguracionService.GuardarGrifoCompletoDB(grifoSeleccionado);
+                CargarConfiguracion();
+
+                ToastService.Success($"Plantilla '{fileName}' cargada y guardada exitosamente.");
+            }
+            catch (Exception ex)
+            {
+                ToastService.Error("Error al cargar la plantilla: " + ex.Message);
+            }
+        }
+    }
+
+    private void AbrirModalVerPlantillaSoloVer()
+    {
+        campoSeleccionandoModal = "";
+        AbrirModalVerPlantilla();
+    }
+
+    private void AbrirModalVerPlantilla()
+    {
+        if (grifoSeleccionado == null || string.IsNullOrWhiteSpace(grifoSeleccionado.RegistroDescuentosWrite?.Plantilla)) return;
+        
+        if (string.IsNullOrWhiteSpace(grifoSeleccionado.RegistroDescuentosWrite?.NombreHoja))
+        {
+            ToastService.Error("Configure primero el campo 'Hoja Excel' para la plantilla de destino.");
+            return;
+        }
+
+        try
+        {
+            string plantillasDir = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "bd", "RegistroVentas", "Plantillas");
+            string filePath = Path.Combine(plantillasDir, grifoSeleccionado.RegistroDescuentosWrite.Plantilla);
+            if (!File.Exists(filePath))
+            {
+                ToastService.Error("El archivo de la plantilla no se encuentra en el servidor.");
+                return;
+            }
+
+            viendoRegistroVentasModal = false;
+            plantillaExcelNombre = grifoSeleccionado.RegistroDescuentosWrite.Plantilla;
+            plantillaExcelHojas.Clear();
+
+            string targetSheet = grifoSeleccionado.RegistroDescuentosWrite.NombreHoja;
+            
+            ExcelPackage.License.SetNonCommercialPersonal("PETROBOT");
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var package = new ExcelPackage(stream))
+            {
+                var match = package.Workbook.Worksheets.FirstOrDefault(s => string.Equals(s.Name, targetSheet, StringComparison.OrdinalIgnoreCase));
+                if (match != null)
+                {
+                    plantillaExcelHojas.Add(match.Name);
+                    CargarDatosHojaExcel(match.Name);
+                }
+                else
+                {
+                    ToastService.Error($"La hoja '{targetSheet}' no se encontró en el archivo Excel.");
+                    return;
+                }
+            }
+
+            mostrarModalVerPlantilla = true;
+            _shouldScrollSelectedCell = true;
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al abrir la plantilla: " + ex.Message);
+        }
+    }
+
+    private void AbrirModalVerRegistroVentas()
+    {
+        if (grifoSeleccionado == null) return;
+        if (string.IsNullOrWhiteSpace(archivoRegistroVentasNombre))
+        {
+            ToastService.Error("Carga primero el archivo de registro de ventas.");
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(grifoSeleccionado.RegistroVentasWrite?.NombreHoja))
+        {
+            ToastService.Error("Configure primero el campo 'Hoja Excel' en la Caja 1 (Heredado).");
+            return;
+        }
+
+        try
+        {
+            string dir = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "bd", "RegistroVentas", "RegistroVentas");
+            string filePath = Path.Combine(dir, archivoRegistroVentasNombre);
+            if (!File.Exists(filePath))
+            {
+                ToastService.Error("El archivo de registro de ventas no se encuentra en el servidor.");
+                return;
+            }
+
+            viendoRegistroVentasModal = true;
+            plantillaExcelNombre = archivoRegistroVentasNombre;
+            plantillaExcelHojas.Clear();
+
+            ExcelPackage.License.SetNonCommercialPersonal("PETROBOT");
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var package = new ExcelPackage(stream))
+            {
+                foreach (var sheet in package.Workbook.Worksheets)
+                {
+                    plantillaExcelHojas.Add(sheet.Name);
+                }
+            }
+
+            string targetSheet = grifoSeleccionado.RegistroVentasWrite.NombreHoja;
+            var match = plantillaExcelHojas.FirstOrDefault(s => string.Equals(s, targetSheet, StringComparison.OrdinalIgnoreCase));
+            if (match == null)
+            {
+                ToastService.Error($"La hoja '{targetSheet}' no se encuentra en el archivo de origen (Registro de Ventas).");
+                return;
+            }
+
+            CargarDatosHojaExcel(match);
+
+            mostrarModalVerPlantilla = true;
+            _shouldScrollSelectedCell = true;
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al abrir el registro de ventas: " + ex.Message);
+        }
+    }
+
+    private void CargarDatosHojaExcel(string sheetName)
+    {
+        if (grifoSeleccionado == null) return;
+        if (!viendoRegistroVentasModal && string.IsNullOrWhiteSpace(grifoSeleccionado.RegistroDescuentosWrite?.Plantilla)) return;
+        if (viendoRegistroVentasModal && string.IsNullOrWhiteSpace(archivoRegistroVentasNombre)) return;
+
+        try
+        {
+            string filePath = "";
+            string baseWebRoot = ConfiguracionService.ObtenerWebRootPath(env.WebRootPath);
+            if (viendoRegistroVentasModal)
+            {
+                filePath = Path.Combine(baseWebRoot, "bd", "RegistroVentas", "RegistroVentas", archivoRegistroVentasNombre);
+            }
+            else
+            {
+                filePath = Path.Combine(baseWebRoot, "bd", "RegistroVentas", "Plantillas", grifoSeleccionado.RegistroDescuentosWrite.Plantilla);
+            }
+
+            plantillaExcelHojaSeleccionada = sheetName;
+            plantillaExcelFilas.Clear();
+            plantillaExcelColumnWidths.Clear();
+
+            ExcelPackage.License.SetNonCommercialPersonal("PETROBOT");
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var package = new ExcelPackage(stream))
+            {
+                var worksheet = package.Workbook.Worksheets[sheetName];
+                if (worksheet != null)
+                {
+                    int maxRows = viendoRegistroVentasModal ? 40 : 100;
+                    int maxCols = worksheet.Dimension?.End.Column ?? 1;
+                    int endRow = Math.Min(worksheet.Dimension?.End.Row ?? 1, maxRows);
+
+                    // Guardar los anchos de columna
+                    for (int c = 1; c <= maxCols; c++)
+                    {
+                        plantillaExcelColumnWidths.Add(worksheet.Column(c).Width);
+                    }
+
+                    // Cargar filas y celdas con estilo
+                    for (int r = 1; r <= endRow; r++)
+                    {
+                        var row = new List<CeldaExcelInfo>();
+                        for (int c = 1; c <= maxCols; c++)
+                        {
+                            var cell = worksheet.Cells[r, c];
+                            var cellInfo = new CeldaExcelInfo
+                            {
+                                Valor = cell.Text ?? "",
+                                IsBold = cell.Style.Font.Bold,
+                                IsItalic = cell.Style.Font.Italic,
+                                FontSize = (int?)cell.Style.Font.Size
+                            };
+
+                            // Obtener alineación
+                            switch (cell.Style.HorizontalAlignment)
+                            {
+                                case ExcelHorizontalAlignment.Left:
+                                    cellInfo.Alignment = "left";
+                                    break;
+                                case ExcelHorizontalAlignment.Center:
+                                    cellInfo.Alignment = "center";
+                                    break;
+                                case ExcelHorizontalAlignment.Right:
+                                    cellInfo.Alignment = "right";
+                                    break;
+                                default:
+                                    cellInfo.Alignment = "";
+                                    break;
+                            }
+
+                            // Obtener color de fondo
+                            if (cell.Style.Fill.PatternType != ExcelFillStyle.None)
+                            {
+                                cellInfo.ColorFondoHex = GetHexColor(cell.Style.Fill.BackgroundColor);
+                            }
+
+                            // Obtener color de texto
+                            if (cell.Style.Font.Color != null)
+                            {
+                                cellInfo.ColorTextoHex = GetHexColor(cell.Style.Font.Color);
+                            }
+
+                            row.Add(cellInfo);
+                        }
+                        plantillaExcelFilas.Add(row);
+                    }
+                }
+            }
+            _shouldScrollSelectedCell = true;
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error("Error al leer la hoja de Excel: " + ex.Message);
+        }
+    }
+
+    private string GetHexColor(ExcelColor color)
+    {
+        if (color == null) return "";
+        try
+        {
+            string hex = color.LookupColor() ?? "";
+            if (hex.StartsWith("#")) hex = hex.Substring(1);
+            if (!string.IsNullOrEmpty(hex))
+            {
+                if (hex.Length == 8) hex = hex.Substring(2); // Remove Alpha if present
+                return "#" + hex;
+            }
+        }
+        catch
+        {
+            try
+            {
+                string hex = color.Rgb ?? "";
+                if (hex.StartsWith("#")) hex = hex.Substring(1);
+                if (!string.IsNullOrEmpty(hex))
+                {
+                    if (hex.Length == 8) hex = hex.Substring(2);
+                    return "#" + hex;
+                }
+            }
+            catch {}
+        }
+        return "";
+    }
+
+    private string GetCeldaStyle(CeldaExcelInfo? celda, bool esSeleccionado, bool tieneMapeo)
+    {
+        if (celda == null) return "";
+        var styles = new List<string>();
+
+        // Background color
+        if (!string.IsNullOrEmpty(celda.ColorFondoHex))
+        {
+            styles.Add($"background-color: {celda.ColorFondoHex} !important");
+        }
+
+        // Text color
+        if (!string.IsNullOrEmpty(celda.ColorTextoHex))
+        {
+            styles.Add($"color: {celda.ColorTextoHex} !important");
+        }
+
+        // Font styles
+        if (celda.IsBold) styles.Add("font-weight: bold !important");
+        if (celda.IsItalic) styles.Add("font-style: italic !important");
+        if (celda.FontSize > 0) styles.Add($"font-size: {celda.FontSize}pt !important");
+
+        // Alignment
+        if (!string.IsNullOrEmpty(celda.Alignment))
+        {
+            styles.Add($"text-align: {celda.Alignment} !important");
+        }
+
+        // Selected/Mapped outlines
+        if (esSeleccionado)
+        {
+            styles.Add("outline: 3px solid #10b981 !important");
+            styles.Add("outline-offset: -3px !important");
+            styles.Add("z-index: 10 !important");
+        }
+        else if (tieneMapeo)
+        {
+            styles.Add("opacity: 0.65 !important");
+            styles.Add("z-index: 5 !important");
+        }
+
+        return string.Join("; ", styles);
+    }
+
+    private string campoSeleccionandoModal = "";
+
+    private void ActivarSeleccionColumnaFecha()
+    {
+        if (grifoSeleccionado == null) return;
+        if (string.IsNullOrWhiteSpace(grifoSeleccionado.RegistroDescuentosWrite?.Plantilla))
+        {
+            ToastService.Error("Carga primero un archivo de plantilla Excel para poder seleccionar visualmente.");
+            return;
+        }
+
+        campoSeleccionandoModal = "ColumnaFecha";
+        AbrirModalVerPlantilla();
+    }
+
+    private void LimpiarColumnaFecha()
+    {
+        if (grifoSeleccionado == null) return;
+        grifoSeleccionado.Configuracion.ColumnaFecha = -1; // -1 represents empty/no value
+        grifoSeleccionado.Configuracion.FilaFecha = -1;    // -1 represents empty/no value
+        ToastService.Success("Celda Fecha removida (sin asignar). Recuerda Guardar los cambios.");
+    }
+
+    private void SeleccionarCeldaDesdePlantilla(int rowIndex, int colIndex)
+    {
+        if (grifoSeleccionado == null) return;
+
+        if (campoSeleccionandoModal == "ColumnaFecha")
+        {
+            grifoSeleccionado.Configuracion.ColumnaFecha = colIndex;
+            grifoSeleccionado.Configuracion.FilaFecha = rowIndex + 1; // 1-based index
+            if (colIndex >= 0 && rowIndex >= 0)
+            {
+                string colLetter = GetExcelColumnName(colIndex);
+                int rowNum = rowIndex + 1;
+                ToastService.Success($"Celda de Fecha establecida en {colLetter}{rowNum} (Columna: {colIndex}, Fila: {rowNum}). Recuerda Guardar los cambios.");
+            }
+            else
+            {
+                ToastService.Success("Celda de Fecha establecida sin valor. Recuerda Guardar los cambios.");
+            }
+            CerrarModalVerPlantilla();
+        }
+    }
+
+    private void ActivarSeleccionWriteCol(string propName)
+    {
+        if (grifoSeleccionado == null) return;
+        if (string.IsNullOrWhiteSpace(grifoSeleccionado.RegistroDescuentosWrite?.Plantilla))
+        {
+            ToastService.Error("Carga primero la plantilla de destino (Descuentos).");
+            return;
+        }
+
+        campoSeleccionandoModal = propName;
+        AbrirModalVerPlantilla();
+    }
+
+    private void SeleccionarCeldaWriteColDesdePlantilla(int colIndex)
+    {
+        if (grifoSeleccionado == null || string.IsNullOrWhiteSpace(campoSeleccionandoModal)) return;
+
+        if (campoSeleccionandoModal.StartsWith("ClienteColumna_"))
+        {
+            string clientName = campoSeleccionandoModal.Substring("ClienteColumna_".Length);
+            var cli = grifoSeleccionado.ClientesCredito.FirstOrDefault(c => c.ClienteNombre == clientName);
+            if (cli != null)
+            {
+                if (colIndex >= 0)
+                {
+                    string colLetter = GetExcelColumnName(colIndex);
+                    cli.Columna = colLetter;
+                    ToastService.Success($"Columna para cliente '{clientName}' establecida en {colLetter}. Recuerda Guardar los cambios.");
+                }
+                else
+                {
+                    cli.Columna = "";
+                    ToastService.Success($"Columna para cliente '{clientName}' desasignada. Recuerda Guardar los cambios.");
+                }
+            }
+        }
+        else
+        {
+            if (colIndex >= 0)
+            {
+                string colLetter = GetExcelColumnName(colIndex);
+                SetWriteConfigValue(campoSeleccionandoModal, colLetter);
+                ToastService.Success($"Columna para {GetFriendlyLabel(campoSeleccionandoModal)} establecida en {colLetter}. Recuerda Guardar los cambios.");
+            }
+            else
+            {
+                SetWriteConfigValue(campoSeleccionandoModal, "");
+                ToastService.Success($"Columna para {GetFriendlyLabel(campoSeleccionandoModal)} desasignada. Recuerda Guardar los cambios.");
+            }
+        }
+        CerrarModalVerPlantilla();
+    }
+
+    private void SeleccionarCeldaFilaDesdePlantilla(int rowIndex, int colIndex)
+    {
+        // No-op for removed fields
+    }
+
+    private string? GetMappedPropertyNameForCell(int localRow, int localCol)
+    {
+        if (grifoSeleccionado == null) return null;
+        var config = grifoSeleccionado.Configuracion;
+
+        if (localCol == config.ColumnaFecha && localRow == (config.FilaFecha - 1))
+        {
+            return "Fecha";
+        }
+
+        return null;
+    }
+
+    private void CerrarModalVerPlantilla()
+    {
+        mostrarModalVerPlantilla = false;
+        plantillaExcelFilas.Clear();
+        campoSeleccionandoModal = "";
+    }
+
+    private string GetExcelColumnName(int columnNumber)
+    {
+        int dividend = columnNumber + 1;
+        string columnName = String.Empty;
+        int modulo;
+
+        while (dividend > 0)
+        {
+            modulo = (dividend - 1) % 26;
+            columnName = Convert.ToChar(65 + modulo).ToString() + columnName;
+            dividend = (int)((dividend - modulo) / 26);
+        }
+
+        return columnName;
+    }
+
+    private string GetFriendlyLabel(string? propName)
+    {
+        if (propName == null) return string.Empty;
+        return propName switch
+        {
+            "Venta_GPL" => "Venta GLP",
+            "Venta_GNV" => "Venta GNV",
+            "Total_venta_acumulada" => "Total Acumulado",
+            "Total_Tarjeta_de_Credito_Liquidos" => "Tarjeta Líquidos",
+            "Total_Tarjeta_de_Credito_GLP" => "Tarjeta GLP",
+            "Total_Tarjeta_de_Credito_GNV" => "Tarjeta GNV",
+            "ErrorMaquina" => "Error Máquina",
+            "Recaudo_Cofide_GNV" => "Cofide GNV",
+            "Gastos" => "Gastos",
+            "Ventas_con_transferencia" => "Transferencia",
+            "EESS" => "EESS",
+            "ColumnaFecha" => "Fecha",
+            "CreditoNombre" => "Crédito Nombre",
+            "CreditoMonto" => "Crédito Monto",
+            "HermesBanco" => "Hermes Banco",
+            "HermesTipo" => "Hermes Tipo",
+            "HermesMonto" => "Hermes Monto",
+            "FilaFinal" => "Fila Final",
+            "DescuentoLiquidos" => "Desc. Líquidos",
+            "DescuentoGLP" => "Desc. GLP",
+            "Hermes_monto_liquido" => "Hermes Líquidos",
+            "Hermes_monto_GLP" => "Hermes GLP",
+            "Hermes_monto_GNV1" => "Hermes GNV 1",
+            "Hermes_monto_GNV2" => "Hermes GNV 2",
+            "VariaCombusNombre" => "Combustible Var. Nombre",
+            "VariaCombusMonto" => "Combustible Var. Monto",
+            _ => propName.Replace("_", " ")
+        };
+    }
+
+    private string GetActiveSelectionLabel()
+    {
+        if (string.IsNullOrWhiteSpace(campoSeleccionandoModal)) return "";
+        if (campoSeleccionandoModal.StartsWith("ClienteColumna_"))
+        {
+            return "CLIENTE: " + campoSeleccionandoModal.Substring("ClienteColumna_".Length);
+        }
+        return GetFriendlyLabel(campoSeleccionandoModal);
+    }
+}

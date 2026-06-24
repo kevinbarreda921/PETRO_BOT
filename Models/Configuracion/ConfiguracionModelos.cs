@@ -53,6 +53,7 @@ namespace PETRO_BOT.Models.Configuracion
         public string Plantilla { get; set; } = "";
         public RegistroVentasConfiguracion Configuracion { get; set; } = new();
         public RegistroVentasWriteConfig RegistroVentasWrite { get; set; } = new();
+        public RegistroDescuentosWriteConfig RegistroDescuentosWrite { get; set; } = new();
         public List<RegistroVentasClienteCredito> ClientesCredito { get; set; } = new();
     }
 
@@ -157,5 +158,21 @@ namespace PETRO_BOT.Models.Configuracion
         public string Hermes_monto_GLP { get; set; } = "";
         public string Hermes_monto_GNV1 { get; set; } = "";
         public string Hermes_monto_GNV2 { get; set; } = "";
+    }
+
+    public class RegistroDescuentosWriteConfig
+    {
+        public int Id { get; set; }
+        public int GrifoId { get; set; }
+        public string NombreHoja { get; set; } = "";
+        public string Plantilla { get; set; } = "";
+        public int FilaSeleccion { get; set; } = 10;
+        
+        // Coordenadas de escritura para Registro Descuentos
+        public string ColumnaFecha { get; set; } = "";
+        public string TarjetaLiquidos { get; set; } = "";
+        public string TarjetaGLP { get; set; } = "";
+        public string DescLiquidos { get; set; } = "";
+        public string DescGLP { get; set; } = "";
     }
 }

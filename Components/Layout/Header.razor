@@ -6,7 +6,7 @@
 <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 select-none mb-4 pb-4 border-b border-slate-200/60 relative z-50">
 
     <!-- LEFT: HORIZONTAL NAVIGATION PILLS FROM MOCKUP -->
-    @if (!EsRutaActiva("/"))
+    @if (EsRutaActiva("/RegistroVentas") || EsRutaActiva("/ConfigGrifos"))
     {
         <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 md:pb-0 shrink-0">
             
@@ -30,6 +30,41 @@
                 Config Grifos
             </button>
 
+        </div>
+    }
+    else if (EsRutaActiva("/RegistroDescuentos") || EsRutaActiva("/ConfigDescuentos"))
+    {
+        <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 md:pb-0 shrink-0">
+            
+            <!-- Mobile Menu Toggle -->
+            <button id="menu-toggle"
+                    class="lg:hidden shrink-0 p-2.5 bg-white border border-slate-200 rounded-xl text-slate-500 hover:text-slate-900 focus:outline-none cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+
+            <!-- Pill 1: Registro Descuentos -->
+            <button @onclick='() => Navigation.NavigateTo("/RegistroDescuentos")'
+                    class="px-4 py-2 text-xs font-black uppercase tracking-wider rounded-full transition-all cursor-pointer @(EsRutaActiva("/RegistroDescuentos") ? "bg-[#1e293b] text-white shadow-md shadow-slate-900/10" : "bg-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100")">
+                Registro Descuento
+            </button>
+
+            <!-- Pill 2: Config Grifos Descuentos -->
+            <button @onclick='() => Navigation.NavigateTo("/ConfigDescuentos")'
+                    class="px-4 py-2 text-xs font-black uppercase tracking-wider rounded-full transition-all cursor-pointer @(EsRutaActiva("/ConfigDescuentos") ? "bg-[#1e293b] text-white shadow-md shadow-slate-900/10" : "bg-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100")">
+                Configurar Grifos Descuentos
+            </button>
+
+        </div>
+    }
+    else if (!EsRutaActiva("/"))
+    {
+        <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 md:pb-0 shrink-0">
+            <!-- Mobile Menu Toggle -->
+            <button id="menu-toggle" class="lg:hidden shrink-0 p-2.5 bg-white border border-slate-200 rounded-xl text-slate-500 hover:text-slate-900 focus:outline-none cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
         </div>
     }
     else

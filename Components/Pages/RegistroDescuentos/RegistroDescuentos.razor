@@ -1,0 +1,398 @@
+@page "/RegistroDescuentos"
+@using PETRO_BOT.Services.Toast
+@using PETRO_BOT.Components.Pages.Elementos
+@rendermode InteractiveServer
+@inject IWebHostEnvironment env
+@inject ToastService ToastService
+@inject IJSRuntime JSRuntime
+@using PETRO_BOT.Services.Services
+@using System.Diagnostics
+@using PETRO_BOT.Models.Configuracion
+@using System.IO
+@using PETRO_BOT.Models.Log
+@using PETRO_BOT.Services.Shared
+@inject HistorialService HistorialService
+
+<div class="flex flex-col gap-6 animate-new-row">
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        
+        <!-- Left Column: Controls -->
+        <div class="lg:col-span-5 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col hover:border-slate-300 hover:shadow-lg transition-all duration-300 overflow-y-auto custom-scrollbar relative animate-fade-in-up anim-delay-75" style="height: calc(100vh - 160px);">
+            @if (isLoading)
+            {
+                <LoadingRayo />
+            }
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                    <div>
+                        <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest block">Procesador de Descuentos</h3>
+                        <span class="text-[10px] text-slate-400 font-bold block mt-0.5">Control de planillas origen y destino</span>
+                    </div>
+                </div>
+
+                <!-- Grifos Selection -->
+                <div class="mb-5">
+                    <label class="block text-[8px] font-black uppercase tracking-widest mb-1.5 ml-0.5 text-slate-400">Selección de Grifos a procesar</label>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl max-h-40 overflow-y-auto custom-scrollbar p-2">
+                        <div class="flex items-center justify-between p-2 mb-1 border-b border-slate-200 cursor-pointer hover:bg-slate-100 rounded-lg transition-colors" @onclick="ToggleSeleccionarTodosGrifos">
+                            <span class="text-xs font-bold text-slate-700">Seleccionar Todos</span>
+                            <div class="w-4 h-4 rounded border flex items-center justify-center transition-colors @(TodosGrifosSeleccionados ? "bg-indigo-600 border-indigo-600" : "bg-white border-slate-300")">
+                                @if (TodosGrifosSeleccionados)
+                                {
+                                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                }
+                            </div>
+                        </div>
+                        @foreach (var grifo in grifosDisponibles)
+                        {
+                            bool isSelected = grifosSeleccionadosIds.Contains(grifo.Id);
+                            <div class="flex items-center justify-between p-2 cursor-pointer hover:bg-slate-100 rounded-lg transition-colors" @onclick="() => ToggleGrifo(grifo.Id)">
+                                <span class="text-xs font-semibold text-slate-600">@grifo.Nombre</span>
+                                <div class="w-4 h-4 rounded border flex items-center justify-center transition-colors @(isSelected ? "bg-indigo-600 border-indigo-600" : "bg-white border-slate-300")">
+                                    @if (isSelected)
+                                    {
+                                        <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Calendar -->
+                <div class="mb-5">
+                    <label class="block text-[8px] font-black uppercase tracking-widest mb-1.5 ml-0.5 text-slate-400">Fechas a Procesar</label>
+                    <div @onclick="ToggleCalendario" class="w-full border rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all cursor-pointer flex items-center justify-between select-none bg-white border-slate-200 text-slate-800 hover:border-slate-300">
+                        <span class="font-mono truncate mr-2" title="@(string.Join(", ", fechasSeleccionadas.OrderBy(d => d).Select(d => d.ToString("dd/MM/yyyy"))))">
+                            @(fechasSeleccionadas.Count == 0 ? "Seleccionar días" : string.Join(", ", fechasSeleccionadas.OrderBy(d => d).Select(d => d.ToString("dd/MM"))))
+                        </span>
+                        <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </div>
+                    @if (mostrarCalendario)
+                    {
+                        <div class="fixed inset-0 z-40 bg-transparent" @onclick="CerrarCalendario"></div>
+                        <div class="absolute shadow-2xl z-50 bg-white border border-slate-200 rounded-2xl p-4 mt-2 animate-calendar-in w-64">
+                            <div class="flex items-center justify-between mb-3">
+                                <button type="button" @onclick="MesAnterior" class="p-1 rounded bg-slate-50 border border-slate-200 hover:bg-slate-100"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg></button>
+                                <span class="text-[9px] font-black text-slate-800 uppercase">@mesVisualizado.ToString("MMMM yyyy", new System.Globalization.CultureInfo("es-ES"))</span>
+                                <button type="button" @onclick="MesSiguiente" class="p-1 rounded bg-slate-50 border border-slate-200 hover:bg-slate-100"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg></button>
+                            </div>
+                            <div class="grid grid-cols-7 gap-1 text-center mb-1 border-b border-slate-100 pb-1">
+                                @foreach (var diaSem in new[] { "DO", "LU", "MA", "MI", "JU", "VI", "SA" })
+                                {
+                                    <span class="text-[8px] font-black text-slate-400">@diaSem</span>
+                                }
+                            </div>
+                            <div class="grid grid-cols-7 gap-1 text-center">
+                                @for (int i = 0; i < ObtenerDesfasePrimerDia(); i++) { <div></div> }
+                                @for (int dia = 1; dia <= DateTime.DaysInMonth(mesVisualizado.Year, mesVisualizado.Month); dia++)
+                                {
+                                    var fechaCelda = new DateTime(mesVisualizado.Year, mesVisualizado.Month, dia);
+                                    var esSeleccionado = fechasSeleccionadas.Contains(fechaCelda.Date);
+                                    <button type="button" @onclick="() => SeleccionarFecha(fechaCelda)" class="w-6 h-6 flex items-center justify-center text-[9px] font-bold rounded-md transition-all @(esSeleccionado ? "bg-indigo-600 text-white shadow-md" : "hover:bg-slate-100 text-slate-600")">@dia</button>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Origin Excel Upload -->
+                <div class="mb-4">
+                    <label class="block text-[8px] font-black uppercase tracking-widest mb-1.5 ml-0.5 text-slate-400">Excel Origen (Registro Ventas)</label>
+                    <div class="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl p-3 relative overflow-hidden transition-all hover:border-slate-300">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center border border-blue-200 shrink-0">
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <span class="text-[10px] font-black text-slate-700 block truncate">@(string.IsNullOrEmpty(archivoOrigenNombre) ? "Ningún archivo seleccionado" : archivoOrigenNombre)</span>
+                            <span class="text-[8px] text-slate-400 font-bold block uppercase mt-0.5">Extrae los totales de descuentos</span>
+                        </div>
+                        <InputFile OnChange="CargarArchivoOrigen" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept=".xlsx" />
+                    </div>
+                </div>
+
+                <!-- Destination Excel Upload -->
+                <div class="mb-5">
+                    <label class="block text-[8px] font-black uppercase tracking-widest mb-1.5 ml-0.5 text-slate-400">Excel Destino (Plantilla Descuentos)</label>
+                    <div class="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl p-3 relative overflow-hidden transition-all hover:border-slate-300">
+                        <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center border border-emerald-200 shrink-0">
+                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <span class="text-[10px] font-black text-slate-700 block truncate">@(string.IsNullOrEmpty(archivoDestinoNombre) ? "Ningún archivo seleccionado" : archivoDestinoNombre)</span>
+                            <span class="text-[8px] text-slate-400 font-bold block uppercase mt-0.5">Escribe los descuentos mapeados</span>
+                        </div>
+                        <InputFile OnChange="CargarArchivoDestino" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept=".xlsx" />
+                    </div>
+                </div>
+
+                <!-- Execute Button -->
+                <button @onclick="ProcesarDescuentos" disabled="@isLoading" class="w-full mt-auto mb-2 bg-[#0f172a] hover:bg-slate-800 text-white py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] transition-all shadow-[0_8px_20px_rgba(15,23,42,0.15)] hover:shadow-[0_12px_25px_rgba(15,23,42,0.25)] active:scale-[0.98] relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer"></div>
+                    <div class="flex items-center justify-center gap-2 relative z-10">
+                        @if (isLoading)
+                        {
+                            <svg class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <span>Procesando...</span>
+                        }
+                        else
+                        {
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            <span>Ejecutar Proceso</span>
+                        }
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Column: Results Dashboard -->
+        <div class="lg:col-span-7 bg-[#0f172a] rounded-[30px] p-8 flex flex-col relative overflow-hidden shadow-2xl animate-fade-in-up anim-delay-150" style="height: calc(100vh - 160px);">
+            <div class="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+
+            <div class="flex items-center justify-between border-b border-slate-700/50 pb-6 mb-6 relative z-10">
+                <div>
+                    <h3 class="text-white text-base font-black tracking-widest uppercase flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center border border-indigo-400/30">
+                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        </div>
+                        Métricas de Procesamiento
+                    </h3>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-wider">Descuentos de Tarjetas de Crédito</p>
+                </div>
+                @if (resultado != null && !string.IsNullOrEmpty(resultado.ArchivoResultado))
+                {
+                    <a href="@($"uploads/Resultados/{Path.GetFileName(resultado.ArchivoResultado)}")" download target="_blank" class="px-4 py-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-xl hover:bg-emerald-500/20 transition-all font-black text-[9px] uppercase tracking-wider flex items-center gap-2 cursor-pointer relative z-10">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Descargar Excel Procesado
+                    </a>
+                }
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 relative z-10">
+                <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700/50 relative overflow-hidden group">
+                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1">Grifos Procesados</span>
+                    <span class="text-3xl font-black text-white group-hover:text-indigo-400 transition-colors">@(resultado?.GrifosProcesados ?? 0)</span>
+                </div>
+                <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700/50 relative overflow-hidden group">
+                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1">Días Exitosos</span>
+                    <span class="text-3xl font-black text-emerald-400">@(resultado?.DiasProcesadosExito ?? 0)</span>
+                </div>
+                <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700/50 relative overflow-hidden group">
+                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1">Días con Error</span>
+                    <span class="text-3xl font-black text-rose-400">@(resultado?.DiasProcesadosError ?? 0)</span>
+                </div>
+                <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700/50 relative overflow-hidden group">
+                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1">Tiempo Ejecución</span>
+                    <span class="text-3xl font-black text-white">@(resultado != null ? $"{(int)resultado.TiempoEjecucion.TotalSeconds}s" : "0s")</span>
+                </div>
+            </div>
+
+            <div class="flex-1 flex flex-col min-h-0 bg-slate-800/30 rounded-2xl border border-slate-700/50 relative z-10 overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-700/50 flex items-center justify-between bg-slate-800/50">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Registro de Eventos (Logs)</span>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full @(resultado?.MensajesError.Any() == true ? "bg-amber-400 animate-pulse" : "bg-slate-600")"></span>
+                    </div>
+                </div>
+                <div class="p-4 overflow-y-auto custom-scrollbar flex-1 font-mono text-xs">
+                    @if (resultado == null)
+                    {
+                        <div class="h-full flex items-center justify-center text-slate-500 italic opacity-50">
+                            Esperando inicio de proceso...
+                        </div>
+                    }
+                    else if (!resultado.MensajesError.Any())
+                    {
+                        <div class="text-emerald-400">
+                            [System] Proceso completado exitosamente sin errores.
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var msg in resultado.MensajesError)
+                        {
+                            <div class="text-amber-400 mb-2 pb-2 border-b border-slate-700/30 last:border-0 last:mb-0 last:pb-0">
+                                [Warn] @msg
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool isLoading = false;
+    private List<RegistroVentasGrifo> grifosDisponibles = new List<RegistroVentasGrifo>();
+    private HashSet<int> grifosSeleccionadosIds = new HashSet<int>();
+    
+    private HashSet<DateTime> fechasSeleccionadas = new HashSet<DateTime>();
+    private bool mostrarCalendario = false;
+    private DateTime mesVisualizado = DateTime.Today;
+
+    private string archivoOrigenNombre = "";
+    private string archivoOrigenRutaTemporal = "";
+    private string archivoDestinoNombre = "";
+    private string archivoDestinoRutaTemporal = "";
+
+    private ProcesadorDescuentosExcelService.ResultadoProceso? resultado;
+
+    protected override void OnInitialized()
+    {
+        grifosDisponibles = ConfiguracionService.ObtenerGrifosDB();
+    }
+
+    private bool TodosGrifosSeleccionados => grifosDisponibles.Any() && grifosSeleccionadosIds.Count == grifosDisponibles.Count;
+
+    private void ToggleSeleccionarTodosGrifos()
+    {
+        if (TodosGrifosSeleccionados)
+        {
+            grifosSeleccionadosIds.Clear();
+        }
+        else
+        {
+            grifosSeleccionadosIds = new HashSet<int>(grifosDisponibles.Select(g => g.Id));
+        }
+    }
+
+    private void ToggleGrifo(int id)
+    {
+        if (!grifosSeleccionadosIds.Add(id))
+        {
+            grifosSeleccionadosIds.Remove(id);
+        }
+    }
+
+    private void ToggleCalendario() => mostrarCalendario = !mostrarCalendario;
+    private void CerrarCalendario() => mostrarCalendario = false;
+
+    private void SeleccionarFecha(DateTime fecha)
+    {
+        if (!fechasSeleccionadas.Add(fecha.Date))
+        {
+            fechasSeleccionadas.Remove(fecha.Date);
+        }
+    }
+
+    private void MesAnterior() => mesVisualizado = mesVisualizado.AddMonths(-1);
+    private void MesSiguiente() => mesVisualizado = mesVisualizado.AddMonths(1);
+
+    private int ObtenerDesfasePrimerDia()
+    {
+        var primerDia = new DateTime(mesVisualizado.Year, mesVisualizado.Month, 1);
+        return (int)primerDia.DayOfWeek;
+    }
+
+    private async Task CargarArchivoOrigen(InputFileChangeEventArgs e)
+    {
+        if (e.File == null) return;
+        archivoOrigenNombre = e.File.Name;
+        
+        string dir = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "uploads", "Temp");
+        if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+        
+        archivoOrigenRutaTemporal = Path.Combine(dir, $"Origen_{Guid.NewGuid()}_{archivoOrigenNombre}");
+        await using FileStream fs = new(archivoOrigenRutaTemporal, FileMode.Create);
+        await e.File.OpenReadStream(20 * 1024 * 1024).CopyToAsync(fs);
+    }
+
+    private async Task CargarArchivoDestino(InputFileChangeEventArgs e)
+    {
+        if (e.File == null) return;
+        archivoDestinoNombre = e.File.Name;
+        
+        string dir = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "uploads", "Temp");
+        if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+        
+        archivoDestinoRutaTemporal = Path.Combine(dir, $"Destino_{Guid.NewGuid()}_{archivoDestinoNombre}");
+        await using FileStream fs = new(archivoDestinoRutaTemporal, FileMode.Create);
+        await e.File.OpenReadStream(20 * 1024 * 1024).CopyToAsync(fs);
+    }
+
+    private async Task ProcesarDescuentos()
+    {
+        if (grifosSeleccionadosIds.Count == 0)
+        {
+            ToastService.Error("Seleccione al menos un grifo.");
+            return;
+        }
+        if (fechasSeleccionadas.Count == 0)
+        {
+            ToastService.Error("Seleccione al menos una fecha.");
+            return;
+        }
+        if (string.IsNullOrEmpty(archivoOrigenRutaTemporal))
+        {
+            ToastService.Error("Cargue el Excel Origen.");
+            return;
+        }
+        if (string.IsNullOrEmpty(archivoDestinoRutaTemporal))
+        {
+            ToastService.Error("Cargue el Excel Destino.");
+            return;
+        }
+
+        isLoading = true;
+        resultado = null;
+        StateHasChanged();
+        
+        // Wait for UI to update
+        await Task.Delay(100);
+
+        try
+        {
+            string dirResultados = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "uploads", "Resultados");
+            if (!Directory.Exists(dirResultados)) Directory.CreateDirectory(dirResultados);
+            
+            // To ensure output is in wwwroot to be downloadable
+            string rutaDestinoFinal = Path.Combine(dirResultados, $"Resultado_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
+            
+            var procesador = new ProcesadorDescuentosExcelService();
+            resultado = await procesador.ProcesarDescuentosAsync(
+                archivoOrigenRutaTemporal, 
+                archivoDestinoRutaTemporal, 
+                grifosSeleccionadosIds.ToList(), 
+                fechasSeleccionadas.ToList());
+
+            // Move the generated file to the accessible wwwroot path if it succeeded
+            if (!string.IsNullOrEmpty(resultado.ArchivoResultado) && File.Exists(resultado.ArchivoResultado))
+            {
+                File.Move(resultado.ArchivoResultado, rutaDestinoFinal, true);
+                resultado.ArchivoResultado = rutaDestinoFinal;
+            }
+
+            if (resultado.DiasProcesadosExito > 0)
+            {
+                ToastService.Success("Procesamiento completado.");
+                
+                // Registro in Historial
+                try
+                {
+                    HistorialService.RegistrarEjecucion("Registro de Descuentos", resultado.GrifosProcesados, resultado.DiasProcesadosExito, resultado.TiempoEjecucion.TotalSeconds);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[x] Error guardando historial: {ex.Message}");
+                }
+            }
+            else
+            {
+                ToastService.Warning("Se procesó pero no hubieron días exitosos.");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"Ocurrió un error: {ex.Message}");
+            resultado = new ProcesadorDescuentosExcelService.ResultadoProceso();
+            resultado.MensajesError.Add($"Excepción crítica: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
