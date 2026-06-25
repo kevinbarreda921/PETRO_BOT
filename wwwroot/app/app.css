@@ -90,7 +90,6 @@
     --font-weight-bold: 700;
     --font-weight-extrabold: 800;
     --font-weight-black: 900;
-    --tracking-normal: 0em;
     --tracking-wide: 0.025em;
     --tracking-wider: 0.05em;
     --tracking-widest: 0.1em;
@@ -574,8 +573,8 @@
   .h-px {
     height: 1px;
   }
-  .max-h-40 {
-    max-height: calc(var(--spacing) * 40);
+  .max-h-60 {
+    max-height: calc(var(--spacing) * 60);
   }
   .max-h-\[80vh\] {
     max-height: 80vh;
@@ -836,6 +835,9 @@
   }
   .grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .grid-cols-7 {
     grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -2512,6 +2514,11 @@
       opacity: 40%;
     }
   }
+  .disabled\:opacity-50 {
+    &:disabled {
+      opacity: 50%;
+    }
+  }
   .disabled\:opacity-75 {
     &:disabled {
       opacity: 75%;
@@ -2590,11 +2597,6 @@
   .md\:grid-cols-4 {
     @media (width >= 48rem) {
       grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-  .md\:grid-cols-5 {
-    @media (width >= 48rem) {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
     }
   }
   .md\:grid-cols-6 {
@@ -2860,6 +2862,9 @@ body {
   font-family: 'Plus Jakarta Sans', sans-serif !important;
   background-color: #f5f6fa !important;
   color: #0f172a !important;
+}
+button {
+  cursor: pointer;
 }
 *:focus-visible {
   outline: none !important;

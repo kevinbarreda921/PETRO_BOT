@@ -67,7 +67,8 @@ namespace PETRO_BOT.Services.Services
                 using var streamOrigen = new FileStream(rutaExcelOrigen, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 using var packageOrigen = new ExcelPackage(streamOrigen);
 
-                string carpetaSalida = Path.Combine(Path.GetDirectoryName(rutaExcelDestino) ?? "", "Output");
+                string webRoot = Path.GetDirectoryName(Path.GetDirectoryName(rutaExcelDestino)) ?? "";
+                string carpetaSalida = Path.Combine(webRoot, "Resultados");
                 if (!Directory.Exists(carpetaSalida)) Directory.CreateDirectory(carpetaSalida);
                 string archivoSalida = Path.Combine(carpetaSalida, $"DescuentosProcesados_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx");
                 

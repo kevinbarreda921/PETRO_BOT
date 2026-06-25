@@ -98,6 +98,11 @@ body {
   color: #0f172a !important;
 }
 
+/* Forzar cursor pointer en todos los botones del sistema */
+button {
+  cursor: pointer;
+}
+
 /* Ajustes globales de enfoque y selección */
 *:focus-visible {
   outline: none !important;

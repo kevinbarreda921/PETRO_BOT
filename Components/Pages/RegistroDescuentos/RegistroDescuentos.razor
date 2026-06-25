@@ -2,8 +2,9 @@
 @using PETRO_BOT.Services.Toast
 @using PETRO_BOT.Components.Pages.Elementos
 @rendermode InteractiveServer
-@inject IWebHostEnvironment env
 @inject ToastService ToastService
+@inject IWebHostEnvironment env
+@implements IDisposable
 @inject IJSRuntime JSRuntime
 @using PETRO_BOT.Services.Services
 @using System.Diagnostics
@@ -32,40 +33,51 @@
                 </div>
 
                 <!-- Grifos Selection -->
-                <div class="mb-5">
+                <div class="mb-5 relative">
                     <label class="block text-[8px] font-black uppercase tracking-widest mb-1.5 ml-0.5 text-slate-400">Selección de Grifos a procesar</label>
-                    <div class="bg-slate-50 border border-slate-200 rounded-xl max-h-40 overflow-y-auto custom-scrollbar p-2">
-                        <div class="flex items-center justify-between p-2 mb-1 border-b border-slate-200 cursor-pointer hover:bg-slate-100 rounded-lg transition-colors" @onclick="ToggleSeleccionarTodosGrifos">
-                            <span class="text-xs font-bold text-slate-700">Seleccionar Todos</span>
-                            <div class="w-4 h-4 rounded border flex items-center justify-center transition-colors @(TodosGrifosSeleccionados ? "bg-indigo-600 border-indigo-600" : "bg-white border-slate-300")">
-                                @if (TodosGrifosSeleccionados)
-                                {
-                                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                                }
-                            </div>
-                        </div>
-                        @foreach (var grifo in grifosDisponibles)
-                        {
-                            bool isSelected = grifosSeleccionadosIds.Contains(grifo.Id);
-                            <div class="flex items-center justify-between p-2 cursor-pointer hover:bg-slate-100 rounded-lg transition-colors" @onclick="() => ToggleGrifo(grifo.Id)">
-                                <span class="text-xs font-semibold text-slate-600">@grifo.Nombre</span>
-                                <div class="w-4 h-4 rounded border flex items-center justify-center transition-colors @(isSelected ? "bg-indigo-600 border-indigo-600" : "bg-white border-slate-300")">
-                                    @if (isSelected)
+                    <div @onclick="ToggleDropdownGrifos" class="w-full border rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all cursor-pointer flex items-center justify-between select-none bg-white border-slate-200 text-slate-800 hover:border-slate-300">
+                        <span class="font-mono truncate mr-2" title="@string.Join(", ", grifosDisponibles.Where(g => grifosSeleccionadosIds.Contains(g.Id)).Select(g => g.Nombre))">
+                            @ObtenerTextoGrifosSeleccionados()
+                        </span>
+                        <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    
+                    @if (mostrarDropdownGrifos)
+                    {
+                        <div class="fixed inset-0 z-40 bg-transparent" @onclick="CerrarDropdownGrifos"></div>
+                        <div class="absolute shadow-2xl z-50 bg-white border border-slate-200 rounded-xl mt-2 w-full max-h-60 overflow-y-auto custom-scrollbar p-2 animate-calendar-in">
+                            <div class="flex items-center justify-between p-2 mb-1 border-b border-slate-200 cursor-pointer hover:bg-slate-100 rounded-lg transition-colors" @onclick="ToggleSeleccionarTodosGrifos">
+                                <span class="text-xs font-bold text-slate-700">Seleccionar Todos</span>
+                                <div class="w-4 h-4 rounded border flex items-center justify-center transition-colors @(TodosGrifosSeleccionados ? "bg-indigo-600 border-indigo-600" : "bg-white border-slate-300")">
+                                    @if (TodosGrifosSeleccionados)
                                     {
                                         <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                                     }
                                 </div>
                             </div>
-                        }
-                    </div>
+                            @foreach (var grifo in grifosDisponibles)
+                            {
+                                bool isSelected = grifosSeleccionadosIds.Contains(grifo.Id);
+                                <div class="flex items-center justify-between p-2 cursor-pointer hover:bg-slate-100 rounded-lg transition-colors" @onclick="() => ToggleGrifo(grifo.Id)">
+                                    <span class="text-xs font-semibold text-slate-600">@grifo.Nombre</span>
+                                    <div class="w-4 h-4 rounded border flex items-center justify-center transition-colors @(isSelected ? "bg-indigo-600 border-indigo-600" : "bg-white border-slate-300")">
+                                        @if (isSelected)
+                                        {
+                                            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
                 </div>
 
                 <!-- Calendar -->
                 <div class="mb-5">
-                    <label class="block text-[8px] font-black uppercase tracking-widest mb-1.5 ml-0.5 text-slate-400">Fechas a Procesar</label>
+                    <label class="block text-[8px] font-black uppercase tracking-widest mb-1.5 ml-0.5 text-slate-400">Meses a Procesar</label>
                     <div @onclick="ToggleCalendario" class="w-full border rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all cursor-pointer flex items-center justify-between select-none bg-white border-slate-200 text-slate-800 hover:border-slate-300">
-                        <span class="font-mono truncate mr-2" title="@(string.Join(", ", fechasSeleccionadas.OrderBy(d => d).Select(d => d.ToString("dd/MM/yyyy"))))">
-                            @(fechasSeleccionadas.Count == 0 ? "Seleccionar días" : string.Join(", ", fechasSeleccionadas.OrderBy(d => d).Select(d => d.ToString("dd/MM"))))
+                        <span class="font-mono truncate mr-2" title="@ObtenerTextoFechasSeleccionadas()">
+                            @ObtenerTextoFechasSeleccionadas()
                         </span>
                         <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     </div>
@@ -73,24 +85,22 @@
                     {
                         <div class="fixed inset-0 z-40 bg-transparent" @onclick="CerrarCalendario"></div>
                         <div class="absolute shadow-2xl z-50 bg-white border border-slate-200 rounded-2xl p-4 mt-2 animate-calendar-in w-64">
-                            <div class="flex items-center justify-between mb-3">
-                                <button type="button" @onclick="MesAnterior" class="p-1 rounded bg-slate-50 border border-slate-200 hover:bg-slate-100"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg></button>
-                                <span class="text-[9px] font-black text-slate-800 uppercase">@mesVisualizado.ToString("MMMM yyyy", new System.Globalization.CultureInfo("es-ES"))</span>
-                                <button type="button" @onclick="MesSiguiente" class="p-1 rounded bg-slate-50 border border-slate-200 hover:bg-slate-100"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg></button>
+                            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+                                <button type="button" @onclick="AnoAnterior" class="p-1.5 rounded-lg bg-slate-50 border border-slate-200 hover:bg-slate-100"><svg class="w-3 h-3 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg></button>
+                                <span class="text-[11px] font-black text-slate-800 uppercase tracking-widest">@mesVisualizado.Year</span>
+                                <button type="button" @onclick="AnoSiguiente" class="p-1.5 rounded-lg bg-slate-50 border border-slate-200 hover:bg-slate-100"><svg class="w-3 h-3 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg></button>
                             </div>
-                            <div class="grid grid-cols-7 gap-1 text-center mb-1 border-b border-slate-100 pb-1">
-                                @foreach (var diaSem in new[] { "DO", "LU", "MA", "MI", "JU", "VI", "SA" })
+                            <div class="grid grid-cols-3 gap-2 text-center">
+                                @for (int m = 1; m <= 12; m++)
                                 {
-                                    <span class="text-[8px] font-black text-slate-400">@diaSem</span>
-                                }
-                            </div>
-                            <div class="grid grid-cols-7 gap-1 text-center">
-                                @for (int i = 0; i < ObtenerDesfasePrimerDia(); i++) { <div></div> }
-                                @for (int dia = 1; dia <= DateTime.DaysInMonth(mesVisualizado.Year, mesVisualizado.Month); dia++)
-                                {
-                                    var fechaCelda = new DateTime(mesVisualizado.Year, mesVisualizado.Month, dia);
-                                    var esSeleccionado = fechasSeleccionadas.Contains(fechaCelda.Date);
-                                    <button type="button" @onclick="() => SeleccionarFecha(fechaCelda)" class="w-6 h-6 flex items-center justify-center text-[9px] font-bold rounded-md transition-all @(esSeleccionado ? "bg-indigo-600 text-white shadow-md" : "hover:bg-slate-100 text-slate-600")">@dia</button>
+                                    int mesIter = m;
+                                    var fechaPrimerDia = new DateTime(mesVisualizado.Year, mesIter, 1);
+                                    bool esSeleccionado = fechasSeleccionadas.Contains(fechaPrimerDia);
+                                    string nombreMes = new DateTime(2000, mesIter, 1).ToString("MMM", new System.Globalization.CultureInfo("es-ES")).ToUpper();
+                                    
+                                    <button type="button" @onclick="() => SeleccionarMes(mesIter)" class="w-full h-10 flex items-center justify-center text-[10px] font-bold rounded-xl transition-all border @(esSeleccionado ? "bg-indigo-600 border-indigo-600 text-white shadow-md scale-[1.02]" : "bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300 text-slate-600")">
+                                        @nombreMes
+                                    </button>
                                 }
                             </div>
                         </div>
@@ -127,22 +137,27 @@
                     </div>
                 </div>
 
-                <!-- Execute Button -->
-                <button @onclick="ProcesarDescuentos" disabled="@isLoading" class="w-full mt-auto mb-2 bg-[#0f172a] hover:bg-slate-800 text-white py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] transition-all shadow-[0_8px_20px_rgba(15,23,42,0.15)] hover:shadow-[0_12px_25px_rgba(15,23,42,0.25)] active:scale-[0.98] relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer"></div>
-                    <div class="flex items-center justify-center gap-2 relative z-10">
-                        @if (isLoading)
-                        {
-                            <svg class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                            <span>Procesando...</span>
-                        }
-                        else
-                        {
-                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                            <span>Ejecutar Proceso</span>
-                        }
-                    </div>
-                </button>
+                <!-- Execute Buttons -->
+                <div class="flex items-center gap-3 mt-auto mb-2">
+                    <button @onclick="LimpiarFormulario" disabled="@isLoading" class="flex items-center justify-center gap-2 px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-500 border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all disabled:opacity-50" title="Limpiar formulario y eliminar archivos adjuntos">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                    <button @onclick="ProcesarDescuentos" disabled="@isLoading" class="flex-1 bg-[#0f172a] hover:bg-slate-800 text-white py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] transition-all shadow-[0_8px_20px_rgba(15,23,42,0.15)] hover:shadow-[0_12px_25px_rgba(15,23,42,0.25)] active:scale-[0.98] relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer"></div>
+                        <div class="flex items-center justify-center gap-2 relative z-10">
+                            @if (isLoading)
+                            {
+                                <svg class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                <span>Procesando...</span>
+                            }
+                            else
+                            {
+                                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                <span>Procesar Descuentos</span>
+                            }
+                        </div>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -243,9 +258,63 @@
     protected override void OnInitialized()
     {
         grifosDisponibles = ConfiguracionService.ObtenerGrifosDB();
+        LimpiarCarpetas();
+    }
+
+    public void Dispose()
+    {
+        LimpiarCarpetas();
+    }
+
+    private void LimpiarCarpetas()
+    {
+        try
+        {
+            string baseDir = Path.Combine(ConfiguracionService.ObtenerWebRootPath(env.WebRootPath), "uploads");
+            string tempDir = Path.Combine(baseDir, "Temp");
+            string resDir = Path.Combine(baseDir, "Resultados");
+
+            if (Directory.Exists(tempDir))
+            {
+                foreach (var file in Directory.GetFiles(tempDir)) { try { File.Delete(file); } catch { } }
+            }
+            if (Directory.Exists(resDir))
+            {
+                foreach (var file in Directory.GetFiles(resDir)) { try { File.Delete(file); } catch { } }
+            }
+        }
+        catch { }
+    }
+
+    private void LimpiarFormulario()
+    {
+        LimpiarCarpetas();
+        archivoOrigenNombre = "";
+        archivoOrigenRutaTemporal = "";
+        archivoDestinoNombre = "";
+        archivoDestinoRutaTemporal = "";
+        fechasSeleccionadas.Clear();
+        grifosSeleccionadosIds.Clear();
+        resultado = null;
+        ToastService.Success("Formulario y archivos limpiados correctamente.");
+        StateHasChanged();
     }
 
     private bool TodosGrifosSeleccionados => grifosDisponibles.Any() && grifosSeleccionadosIds.Count == grifosDisponibles.Count;
+
+    private bool mostrarDropdownGrifos = false;
+    private void ToggleDropdownGrifos() => mostrarDropdownGrifos = !mostrarDropdownGrifos;
+    private void CerrarDropdownGrifos() => mostrarDropdownGrifos = false;
+
+    private string ObtenerTextoGrifosSeleccionados()
+    {
+        if (grifosSeleccionadosIds.Count == 0) return "Seleccionar grifos";
+        if (TodosGrifosSeleccionados) return "Todos los grifos seleccionados";
+        
+        var nombres = grifosDisponibles.Where(g => grifosSeleccionadosIds.Contains(g.Id)).Select(g => g.Nombre).ToList();
+        if (nombres.Count <= 2) return string.Join(", ", nombres);
+        return $"{nombres.Count} grifos seleccionados";
+    }
 
     private void ToggleSeleccionarTodosGrifos()
     {
@@ -270,22 +339,42 @@
     private void ToggleCalendario() => mostrarCalendario = !mostrarCalendario;
     private void CerrarCalendario() => mostrarCalendario = false;
 
-    private void SeleccionarFecha(DateTime fecha)
+    private string ObtenerTextoFechasSeleccionadas()
     {
-        if (!fechasSeleccionadas.Add(fecha.Date))
+        if (fechasSeleccionadas.Count == 0) return "Seleccionar meses";
+        
+        var mesesAgrupados = fechasSeleccionadas
+            .GroupBy(d => new { d.Year, d.Month })
+            .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
+            .Select(g => new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MMM yyyy", new System.Globalization.CultureInfo("es-ES")))
+            .ToList();
+            
+        return string.Join(", ", mesesAgrupados);
+    }
+
+    private void SeleccionarMes(int mes)
+    {
+        var primerDia = new DateTime(mesVisualizado.Year, mes, 1);
+        int diasEnMes = DateTime.DaysInMonth(mesVisualizado.Year, mes);
+        
+        if (fechasSeleccionadas.Contains(primerDia))
         {
-            fechasSeleccionadas.Remove(fecha.Date);
+            for (int i = 0; i < diasEnMes; i++)
+            {
+                fechasSeleccionadas.Remove(primerDia.AddDays(i));
+            }
+        }
+        else
+        {
+            for (int i = 0; i < diasEnMes; i++)
+            {
+                fechasSeleccionadas.Add(primerDia.AddDays(i));
+            }
         }
     }
 
-    private void MesAnterior() => mesVisualizado = mesVisualizado.AddMonths(-1);
-    private void MesSiguiente() => mesVisualizado = mesVisualizado.AddMonths(1);
-
-    private int ObtenerDesfasePrimerDia()
-    {
-        var primerDia = new DateTime(mesVisualizado.Year, mesVisualizado.Month, 1);
-        return (int)primerDia.DayOfWeek;
-    }
+    private void AnoAnterior() => mesVisualizado = mesVisualizado.AddYears(-1);
+    private void AnoSiguiente() => mesVisualizado = mesVisualizado.AddYears(1);
 
     private async Task CargarArchivoOrigen(InputFileChangeEventArgs e)
     {

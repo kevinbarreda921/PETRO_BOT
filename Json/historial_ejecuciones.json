@@ -150,5 +150,53 @@
     "TotalArchivos": 1,
     "TotalDiasCorrectos": 3,
     "TiempoEjecucionSegundos": 1.0515379
+  },
+  {
+    "Id": "4269faf4-6cb1-4d7d-a7e2-3e43a756c9a5",
+    "RobotNombre": "Registro de Descuentos",
+    "FechaHora": "2026-06-24T19:48:50.5009808-05:00",
+    "TotalArchivos": 1,
+    "TotalDiasCorrectos": 30,
+    "TiempoEjecucionSegundos": 1.2160432
+  },
+  {
+    "Id": "d1ad5c91-84c7-4d4e-90dc-c886b4aca92d",
+    "RobotNombre": "Registro de Descuentos",
+    "FechaHora": "2026-06-24T19:51:09.1487664-05:00",
+    "TotalArchivos": 1,
+    "TotalDiasCorrectos": 30,
+    "TiempoEjecucionSegundos": 1.0179331
+  },
+  {
+    "Id": "f2a0a2cb-43d1-4706-b308-bb610190e5bb",
+    "RobotNombre": "Registro de Descuentos",
+    "FechaHora": "2026-06-24T19:53:45.9557049-05:00",
+    "TotalArchivos": 1,
+    "TotalDiasCorrectos": 61,
+    "TiempoEjecucionSegundos": 0.4683229
+  },
+  {
+    "Id": "96b5851b-a6c7-4985-9f85-17da8dcb8c84",
+    "RobotNombre": "Registro de Descuentos",
+    "FechaHora": "2026-06-24T20:11:05.6102435-05:00",
+    "TotalArchivos": 1,
+    "TotalDiasCorrectos": 61,
+    "TiempoEjecucionSegundos": 1.2335721
+  },
+  {
+    "Id": "6ff84cc0-6d16-4345-8060-ebd7e9079c53",
+    "RobotNombre": "Registro de Ventas",
+    "FechaHora": "2026-06-24T20:17:00.5824963-05:00",
+    "TotalArchivos": 4,
+    "TotalDiasCorrectos": 120,
+    "TiempoEjecucionSegundos": 1.1633773
+  },
+  {
+    "Id": "319838a1-5817-4b53-8d4b-4d12b3755a3b",
+    "RobotNombre": "Registro de Descuentos",
+    "FechaHora": "2026-06-24T20:17:52.7156319-05:00",
+    "TotalArchivos": 1,
+    "TotalDiasCorrectos": 61,
+    "TiempoEjecucionSegundos": 0.4709677
   }
 ]
