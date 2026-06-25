@@ -223,17 +223,34 @@ namespace PETRO_BOT.Services.Services
                 var valRaw = hoja.Cells[r, columnaIndex].Value;
                 if (valRaw == null) continue;
 
-                string valStr = valRaw.ToString()?.Trim() ?? "";
+                string valStr = "";
                 if (valRaw is DateTime dt)
                 {
                     valStr = dt.ToString("d/MM/yyyy");
                 }
-                else if (valRaw is double dbl)
+                else if (valRaw is double dbl && dbl > 10000 && dbl < 100000)
                 {
                     try { valStr = DateTime.FromOADate(dbl).ToString("d/MM/yyyy"); } catch { }
                 }
-                
-                valStr = valStr.Replace(" 00:00:00", "").Replace(" 12:00:00 a. m.", "").Replace(" 12:00:00 a. m.", "").Trim();
+
+                if (string.IsNullOrEmpty(valStr))
+                {
+                    string strRaw = valRaw.ToString() ?? "";
+                    if (strRaw.StartsWith("TOTAL", StringComparison.OrdinalIgnoreCase)) continue;
+
+                    if (DateTime.TryParse(strRaw, out DateTime parsedDate))
+                    {
+                        valStr = parsedDate.ToString("d/MM/yyyy");
+                    }
+                    else
+                    {
+                        valStr = strRaw.Replace(" 00:00:00", "").Replace("00:00:00", "").Replace(" 12:00:00 a. m.", "").Replace(" 12:00:00 a. m.", "").Replace(" 12:00:00 AM", "").Trim();
+                        if (DateTime.TryParseExact(valStr, new[] { "d/M/yyyy", "dd/MM/yyyy", "d/MM/yyyy", "dd/M/yyyy", "yyyy-MM-dd", "MM/dd/yyyy" }, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime exactDt))
+                        {
+                            valStr = exactDt.ToString("d/MM/yyyy");
+                        }
+                    }
+                }
                 
                 if (!string.IsNullOrEmpty(valStr) && !mapa.ContainsKey(valStr))
                 {

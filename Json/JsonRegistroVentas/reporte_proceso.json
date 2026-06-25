@@ -1,1 +1,986 @@
-[]
+[
+  {
+    "Grifo": "BRASIL",
+    "Archivo": "PARTE DIARIO 3 MARZO---BRASIL.xlsx",
+    "Mensajes": [
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 1/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 2/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 3/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 4/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 5/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 6/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 7/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 8/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 9/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 10/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 11/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 12/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 13/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 14/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 15/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 16/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 17/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 18/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 19/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 20/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 21/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 22/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 23/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 24/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 25/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 26/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 27/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 28/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 29/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 30/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 31/03/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 1/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 2/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 3/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 4/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 5/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 6/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 7/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 8/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 9/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 10/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 11/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 12/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 13/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 14/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 15/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 16/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 17/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 18/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 19/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 20/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 21/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 22/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 23/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 24/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 25/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 26/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 27/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 28/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 29/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 30/03/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 31/03/2026 guardado con \u00E9xito"
+      }
+    ]
+  },
+  {
+    "Grifo": "BRASIL",
+    "Archivo": "PARTE DIARIO 3 ABRIL---BRASIL.xlsx",
+    "Mensajes": [
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 1/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 2/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 3/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 4/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 5/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 6/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 7/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 8/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 9/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 10/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 11/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 12/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 13/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 14/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 15/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 16/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 17/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 18/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 19/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 20/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 21/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 22/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 23/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 24/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 25/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 26/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 27/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 28/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 29/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 30/04/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 1/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 2/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 3/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 4/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 5/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 6/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 7/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 8/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 9/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 10/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 11/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 12/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 13/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 14/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 15/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 16/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 17/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 18/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 19/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 20/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 21/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 22/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 23/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 24/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 25/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 26/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 27/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 28/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 29/04/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 30/04/2026 guardado con \u00E9xito"
+      }
+    ]
+  },
+  {
+    "Grifo": "BRASIL",
+    "Archivo": "PARTE DIARIO 3 FEBRERO---BRASIL.xlsx",
+    "Mensajes": [
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 1/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 2/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 3/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 4/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 5/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 6/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 7/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 8/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 9/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 10/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 11/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 12/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 13/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 14/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 15/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 16/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 17/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 18/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 19/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 20/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 21/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 22/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 23/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 24/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 25/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 26/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 27/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 28/02/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 1/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 2/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 3/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 4/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 5/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 6/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 7/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 8/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 9/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 10/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 11/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 12/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 13/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 14/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 15/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 16/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 17/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 18/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 19/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 20/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 21/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 22/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 23/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 24/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 25/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 26/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 27/02/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 28/02/2026 guardado con \u00E9xito"
+      }
+    ]
+  },
+  {
+    "Grifo": "BRASIL",
+    "Archivo": "PARTE DIARIO 3 ENERO---BRASIL.xlsx",
+    "Mensajes": [
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 1/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 2/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 3/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 4/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 5/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 6/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 7/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 8/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 9/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 10/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 11/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 12/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 13/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 14/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 15/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 16/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 17/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 18/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 19/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 20/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 21/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 22/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 23/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 24/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 25/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 26/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 27/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 28/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 29/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 30/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 31/01/2026 procesado correctamente"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 1/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 2/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 3/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 4/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 5/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 6/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 7/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 8/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 9/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 10/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 11/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 12/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 13/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 14/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 15/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 16/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 17/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 18/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 19/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 20/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 21/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 22/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 23/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 24/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 25/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 26/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 27/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 28/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 29/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 30/01/2026 guardado con \u00E9xito"
+      },
+      {
+        "Estado": "INFO",
+        "Descripcion": "El grifo BRASIL, Estaci\u00F3n: EESS-BRASIL del dia 31/01/2026 guardado con \u00E9xito"
+      }
+    ]
+  }
+]

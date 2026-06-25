@@ -132,19 +132,41 @@ namespace PETRO_BOT.Services.Services
 
             for (int filaActual = 1; filaActual <= maxRow; filaActual++)
             {
-                var valorRaw = hoja.Cells[filaActual, 2].Value?.ToString();
+                var valRaw = hoja.Cells[filaActual, 2].Value;
+                if (valRaw == null) continue;
 
-                if (string.IsNullOrEmpty(valorRaw)) continue;
+                string valorCelda = "";
 
-                // string valorCelda = valorRaw.Replace("12:00:00 a. m.", "").Trim(); //trabajo
-                string valorCelda = valorRaw.Replace("00:00:00", "").Trim(); //casas
-
-                if (valorCelda.StartsWith("TOTAL", StringComparison.OrdinalIgnoreCase))
+                if (valRaw is DateTime dt)
                 {
-                    continue;
+                    valorCelda = dt.ToString("d/MM/yyyy");
+                }
+                else if (valRaw is double dbl && dbl > 10000 && dbl < 100000)
+                {
+                    try { valorCelda = DateTime.FromOADate(dbl).ToString("d/MM/yyyy"); } catch { }
+                }
+                
+                if (string.IsNullOrEmpty(valorCelda))
+                {
+                    string strRaw = valRaw.ToString() ?? "";
+                    if (strRaw.StartsWith("TOTAL", StringComparison.OrdinalIgnoreCase)) continue;
+
+                    if (DateTime.TryParse(strRaw, out DateTime parsedDate))
+                    {
+                        valorCelda = parsedDate.ToString("d/MM/yyyy");
+                    }
+                    else
+                    {
+                        valorCelda = strRaw.Replace(" 00:00:00", "").Replace("00:00:00", "").Replace(" 12:00:00 a. m.", "").Replace(" 12:00:00 a. m.", "").Replace(" 12:00:00 AM", "").Trim();
+                        // Try strict formats just in case
+                        if (DateTime.TryParseExact(valorCelda, new[] { "d/M/yyyy", "dd/MM/yyyy", "d/MM/yyyy", "dd/M/yyyy", "yyyy-MM-dd", "MM/dd/yyyy" }, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime exactDt))
+                        {
+                            valorCelda = exactDt.ToString("d/MM/yyyy");
+                        }
+                    }
                 }
 
-                if (!mapaFechasFilas.ContainsKey(valorCelda))
+                if (!string.IsNullOrEmpty(valorCelda) && !mapaFechasFilas.ContainsKey(valorCelda))
                 {
                     mapaFechasFilas.Add(valorCelda, filaActual);
                 }

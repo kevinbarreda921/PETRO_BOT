@@ -198,5 +198,21 @@
     "TotalArchivos": 1,
     "TotalDiasCorrectos": 61,
     "TiempoEjecucionSegundos": 0.4709677
+  },
+  {
+    "Id": "85667632-0b8e-45f7-a838-6a12ace8f1ac",
+    "RobotNombre": "Registro de Ventas",
+    "FechaHora": "2026-06-24T21:03:20.6536252-05:00",
+    "TotalArchivos": 1,
+    "TotalDiasCorrectos": 30,
+    "TiempoEjecucionSegundos": 2.5723587
+  },
+  {
+    "Id": "26811340-d060-44ea-8694-f6c4d924fc4d",
+    "RobotNombre": "Registro de Ventas",
+    "FechaHora": "2026-06-24T23:03:32.8124391-05:00",
+    "TotalArchivos": 4,
+    "TotalDiasCorrectos": 120,
+    "TiempoEjecucionSegundos": 2.2797147
   }
 ]
