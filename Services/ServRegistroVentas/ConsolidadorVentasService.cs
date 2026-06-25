@@ -34,8 +34,10 @@ namespace PETRO_BOT.Services.Services
             }
 
 
-            string rutaProyecto = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\"));
+            string rutaProyecto = ConfiguracionService.ObtenerRutaBase();
             string carpetaRegistroVentas = Path.Combine(rutaProyecto, "wwwroot", "uploads", "RegistroVentas");
+            
+            if (!Directory.Exists(carpetaRegistroVentas)) Directory.CreateDirectory(carpetaRegistroVentas);
 
             var archivosExcel = Directory.GetFiles(carpetaRegistroVentas, "*.xlsx");
             if (archivosExcel.Length == 0)

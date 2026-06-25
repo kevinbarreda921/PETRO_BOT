@@ -21,7 +21,7 @@ namespace PETRO_BOT.Services.Services
 
         public ConcurrentBag<ArchivoGrifo> LeerPartesDiarios()
         {
-            string rutaProyecto = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\"));
+            string rutaProyecto = ConfiguracionService.ObtenerRutaBase();
             string carpeta = Path.Combine(rutaProyecto, "wwwroot", "uploads", "ReporteDiario");
 
             if (!Directory.Exists(carpeta)) return new ConcurrentBag<ArchivoGrifo>();
@@ -391,7 +391,7 @@ namespace PETRO_BOT.Services.Services
 
         public ConcurrentBag<ArchivoGrifo> LeerPartesDiarios_PorDia(string fechaAProcesar)
         {
-            string rutaProyecto = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\"));
+            string rutaProyecto = ConfiguracionService.ObtenerRutaBase();
             string carpeta = Path.Combine(rutaProyecto, "wwwroot", "uploads", "ReporteDiario");
 
             if (!Directory.Exists(carpeta)) return new ConcurrentBag<ArchivoGrifo>();

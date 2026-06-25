@@ -899,7 +899,7 @@
             // Limpiar la memoria de logs estáticos acumulada en RAM
             LoggerService.LimpiarLogs();
 
-            string rutaLog = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Json\JsonRegistroVentas\", "reporte_proceso.json"));
+            string rutaLog = PETRO_BOT.Services.Services.ConfiguracionService.ObtenerRutaReporteProceso();
             System.IO.File.WriteAllText(rutaLog, "[]");
         }
         catch (Exception ex)
@@ -1079,7 +1079,7 @@
     {
         try
         {
-            string rutaLog = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Json\JsonRegistroVentas\", "reporte_proceso.json"));
+            string rutaLog = PETRO_BOT.Services.Services.ConfiguracionService.ObtenerRutaReporteProceso();
             if (System.IO.File.Exists(rutaLog))
             {
                 string jsonContent = await System.IO.File.ReadAllTextAsync(rutaLog);
@@ -1283,7 +1283,7 @@
         }
         finally
         {
-            string rutaLog = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Json\JsonRegistroVentas\", "reporte_proceso.json"));
+            string rutaLog = PETRO_BOT.Services.Services.ConfiguracionService.ObtenerRutaReporteProceso();
             LoggerService.GuardarJson(rutaLog);
             await CargarReporteProceso();
             

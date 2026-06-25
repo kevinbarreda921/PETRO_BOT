@@ -13,7 +13,7 @@ namespace PETRO_BOT.Services.Shared
 
         public HistorialService()
         {
-            _rutaArchivo = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Json\", "historial_ejecuciones.json"));
+            _rutaArchivo = Path.Combine(PETRO_BOT.Services.Services.ConfiguracionService.ObtenerRutaBase(), "Json", "historial_ejecuciones.json");
             
             // Ensure directory exists
             var dir = Path.GetDirectoryName(_rutaArchivo);

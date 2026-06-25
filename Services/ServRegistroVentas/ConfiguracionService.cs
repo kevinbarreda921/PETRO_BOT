@@ -29,46 +29,41 @@ namespace PETRO_BOT.Services.Services
             CargarConfiguracion();
         }
 
-        public static string ObtenerWebRootPath(string fallbackWebRoot)
+        public static string ObtenerRutaBase()
         {
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             if (baseDir.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}") || 
                 baseDir.Contains($"{Path.AltDirectorySeparatorChar}bin{Path.AltDirectorySeparatorChar}") ||
                 baseDir.EndsWith("bin") || 
-                !Directory.Exists(Path.Combine(baseDir, "wwwroot")))
+                baseDir.EndsWith("bin" + Path.DirectorySeparatorChar))
             {
-                return Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\wwwroot"));
+                return Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\"));
             }
+            return baseDir;
+        }
+
+        public static string ObtenerWebRootPath(string fallbackWebRoot)
+        {
+            string baseDir = ObtenerRutaBase();
+            string webRoot = Path.Combine(baseDir, "wwwroot");
+            if (Directory.Exists(webRoot)) return webRoot;
             return fallbackWebRoot;
         }
 
         private static string GetDatabasePath()
         {
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            
-            // Check if we are running in development (inside bin folder)
-            if (baseDir.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}") || 
-                baseDir.Contains($"{Path.AltDirectorySeparatorChar}bin{Path.AltDirectorySeparatorChar}") ||
-                baseDir.EndsWith("bin") || 
-                !Directory.Exists(Path.Combine(baseDir, "wwwroot")))
-            {
-                string devPath = Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\wwwroot\bd\DB_PETRO_BOT.db"));
-                string devDir = Path.GetDirectoryName(devPath) ?? "";
-                if (!Directory.Exists(devDir))
-                {
-                    Directory.CreateDirectory(devDir);
-                }
-                return devPath;
-            }
-            
-            // Production path
-            string prodPath = Path.Combine(baseDir, "wwwroot", "bd", "DB_PETRO_BOT.db");
-            string prodDir = Path.GetDirectoryName(prodPath) ?? "";
-            if (!Directory.Exists(prodDir))
-            {
-                Directory.CreateDirectory(prodDir);
-            }
-            return prodPath;
+            string baseDir = ObtenerRutaBase();
+            string dbPath = Path.Combine(baseDir, "wwwroot", "bd", "DB_PETRO_BOT.db");
+            string dbDir = Path.GetDirectoryName(dbPath) ?? "";
+            if (!Directory.Exists(dbDir)) Directory.CreateDirectory(dbDir);
+            return dbPath;
+        }
+
+        public static string ObtenerRutaReporteProceso()
+        {
+            string jsonDir = Path.Combine(ObtenerRutaBase(), "Json", "JsonRegistroVentas");
+            if (!Directory.Exists(jsonDir)) Directory.CreateDirectory(jsonDir);
+            return Path.Combine(jsonDir, "reporte_proceso.json");
         }
 
         private static string GetConnectionString()
@@ -218,12 +213,9 @@ namespace PETRO_BOT.Services.Services
 
             if (count == 0)
             {
-                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                string rutaJson = Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\Json\JsonRegistroVentas\", "config_grifos.json"));
-                if (!File.Exists(rutaJson))
-                {
-                    rutaJson = Path.Combine(baseDir, "Json", "JsonRegistroVentas", "config_grifos.json");
-                }
+                string jsonDir = Path.Combine(ObtenerRutaBase(), "Json", "JsonRegistroVentas");
+                if (!Directory.Exists(jsonDir)) Directory.CreateDirectory(jsonDir);
+                string rutaJson = Path.Combine(jsonDir, "config_grifos.json");
 
                 if (File.Exists(rutaJson))
                 {
