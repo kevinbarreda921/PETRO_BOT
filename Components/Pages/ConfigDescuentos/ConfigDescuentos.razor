@@ -130,7 +130,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
                                 <div class="flex flex-col gap-1">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">Hoja Excel</label>
                                     <input type="text" readonly class="w-full rounded-xl px-3 py-2 text-xs font-bold border border-slate-200 bg-slate-100 text-slate-600 select-none outline-none min-h-[34px]" value="@(grifoSeleccionado.RegistroVentasWrite?.NombreHoja)" />
@@ -142,6 +142,10 @@
                                 <div class="flex flex-col gap-1">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">Tarjeta GLP</label>
                                     <input type="text" readonly class="w-full rounded-xl px-3 py-2 text-xs font-bold border border-slate-200 bg-slate-100 text-slate-600 select-none outline-none min-h-[34px]" value="@(grifoSeleccionado.RegistroVentasWrite?.Total_Tarjeta_de_Credito_GLP)" />
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[8px] font-black text-slate-500 uppercase">Tarjeta GNV</label>
+                                    <input type="text" readonly class="w-full rounded-xl px-3 py-2 text-xs font-bold border border-slate-200 bg-slate-100 text-slate-600 select-none outline-none min-h-[34px]" value="@(grifoSeleccionado.RegistroVentasWrite?.Total_Tarjeta_de_Credito_GNV)" />
                                 </div>
                                 <div class="flex flex-col gap-1">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">Desc. Líquidos</label>
@@ -457,6 +461,7 @@
                                                         if (string.Equals(grifoSeleccionado.RegistroDescuentosWrite.ColumnaFecha, currentCellLetter, StringComparison.OrdinalIgnoreCase)) mappedProp = "ColumnaFecha";
                                                         else if (string.Equals(grifoSeleccionado.RegistroDescuentosWrite.TarjetaLiquidos, currentCellLetter, StringComparison.OrdinalIgnoreCase)) mappedProp = "TarjetaLiquidos";
                                                         else if (string.Equals(grifoSeleccionado.RegistroDescuentosWrite.TarjetaGLP, currentCellLetter, StringComparison.OrdinalIgnoreCase)) mappedProp = "TarjetaGLP";
+                                                        else if (string.Equals(grifoSeleccionado.RegistroDescuentosWrite.TarjetaGNV, currentCellLetter, StringComparison.OrdinalIgnoreCase)) mappedProp = "TarjetaGNV";
                                                         else if (string.Equals(grifoSeleccionado.RegistroDescuentosWrite.DescLiquidos, currentCellLetter, StringComparison.OrdinalIgnoreCase)) mappedProp = "DescLiquidos";
                                                         else if (string.Equals(grifoSeleccionado.RegistroDescuentosWrite.DescGLP, currentCellLetter, StringComparison.OrdinalIgnoreCase)) mappedProp = "DescGLP";
                                                     }
@@ -1211,13 +1216,14 @@
             "ColumnaFecha" => grifoSeleccionado.RegistroDescuentosWrite.ColumnaFecha,
             "TarjetaLiquidos" => grifoSeleccionado.RegistroDescuentosWrite.TarjetaLiquidos,
             "TarjetaGLP" => grifoSeleccionado.RegistroDescuentosWrite.TarjetaGLP,
+            "TarjetaGNV" => grifoSeleccionado.RegistroDescuentosWrite.TarjetaGNV,
             "DescLiquidos" => grifoSeleccionado.RegistroDescuentosWrite.DescLiquidos,
             "DescGLP" => grifoSeleccionado.RegistroDescuentosWrite.DescGLP,
             _ => ""
         };
     }
 
-    private List<string> writeProps = new List<string> { "ColumnaFecha", "TarjetaLiquidos", "TarjetaGLP", "DescLiquidos", "DescGLP" };
+    private List<string> writeProps = new List<string> { "ColumnaFecha", "TarjetaLiquidos", "TarjetaGLP", "TarjetaGNV", "DescLiquidos", "DescGLP" };
 
     private string GetFriendlyWriteLabel(string propName)
     {
@@ -1226,6 +1232,7 @@
             "ColumnaFecha" => "Columna Fecha",
             "TarjetaLiquidos" => "Tarjeta Líquidos",
             "TarjetaGLP" => "Tarjeta GLP",
+            "TarjetaGNV" => "Tarjeta GNV",
             "DescLiquidos" => "Desc. Líquidos",
             "DescGLP" => "Desc. GLP",
             _ => propName

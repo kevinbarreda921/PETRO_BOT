@@ -172,6 +172,7 @@ namespace PETRO_BOT.Models.Configuracion
         public string ColumnaFecha { get; set; } = "";
         public string TarjetaLiquidos { get; set; } = "";
         public string TarjetaGLP { get; set; } = "";
+        public string TarjetaGNV { get; set; } = "";
         public string DescLiquidos { get; set; } = "";
         public string DescGLP { get; set; } = "";
     }

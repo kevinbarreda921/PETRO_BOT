@@ -1164,9 +1164,9 @@ namespace PETRO_BOT.Services.Services
                                 w.Hermes_monto_GNV1, w.Hermes_monto_GNV2, w.Id,
                                 c.FilaVariaCombusNombre, c.FilaVariaCombusMonto, c.VariaCombusNombre,
                                 c.ColumnaEESS, c.FilaEESS, c.EESS,
-                                -- REGISTRO_DESCUENTOS_WRITE columns (72 to 80)
+                                -- REGISTRO_DESCUENTOS_WRITE columns (72 to 81)
                                 dw.Id, dw.NombreHoja, dw.Plantilla, dw.FilaSeleccion, dw.ColumnaFecha,
-                                dw.TarjetaLiquidos, dw.TarjetaGLP, dw.DescLiquidos, dw.DescGLP
+                                dw.TarjetaLiquidos, dw.TarjetaGLP, dw.DescLiquidos, dw.DescGLP, dw.TarjetaGNV
                         FROM REGISTRO_VENTAS_GRIFOS g
                         INNER JOIN REGISTRO_VENTAS_CONFIGURACION c ON g.Id = c.GrifoId
                         LEFT JOIN REGISTRO_VENTAS_WRITE w ON g.Id = w.GrifoId
@@ -1279,7 +1279,8 @@ namespace PETRO_BOT.Services.Services
                                     TarjetaLiquidos = reader.IsDBNull(77) ? "" : reader.GetString(77),
                                     TarjetaGLP = reader.IsDBNull(78) ? "" : reader.GetString(78),
                                     DescLiquidos = reader.IsDBNull(79) ? "" : reader.GetString(79),
-                                    DescGLP = reader.IsDBNull(80) ? "" : reader.GetString(80)
+                                    DescGLP = reader.IsDBNull(80) ? "" : reader.GetString(80),
+                                    TarjetaGNV = reader.IsDBNull(81) ? "" : reader.GetString(81)
                                 }
                             };
                             grifos.Add(grifo);
@@ -1523,10 +1524,10 @@ namespace PETRO_BOT.Services.Services
                 string insertDescWriteConfig = @"
                     INSERT INTO REGISTRO_DESCUENTOS_WRITE (
                         GrifoId, NombreHoja, Plantilla, FilaSeleccion,
-                        ColumnaFecha, TarjetaLiquidos, TarjetaGLP, DescLiquidos, DescGLP
+                        ColumnaFecha, TarjetaLiquidos, TarjetaGLP, DescLiquidos, DescGLP, TarjetaGNV
                     ) VALUES (
                         @GrifoId, @NombreHoja, @Plantilla, @FilaSeleccion,
-                        @ColumnaFecha, @TarjetaLiquidos, @TarjetaGLP, @DescLiquidos, @DescGLP
+                        @ColumnaFecha, @TarjetaLiquidos, @TarjetaGLP, @DescLiquidos, @DescGLP, @TarjetaGNV
                     );";
 
                 using (var cmd = new SqliteCommand("DELETE FROM REGISTRO_DESCUENTOS_WRITE WHERE GrifoId = @GrifoId;", connection, transaction))
@@ -1547,6 +1548,7 @@ namespace PETRO_BOT.Services.Services
                     cmd.Parameters.AddWithValue("@TarjetaGLP", dw.TarjetaGLP ?? "");
                     cmd.Parameters.AddWithValue("@DescLiquidos", dw.DescLiquidos ?? "");
                     cmd.Parameters.AddWithValue("@DescGLP", dw.DescGLP ?? "");
+                    cmd.Parameters.AddWithValue("@TarjetaGNV", dw.TarjetaGNV ?? "");
                     cmd.ExecuteNonQuery();
                 }
 

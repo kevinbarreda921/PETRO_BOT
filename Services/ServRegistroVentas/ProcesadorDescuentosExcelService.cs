@@ -73,8 +73,7 @@ namespace PETRO_BOT.Services.Services
                 
                 File.Copy(rutaExcelDestino, archivoSalida, true);
 
-                using var streamDestino = new FileStream(archivoSalida, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
-                using var packageDestino = new ExcelPackage(streamDestino);
+                using var packageDestino = new ExcelPackage(new FileInfo(archivoSalida));
 
                 foreach (var grifo in grifosDB)
                 {
@@ -175,21 +174,23 @@ namespace PETRO_BOT.Services.Services
             return resultado;
         }
 
-        private (bool TieneDatos, decimal TarjetaLiquidos, decimal TarjetaGLP, decimal DescLiquidos, decimal DescGLP) LeerValoresOrigen(ExcelWorksheet hoja, int fila, RegistroVentasWriteConfig config)
+        private (bool TieneDatos, decimal TarjetaLiquidos, decimal TarjetaGLP, decimal TarjetaGNV, decimal DescLiquidos, decimal DescGLP) LeerValoresOrigen(ExcelWorksheet hoja, int fila, RegistroVentasWriteConfig config)
         {
             decimal tLiq = LeerCelda(hoja, fila, config.Total_Tarjeta_de_Credito_Liquidos);
             decimal tGlp = LeerCelda(hoja, fila, config.Total_Tarjeta_de_Credito_GLP);
+            decimal tGnv = LeerCelda(hoja, fila, config.Total_Tarjeta_de_Credito_GNV);
             decimal dLiq = LeerCelda(hoja, fila, config.DescuentoLiquidos);
             decimal dGlp = LeerCelda(hoja, fila, config.DescuentoGLP);
 
-            bool tieneDatos = (tLiq != 0 || tGlp != 0 || dLiq != 0 || dGlp != 0);
-            return (tieneDatos, tLiq, tGlp, dLiq, dGlp);
+            bool tieneDatos = (tLiq != 0 || tGlp != 0 || tGnv != 0 || dLiq != 0 || dGlp != 0);
+            return (tieneDatos, tLiq, tGlp, tGnv, dLiq, dGlp);
         }
 
-        private void EscribirValoresDestino(ExcelWorksheet hoja, int fila, (bool TieneDatos, decimal TarjetaLiquidos, decimal TarjetaGLP, decimal DescLiquidos, decimal DescGLP) data, RegistroDescuentosWriteConfig config)
+        private void EscribirValoresDestino(ExcelWorksheet hoja, int fila, (bool TieneDatos, decimal TarjetaLiquidos, decimal TarjetaGLP, decimal TarjetaGNV, decimal DescLiquidos, decimal DescGLP) data, RegistroDescuentosWriteConfig config)
         {
             EscribirCelda(hoja, fila, config.TarjetaLiquidos, data.TarjetaLiquidos);
             EscribirCelda(hoja, fila, config.TarjetaGLP, data.TarjetaGLP);
+            EscribirCelda(hoja, fila, config.TarjetaGNV, data.TarjetaGNV);
             EscribirCelda(hoja, fila, config.DescLiquidos, data.DescLiquidos);
             EscribirCelda(hoja, fila, config.DescGLP, data.DescGLP);
         }

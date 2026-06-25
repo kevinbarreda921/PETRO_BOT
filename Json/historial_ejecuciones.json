@@ -126,5 +126,29 @@
     "TotalArchivos": 1,
     "TotalDiasCorrectos": 3,
     "TiempoEjecucionSegundos": 1.295984
+  },
+  {
+    "Id": "39970c0f-f5e7-442b-b580-1f41a597a0ae",
+    "RobotNombre": "Registro de Descuentos",
+    "FechaHora": "2026-06-24T19:01:02.109876-05:00",
+    "TotalArchivos": 1,
+    "TotalDiasCorrectos": 2,
+    "TiempoEjecucionSegundos": 1.7909367
+  },
+  {
+    "Id": "54f3eae6-9d94-4b8e-9455-3fbaeae13056",
+    "RobotNombre": "Registro de Descuentos",
+    "FechaHora": "2026-06-24T19:14:55.6982431-05:00",
+    "TotalArchivos": 1,
+    "TotalDiasCorrectos": 2,
+    "TiempoEjecucionSegundos": 1.3065866
+  },
+  {
+    "Id": "093003c2-3468-4056-a188-ebeb6ba1d6b6",
+    "RobotNombre": "Registro de Descuentos",
+    "FechaHora": "2026-06-24T19:40:52.8732433-05:00",
+    "TotalArchivos": 1,
+    "TotalDiasCorrectos": 3,
+    "TiempoEjecucionSegundos": 1.0515379
   }
 ]
