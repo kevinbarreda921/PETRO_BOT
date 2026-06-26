@@ -21,7 +21,7 @@ namespace PETRO_BOT.Services.Services
         public ValidacionPrecioService(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("SqlPetroBot") 
-                ?? "Data Source=DESKTOP-OL0ABFN;Initial Catalog=BD_PETROBOT;Integrated Security=True;Persist Security Info=False;Pooling=False;MultipleActiveResultSets=False;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;Packet Size=4096;Application Name=\"SQL Server Management Studio\";Command Timeout=0";
+                ?? "Data Source=.\\SQLEXPRESS;Initial Catalog=BD_PETROBOT;Integrated Security=True;Persist Security Info=False;Pooling=False;MultipleActiveResultSets=False;Encrypt=False;TrustServerCertificate=False;Application Name=\"SQL Server Management Studio\"";
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
 
