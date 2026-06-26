@@ -102,14 +102,21 @@
                     </div>
                 </div>
 
-                <!-- BOTÓN DESCARGAR -->
-                <div class="flex flex-col gap-1.5 w-full md:w-auto self-end pt-5 md:pt-0">
+                <!-- BOTONES DESCARGAR -->
+                <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto self-end pt-5 md:pt-0">
                     <button type="button"
                             disabled="@(dtSP == null || dtSP.Rows.Count == 0 || cargandoSP || estaProcesando)"
                             @onclick="DescargarExcel"
-                            class="bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-black text-[10px] uppercase tracking-wider px-6 py-3.5 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed h-[44px]">
+                            class="bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-black text-[10px] uppercase tracking-wider px-5 py-3.5 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed h-[44px]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         <span>Descargar Excel</span>
+                    </button>
+                    <button type="button"
+                            disabled="@(!hayRegistrosBD || estaProcesando || cargandoSP)"
+                            @onclick="AbrirModalMasivoAsync"
+                            class="bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-black text-[10px] uppercase tracking-wider px-5 py-3.5 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed h-[44px]">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        <span>Descargar Masivo</span>
                     </button>
                 </div>
 
@@ -238,6 +245,96 @@
     }
 
 </div>
+
+@if (mostrarModalMasivo)
+{
+    <div class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/75 backdrop-blur-md animate-fade-in p-4 sm:p-6 lg:p-10" @onclick="() => mostrarModalMasivo = false">
+        <div class="bg-white border border-slate-200 rounded-[32px] p-6 sm:p-8 lg:p-10 max-w-6xl w-full h-[85vh] max-h-[850px] min-h-[500px] shadow-2xl flex flex-col gap-6 overflow-hidden cursor-default animate-scale-up" @onclick:stopPropagation="true">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-inner">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-slate-800 uppercase tracking-wide">Descarga Masiva Consolidada</h3>
+                        <p class="text-xs text-slate-400 font-mono">Seleccione los grifos y periodos a consolidar en un solo Excel multigrifo</p>
+                    </div>
+                </div>
+                <button type="button" @onclick="() => mostrarModalMasivo = false" class="text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-100 transition-all cursor-pointer">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Body (2 Columnas Grandes Responsive) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-hidden flex-1 min-h-0">
+                <!-- Caja Grifos -->
+                <div class="border border-slate-200 bg-slate-50 rounded-2xl p-4 sm:p-5 flex flex-col gap-3 overflow-hidden h-full shadow-xs">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-3 shrink-0">
+                        <label class="flex items-center gap-2.5 text-xs font-black text-slate-700 cursor-pointer select-none">
+                            <input type="checkbox" checked="@(localesSeleccionadosMasivo.Count == localesMasivo.Count && localesMasivo.Count > 0)" @onchange="ToggleSeleccionarTodosLocales" class="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer" />
+                            <span>TODOS LOS GRIFOS (@localesSeleccionadosMasivo.Count/@localesMasivo.Count)</span>
+                        </label>
+                    </div>
+                    <div class="overflow-y-auto custom-scrollbar flex-1 flex flex-col gap-1.5 pr-1 min-h-0">
+                        @foreach (var loc in localesMasivo)
+                        {
+                            <label class="flex items-center gap-2.5 text-xs font-mono text-slate-600 hover:bg-slate-200/60 p-2 rounded-xl cursor-pointer transition-all select-none shrink-0">
+                                <input type="checkbox" checked="@localesSeleccionadosMasivo.Contains(loc)" @onchange="e => ToggleLocalMasivo(loc, e)" class="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer shrink-0" />
+                                <span class="truncate font-medium">@loc</span>
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                <!-- Caja Periodos -->
+                <div class="border border-slate-200 bg-slate-50 rounded-2xl p-4 sm:p-5 flex flex-col gap-3 overflow-hidden h-full shadow-xs">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-3 shrink-0">
+                        <label class="flex items-center gap-2.5 text-xs font-black text-slate-700 cursor-pointer select-none">
+                            <input type="checkbox" checked="@(periodosSeleccionadosMasivo.Count == periodosMasivo.Count && periodosMasivo.Count > 0)" @onchange="ToggleSeleccionarTodosPeriodos" class="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer" />
+                            <span>TODOS LOS PERIODOS (@periodosSeleccionadosMasivo.Count/@periodosMasivo.Count)</span>
+                        </label>
+                    </div>
+                    <div class="overflow-y-auto custom-scrollbar flex-1 flex flex-col gap-1.5 pr-1 min-h-0">
+                        @foreach (var per in periodosMasivo)
+                        {
+                            <label class="flex items-center gap-2.5 text-xs font-mono text-slate-600 hover:bg-slate-200/60 p-2 rounded-xl cursor-pointer transition-all select-none shrink-0">
+                                <input type="checkbox" checked="@periodosSeleccionadosMasivo.Contains(per)" @onchange="e => TogglePeriodoMasivo(per, e)" class="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer shrink-0" />
+                                <span class="font-medium">@per</span>
+                            </label>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100 pt-4 shrink-0">
+                <div class="text-xs font-mono text-slate-500">
+                    Total a consultar: <span class="font-bold text-blue-600 text-sm">@(localesSeleccionadosMasivo.Count * periodosSeleccionadosMasivo.Count) reportes SP</span>
+                </div>
+                <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                    <button type="button" @onclick="() => mostrarModalMasivo = false" class="px-6 py-3 rounded-2xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-100 transition-all cursor-pointer h-[44px]">
+                        Cancelar
+                    </button>
+                    <button type="button"
+                            disabled="@(localesSeleccionadosMasivo.Count == 0 || periodosSeleccionadosMasivo.Count == 0 || descargandoMasivo)"
+                            @onclick="DescargarConsolidadoMasivoAsync"
+                            class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-black text-xs uppercase tracking-wider px-8 py-3 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed h-[44px]">
+                        @if (descargandoMasivo)
+                        {
+                            <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <span>Consolidando...</span>
+                        }
+                        else
+                        {
+                            <span>Descargar Consolidado</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
     private bool cargandoInicial = true;
@@ -535,6 +632,122 @@
         finally
         {
             estaProcesando = false;
+        }
+    }
+
+    private bool mostrarModalMasivo = false;
+    private bool descargandoMasivo = false;
+    private List<string> localesMasivo = new();
+    private List<string> periodosMasivo = new();
+    private HashSet<string> localesSeleccionadosMasivo = new();
+    private HashSet<string> periodosSeleccionadosMasivo = new();
+
+    private async Task AbrirModalMasivoAsync()
+    {
+        localesMasivo = await ValidacionPrecioService.ObtenerLocalesDisponiblesAsync();
+        periodosMasivo = await ValidacionPrecioService.ObtenerTodosPeriodosDisponiblesAsync();
+        localesSeleccionadosMasivo = new HashSet<string>(localesMasivo);
+        periodosSeleccionadosMasivo = new HashSet<string>(periodosMasivo);
+        mostrarModalMasivo = true;
+    }
+
+    private void ToggleSeleccionarTodosLocales(ChangeEventArgs e)
+    {
+        bool check = (bool)(e.Value ?? false);
+        if (check) localesSeleccionadosMasivo = new HashSet<string>(localesMasivo);
+        else localesSeleccionadosMasivo.Clear();
+    }
+
+    private void ToggleLocalMasivo(string loc, ChangeEventArgs e)
+    {
+        bool check = (bool)(e.Value ?? false);
+        if (check) localesSeleccionadosMasivo.Add(loc);
+        else localesSeleccionadosMasivo.Remove(loc);
+    }
+
+    private void ToggleSeleccionarTodosPeriodos(ChangeEventArgs e)
+    {
+        bool check = (bool)(e.Value ?? false);
+        if (check) periodosSeleccionadosMasivo = new HashSet<string>(periodosMasivo);
+        else periodosSeleccionadosMasivo.Clear();
+    }
+
+    private void TogglePeriodoMasivo(string per, ChangeEventArgs e)
+    {
+        bool check = (bool)(e.Value ?? false);
+        if (check) periodosSeleccionadosMasivo.Add(per);
+        else periodosSeleccionadosMasivo.Remove(per);
+    }
+
+    private async Task DescargarConsolidadoMasivoAsync()
+    {
+        if (localesSeleccionadosMasivo.Count == 0 || periodosSeleccionadosMasivo.Count == 0) return;
+
+        descargandoMasivo = true;
+        StateHasChanged();
+
+        try
+        {
+            string downloadFolder = Path.Combine("wwwroot", "uploads", "DescargasSP");
+            if (Directory.Exists(downloadFolder))
+            {
+                try { Directory.Delete(downloadFolder, true); } catch { }
+            }
+
+            using var wb = new XLWorkbook();
+            int hojasCreadas = 0;
+
+            foreach (var loc in localesMasivo.Where(l => localesSeleccionadosMasivo.Contains(l)))
+            {
+                foreach (var per in periodosMasivo.Where(p => periodosSeleccionadosMasivo.Contains(p)))
+                {
+                    var dt = await ValidacionPrecioService.EjecutarSPReportePrecioListaAsync(loc, per);
+                    if (dt != null && dt.Rows.Count > 0)
+                    {
+                        string cleanLoc = loc.Replace("EESS-", "").Replace(" ", "_");
+                        string nombreHoja = $"{cleanLoc}_{per}";
+                        if (nombreHoja.Length > 31) nombreHoja = nombreHoja.Substring(0, 31);
+
+                        int sufijo = 1;
+                        string hojaBase = nombreHoja;
+                        while (wb.Worksheets.Any(ws => ws.Name.Equals(nombreHoja, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            string s = sufijo.ToString();
+                            nombreHoja = hojaBase.Substring(0, Math.Min(hojaBase.Length, 31 - s.Length)) + s;
+                            sufijo++;
+                        }
+
+                        var ws = wb.Worksheets.Add(nombreHoja);
+                        ws.Cell(1, 1).InsertTable(dt);
+                        ws.Columns().AdjustToContents();
+                        hojasCreadas++;
+                    }
+                }
+            }
+
+            if (hojasCreadas == 0)
+            {
+                ToastService.Warning("No se encontraron datos devueltos por el SP para los grifos y periodos seleccionados.");
+                descargandoMasivo = false;
+                return;
+            }
+
+            string nombreArchivo = $"Consolidado_PreciosMasivo_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+            using var ms = new MemoryStream();
+            wb.SaveAs(ms);
+            string base64 = Convert.ToBase64String(ms.ToArray());
+
+            await JSRuntime.InvokeVoidAsync("eval", $"const a = document.createElement('a'); a.href = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{base64}'; a.download = '{nombreArchivo}'; document.body.appendChild(a); a.click(); document.body.removeChild(a);");
+            ToastService.Success($"Consolidado {nombreArchivo} descargado con {hojasCreadas} pestañas.");
+            mostrarModalMasivo = false;
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"Error en descarga masiva: {ex.Message}");
+        }
+        finally
+        {
+            descargandoMasivo = false;
         }
     }
 }

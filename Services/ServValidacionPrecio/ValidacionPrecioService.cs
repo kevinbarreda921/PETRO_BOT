@@ -306,6 +306,24 @@ namespace PETRO_BOT.Services.Services
             return lista;
         }
 
+        public async Task<List<string>> ObtenerTodosPeriodosDisponiblesAsync()
+        {
+            var lista = new List<string>();
+            try
+            {
+                using var conn = new SqlConnection(_connectionString);
+                await conn.OpenAsync();
+                using var cmd = new SqlCommand("SELECT DISTINCT FECHA_TURNO_MES FROM [PETRO].[REPORTE_PRECIO_LISTA] WHERE FECHA_TURNO_MES IS NOT NULL AND FECHA_TURNO_MES <> '' ORDER BY FECHA_TURNO_MES DESC", conn);
+                using var rdr = await cmd.ExecuteReaderAsync();
+                while (await rdr.ReadAsync())
+                {
+                    lista.Add(rdr.GetString(0));
+                }
+            }
+            catch { }
+            return lista;
+        }
+
         public async Task<DataTable> EjecutarSPReportePrecioListaAsync(string nombreLocal, string periodo)
         {
             var dt = new DataTable();
