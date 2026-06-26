@@ -1,14 +1,540 @@
 @page "/ReportePreciosPorDia"
+@using System.Data
+@using System.Globalization
+@using System.IO
+@using ClosedXML.Excel
+@using PETRO_BOT.Services.Services
+@using PETRO_BOT.Services.Toast
+@using PETRO_BOT.Components.Pages.Elementos
 @rendermode InteractiveServer
+@inject ValidacionPrecioService ValidacionPrecioService
+@inject ToastService ToastService
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Validación precio lista - Reporte de Precios por Día</PageTitle>
 
-<div class="w-full py-12 text-center animate-fade-in-up">
-    <div class="bg-white border border-slate-200/60 rounded-[30px] p-12 max-w-xl mx-auto shadow-xs">
-        <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+<div class="w-full flex flex-col gap-6 animate-fade-in-up h-[calc(100vh-135px)] min-h-[600px] overflow-hidden select-none" @onclick="CerrarMenus" @onmouseup="FinalizarSeleccion">
+
+    @if (cargandoInicial)
+    {
+        <LoadingRayo />
+    }
+    else if (!hayRegistrosBD)
+    {
+        <div class="bg-white border border-slate-200/60 rounded-[30px] p-16 max-w-xl mx-auto text-center shadow-xs my-auto flex flex-col items-center justify-center" @onclick:stopPropagation="true">
+            <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-amber-200 shadow-2xs">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <h3 class="text-base font-black text-slate-800 uppercase tracking-wider mb-2">Reporte de Precios por Día</h3>
+            <p class="text-xs text-slate-500 font-medium">Importar ventas para poder generar reporte</p>
         </div>
-        <h3 class="text-base font-black text-slate-800 uppercase tracking-wider mb-2">Reporte de Precios por Día</h3>
-        <p class="text-xs text-slate-500 font-medium">Módulo en construcción. Pronto disponible.</p>
-    </div>
+    }
+    else
+    {
+        <!-- CAJA 1: SELECTORES MINIMALISTAS Y BOTÓN DESCARGA (AL CENTRO) -->
+        <div class="bg-white border border-slate-200/60 rounded-[30px] p-6 shrink-0 shadow-xs flex flex-col items-center justify-center w-full relative z-40" @onclick:stopPropagation="true">
+            <div class="flex flex-col md:flex-row items-center justify-center gap-6 w-full max-w-4xl mx-auto">
+                
+                <!-- SELECT 1 CUSTOM: GRIFO -->
+                <div class="relative w-full md:w-80">
+                    <label class="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5 mb-1.5">
+                        <svg class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        <span>Grifo (Local)</span>
+                    </label>
+                    <div class="relative">
+                        <button type="button" 
+                                @onclick="ToggleGrifo"
+                                class="w-full bg-slate-50 border @(menuGrifoAbierto ? "border-[#0f172a] ring-2 ring-slate-900/10 bg-white" : "border-slate-200 hover:border-slate-300") rounded-2xl px-4 py-3.5 text-xs font-bold text-slate-800 flex items-center justify-between transition-all cursor-pointer text-left shadow-2xs">
+                            <span class="truncate">@(string.IsNullOrEmpty(localSeleccionado) ? "-- Seleccione Grifo --" : localSeleccionado)</span>
+                            <svg class="w-4 h-4 text-slate-400 shrink-0 transition-transform @(menuGrifoAbierto ? "rotate-180 text-slate-800" : "")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+
+                        @if (menuGrifoAbierto)
+                        {
+                            <div class="absolute z-50 top-full mt-2 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl max-h-60 overflow-y-auto custom-scrollbar p-1.5 animate-fade-in-down">
+                                @foreach (var loc in listaLocales)
+                                {
+                                    <div @onclick="() => SeleccionarLocal(loc)"
+                                         class="px-3.5 py-2.5 rounded-xl text-xs font-bold cursor-pointer transition-all flex items-center justify-between @(loc == localSeleccionado ? "bg-[#0f172a] text-white shadow-sm" : "text-slate-700 hover:bg-slate-100")">
+                                        <span class="truncate">@loc</span>
+                                        @if (loc == localSeleccionado)
+                                        {
+                                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- SELECT 2 CUSTOM: PERIODO -->
+                <div class="relative w-full md:w-64">
+                    <label class="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5 mb-1.5">
+                        <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span>Periodo (Mes)</span>
+                    </label>
+                    <div class="relative">
+                        <button type="button" 
+                                disabled="@(string.IsNullOrEmpty(localSeleccionado) || !listaPeriodos.Any())"
+                                @onclick="TogglePeriodo"
+                                class="w-full bg-slate-50 border @(menuPeriodoAbierto ? "border-[#0f172a] ring-2 ring-slate-900/10 bg-white" : "border-slate-200 hover:border-slate-300") rounded-2xl px-4 py-3.5 text-xs font-bold text-slate-800 flex items-center justify-between transition-all cursor-pointer text-left shadow-2xs disabled:opacity-40 disabled:cursor-not-allowed">
+                            <span class="truncate">@(string.IsNullOrEmpty(periodoSeleccionado) ? "-- Seleccione Periodo --" : periodoSeleccionado)</span>
+                            <svg class="w-4 h-4 text-slate-400 shrink-0 transition-transform @(menuPeriodoAbierto ? "rotate-180 text-slate-800" : "")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+
+                        @if (menuPeriodoAbierto)
+                        {
+                            <div class="absolute z-50 top-full mt-2 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl max-h-60 overflow-y-auto custom-scrollbar p-1.5 animate-fade-in-down">
+                                @foreach (var per in listaPeriodos)
+                                {
+                                    <div @onclick="() => SeleccionarPeriodo(per)"
+                                         class="px-3.5 py-2.5 rounded-xl text-xs font-bold cursor-pointer transition-all flex items-center justify-between @(per == periodoSeleccionado ? "bg-[#0f172a] text-white shadow-sm" : "text-slate-700 hover:bg-slate-100")">
+                                        <span class="truncate">@per</span>
+                                        @if (per == periodoSeleccionado)
+                                        {
+                                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- BOTÓN DESCARGAR -->
+                <div class="flex flex-col gap-1.5 w-full md:w-auto self-end pt-5 md:pt-0">
+                    <button type="button"
+                            disabled="@(dtSP == null || dtSP.Rows.Count == 0 || cargandoSP || estaProcesando)"
+                            @onclick="DescargarExcel"
+                            class="bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-black text-[10px] uppercase tracking-wider px-6 py-3.5 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed h-[44px]">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <span>Descargar Excel</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- CAJA 2: RESULTADOS SP (VISTA CELDAS EXCEL CON SCROLL Y SELECCIÓN) -->
+        <div class="bg-white border border-slate-200/60 rounded-[30px] p-6 flex-1 flex flex-col min-h-0 overflow-hidden relative shadow-xs z-10" @onclick:stopPropagation="true">
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 shrink-0 select-none">
+                <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span>Resultados Reporte SP</span>
+                    @if (dtSP != null && dtSP.Rows.Count > 0)
+                    {
+                        <span class="ml-2 bg-slate-100 text-slate-700 font-mono text-[10px] px-2.5 py-0.5 rounded-full font-bold">@dtSP.Rows.Count filas</span>
+                    }
+                </h3>
+
+                <div class="flex items-center gap-4">
+                    <button type="button"
+                            @onclick="QuitarSeleccion"
+                            class="@(haySeleccionFirme ? "bg-slate-900 hover:bg-black text-white border-slate-700 shadow-md" : "bg-slate-200 hover:bg-slate-300 text-slate-700 border-slate-300") font-black text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer border active:scale-95">
+                        <svg class="w-3.5 h-3.5 @(haySeleccionFirme ? "text-rose-400" : "text-slate-500")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        <span>Quitar Selección@(haySeleccionFirme ? $" ({ObtenerTextoConteoSeleccion()})" : "")</span>
+                    </button>
+                    @if (cargandoSP)
+                    {
+                        <span class="text-xs text-blue-500 font-bold animate-pulse flex items-center gap-2 font-mono">
+                            <svg class="animate-spin h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Consumiendo SP...
+                        </span>
+                    }
+                </div>
+            </div>
+
+            <!-- TABLA EXCEL CON SCROLL VERTICAL Y HORIZONTAL -->
+            <div class="flex-1 overflow-auto min-h-0 border border-slate-300 bg-slate-50 rounded-xl custom-scrollbar relative select-none" @onmouseleave="FinalizarSeleccion" @onmouseup="FinalizarSeleccion">
+                @if (string.IsNullOrEmpty(localSeleccionado) || string.IsNullOrEmpty(periodoSeleccionado))
+                {
+                    <div class="h-full flex items-center justify-center text-slate-400 font-mono text-xs italic">
+                        Seleccione un grifo y un periodo en la parte superior para generar el reporte.
+                    </div>
+                }
+                else if (dtSP == null || dtSP.Rows.Count == 0)
+                {
+                    <div class="h-full flex items-center justify-center text-slate-400 font-mono text-xs italic">
+                        @(cargandoSP ? "" : "No hay registros devueltos por el procedimiento almacenado para el grifo y periodo seleccionados.")
+                    </div>
+                }
+                else
+                {
+                    <table class="w-full text-left border-collapse font-mono text-xs bg-white select-none">
+                        <thead class="sticky top-0 z-20 bg-[#0f172a] text-white font-bold tracking-wider text-[11px] shadow-sm select-none">
+                            <tr>
+                                <th class="py-2.5 px-3 border-b border-r border-slate-700 bg-[#0f172a] text-center w-12 shrink-0">#</th>
+                                @foreach (DataColumn col in dtSP.Columns)
+                                {
+                                    <th class="py-2.5 px-3 border-b border-r border-slate-700 bg-[#0f172a] uppercase whitespace-nowrap">@col.ColumnName</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            @for (int r = 0; r < dtSP.Rows.Count; r++)
+                            {
+                                int rowIdx = r;
+                                var row = dtSP.Rows[r];
+                                string? valFecha = ObtenerValorFechaTurno(row);
+                                bool repetida = valFecha != null && fechasRepetidas.Contains(valFecha);
+
+                                <tr class="select-none @(haySeleccionFirme ? "bg-transparent" : (repetida ? "bg-amber-100/95 text-amber-950 font-bold" : "bg-white text-slate-800"))">
+                                    <td @onmousedown="QuitarSeleccion" class="py-1.5 px-3 border-r border-b border-slate-200 text-center text-slate-400 bg-slate-100 font-bold select-none cursor-pointer">@(r + 1)</td>
+                                    @for (int c = 0; c < dtSP.Columns.Count; c++)
+                                    {
+                                        int colIdx = c;
+                                        string colName = dtSP.Columns[c].ColumnName;
+                                        string valStr = FormatearCelda(row[c], colName);
+                                        bool esCero = EsValorCero(valStr);
+
+                                        bool enRango = EstaCeldaEnRango(rowIdx, colIdx);
+
+                                        string claseCelda = "";
+                                        if (haySeleccionFirme)
+                                        {
+                                            if (enRango)
+                                            {
+                                                claseCelda = "bg-[#0f172a] border-slate-800 shadow-sm z-10";
+                                                if (esCero)
+                                                {
+                                                    claseCelda += " text-slate-400 opacity-30 font-normal";
+                                                }
+                                                else
+                                                {
+                                                    claseCelda += " text-white font-bold";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                claseCelda = "bg-slate-200 text-slate-400 border-slate-300";
+                                                claseCelda += esCero ? " opacity-25" : " opacity-45";
+                                            }
+                                        }
+                                        else if (estaArrastrando && enRango)
+                                        {
+                                            claseCelda = "bg-blue-100 border-blue-300";
+                                            claseCelda += esCero ? " text-blue-900/40 font-normal opacity-50" : " text-blue-950 font-bold";
+                                        }
+                                        else
+                                        {
+                                            claseCelda = "border-slate-200 hover:bg-blue-100 hover:ring-2 hover:ring-blue-400 hover:z-20 hover:text-slate-900 transition-all";
+                                            if (esCero) claseCelda += " opacity-30 text-slate-400 font-normal";
+                                        }
+
+                                        <td @onmousedown="() => IniciarSeleccion(rowIdx, colIdx)"
+                                            @onmouseenter="() => ActualizarSeleccion(rowIdx, colIdx)"
+                                            class="py-1.5 px-3 border-r border-b whitespace-nowrap cursor-cell select-none @claseCelda">
+                                            @valStr
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    }
+
 </div>
+
+@code {
+    private bool cargandoInicial = true;
+    private bool hayRegistrosBD = false;
+    private bool cargandoSP = false;
+    private bool estaProcesando = false;
+
+    private bool menuGrifoAbierto = false;
+    private bool menuPeriodoAbierto = false;
+
+    private List<string> listaLocales = new();
+    private List<string> listaPeriodos = new();
+
+    private string localSeleccionado = "";
+    private string periodoSeleccionado = "";
+
+    private DataTable? dtSP = null;
+    private int colFechaIdx = -1;
+    private HashSet<string> fechasRepetidas = new();
+
+    // Variables de selección estilo Excel
+    private int selStartRow = -1;
+    private int selStartCol = -1;
+    private int tempEndRow = -1;
+    private int tempEndCol = -1;
+    private bool estaArrastrando = false;
+    private bool haySeleccionFirme = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        cargandoInicial = true;
+        hayRegistrosBD = await ValidacionPrecioService.ExisteAlgunRegistroAsync();
+
+        if (hayRegistrosBD)
+        {
+            listaLocales = await ValidacionPrecioService.ObtenerLocalesDisponiblesAsync();
+            localSeleccionado = "";
+            periodoSeleccionado = "";
+            dtSP = null;
+        }
+        cargandoInicial = false;
+    }
+
+    private void ToggleGrifo()
+    {
+        menuGrifoAbierto = !menuGrifoAbierto;
+        menuPeriodoAbierto = false;
+    }
+
+    private void TogglePeriodo()
+    {
+        if (string.IsNullOrEmpty(localSeleccionado) || !listaPeriodos.Any()) return;
+        menuPeriodoAbierto = !menuPeriodoAbierto;
+        menuGrifoAbierto = false;
+    }
+
+    private void CerrarMenus()
+    {
+        menuGrifoAbierto = false;
+        menuPeriodoAbierto = false;
+    }
+
+    private async Task SeleccionarLocal(string loc)
+    {
+        localSeleccionado = loc;
+        menuGrifoAbierto = false;
+        listaPeriodos.Clear();
+        periodoSeleccionado = "";
+        dtSP = null;
+        QuitarSeleccion();
+        StateHasChanged();
+
+        if (!string.IsNullOrEmpty(localSeleccionado))
+        {
+            listaPeriodos = await ValidacionPrecioService.ObtenerPeriodosPorLocalAsync(localSeleccionado);
+            StateHasChanged();
+        }
+    }
+
+    private async Task SeleccionarPeriodo(string per)
+    {
+        periodoSeleccionado = per;
+        menuPeriodoAbierto = false;
+        dtSP = null;
+        QuitarSeleccion();
+        StateHasChanged();
+
+        if (!string.IsNullOrEmpty(localSeleccionado) && !string.IsNullOrEmpty(periodoSeleccionado))
+        {
+            await CargarReporteSP();
+        }
+    }
+
+    private async Task CargarReporteSP()
+    {
+        cargandoSP = true;
+        QuitarSeleccion();
+        StateHasChanged();
+
+        dtSP = await ValidacionPrecioService.EjecutarSPReportePrecioListaAsync(localSeleccionado, periodoSeleccionado);
+        CalcularFechasRepetidas();
+
+        cargandoSP = false;
+        StateHasChanged();
+    }
+
+    private void IniciarSeleccion(int r, int c)
+    {
+        if (haySeleccionFirme)
+        {
+            QuitarSeleccion();
+            return;
+        }
+
+        selStartRow = r;
+        selStartCol = c;
+        tempEndRow = r;
+        tempEndCol = c;
+        estaArrastrando = true;
+        haySeleccionFirme = false;
+    }
+
+    private void ActualizarSeleccion(int r, int c)
+    {
+        if (estaArrastrando)
+        {
+            if (tempEndRow != r || tempEndCol != c)
+            {
+                tempEndRow = r;
+                tempEndCol = c;
+            }
+        }
+    }
+
+    private void FinalizarSeleccion()
+    {
+        if (estaArrastrando)
+        {
+            estaArrastrando = false;
+            bool esMismaCelda = (selStartRow == tempEndRow && selStartCol == tempEndCol);
+
+            if (esMismaCelda)
+            {
+                QuitarSeleccion();
+            }
+            else if (selStartRow != -1 && selStartCol != -1 && tempEndRow != -1 && tempEndCol != -1)
+            {
+                haySeleccionFirme = true;
+            }
+        }
+    }
+
+    private void QuitarSeleccion()
+    {
+        selStartRow = -1;
+        selStartCol = -1;
+        tempEndRow = -1;
+        tempEndCol = -1;
+        estaArrastrando = false;
+        haySeleccionFirme = false;
+        _ = LimpiarSeleccionJSAsync();
+    }
+
+    private async Task LimpiarSeleccionJSAsync()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("eval", "window.getSelection()?.removeAllRanges()");
+        }
+        catch { }
+    }
+
+    private bool EstaCeldaEnRango(int r, int c)
+    {
+        if (selStartRow == -1 || tempEndRow == -1) return false;
+        int minR = Math.Min(selStartRow, tempEndRow);
+        int maxR = Math.Max(selStartRow, tempEndRow);
+        int minC = Math.Min(selStartCol, tempEndCol);
+        int maxC = Math.Max(selStartCol, tempEndCol);
+
+        return r >= minR && r <= maxR && c >= minC && c <= maxC;
+    }
+
+    private string ObtenerTextoConteoSeleccion()
+    {
+        if (!haySeleccionFirme) return "";
+        int filas = Math.Abs(tempEndRow - selStartRow) + 1;
+        int cols = Math.Abs(tempEndCol - selStartCol) + 1;
+        int total = filas * cols;
+        return total == 1 ? "1 celda" : $"{total} celdas";
+    }
+
+    private void CalcularFechasRepetidas()
+    {
+        fechasRepetidas.Clear();
+        colFechaIdx = -1;
+        if (dtSP == null) return;
+
+        for (int c = 0; c < dtSP.Columns.Count; c++)
+        {
+            string colName = dtSP.Columns[c].ColumnName;
+            if (colName.Equals("FECHA_TURNO", StringComparison.OrdinalIgnoreCase) ||
+                colName.Equals("FECHA", StringComparison.OrdinalIgnoreCase) ||
+                colName.Equals("DIA", StringComparison.OrdinalIgnoreCase))
+            {
+                colFechaIdx = c;
+                break;
+            }
+        }
+
+        if (colFechaIdx != -1)
+        {
+            var conteos = new Dictionary<string, int>();
+            foreach (DataRow r in dtSP.Rows)
+            {
+                string v = FormatearCelda(r[colFechaIdx], dtSP.Columns[colFechaIdx].ColumnName);
+                if (!string.IsNullOrEmpty(v))
+                {
+                    conteos[v] = conteos.GetValueOrDefault(v) + 1;
+                }
+            }
+            foreach (var kvp in conteos)
+            {
+                if (kvp.Value > 1) fechasRepetidas.Add(kvp.Key);
+            }
+        }
+    }
+
+    private string? ObtenerValorFechaTurno(DataRow row)
+    {
+        if (colFechaIdx != -1 && colFechaIdx < row.Table.Columns.Count)
+        {
+            return FormatearCelda(row[colFechaIdx], row.Table.Columns[colFechaIdx].ColumnName);
+        }
+        return null;
+    }
+
+    private string FormatearCelda(object? valObj, string colName)
+    {
+        if (valObj == null || valObj is DBNull) return "";
+        string raw = valObj.ToString()?.Trim() ?? "";
+
+        if (colName.Equals("FECHA_TURNO", StringComparison.OrdinalIgnoreCase) ||
+            colName.Equals("FECHA", StringComparison.OrdinalIgnoreCase) ||
+            colName.Equals("DIA", StringComparison.OrdinalIgnoreCase))
+        {
+            if (valObj is DateTime dt) return dt.ToString("dd/MM/yyyy");
+            if (DateTime.TryParse(raw, out DateTime dt2)) return dt2.ToString("dd/MM/yyyy");
+            if (raw.Contains(" ")) return raw.Split(' ')[0];
+        }
+        return raw;
+    }
+
+    private bool EsValorCero(string val)
+    {
+        if (string.IsNullOrEmpty(val)) return false;
+        if (val == "0" || val == "0.0" || val == "0.00" || val == "0.000" || val == "0.0000") return true;
+        if (decimal.TryParse(val, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal dec) && dec == 0) return true;
+        return false;
+    }
+
+    private async Task DescargarExcel()
+    {
+        if (dtSP == null || dtSP.Rows.Count == 0) return;
+
+        estaProcesando = true;
+        StateHasChanged();
+
+        try
+        {
+            string downloadFolder = Path.Combine("wwwroot", "uploads", "DescargasSP");
+            if (Directory.Exists(downloadFolder))
+            {
+                try { Directory.Delete(downloadFolder, true); } catch { }
+            }
+
+            using var wb = new XLWorkbook();
+            var ws = wb.Worksheets.Add("ReporteDia");
+            ws.Cell(1, 1).InsertTable(dtSP);
+            ws.Columns().AdjustToContents();
+
+            string nombreArchivo = $"Reporte_{localSeleccionado}_{periodoSeleccionado}.xlsx";
+
+            using var ms = new MemoryStream();
+            wb.SaveAs(ms);
+            string base64 = Convert.ToBase64String(ms.ToArray());
+
+            await JSRuntime.InvokeVoidAsync("eval", $"const a = document.createElement('a'); a.href = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{base64}'; a.download = '{nombreArchivo}'; document.body.appendChild(a); a.click(); document.body.removeChild(a);");
+            ToastService.Success($"Reporte {nombreArchivo} descargado.");
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"Error al exportar Excel: {ex.Message}");
+        }
+        finally
+        {
+            estaProcesando = false;
+        }
+    }
+}

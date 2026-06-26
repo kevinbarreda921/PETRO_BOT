@@ -103,6 +103,7 @@ namespace PETRO_BOT.Services.Services
                 dt.Columns.Add("CODIGO_LOCAL", typeof(string));
                 dt.Columns.Add("NOMBRE_LOCAL", typeof(string));
                 dt.Columns.Add("FECHA_TURNO", typeof(DateTime));
+                dt.Columns.Add("FECHA_TURNO_MES", typeof(string));
                 dt.Columns.Add("FECHA_EMISION", typeof(DateTime));
                 dt.Columns.Add("TIPO_DOCUMENTO", typeof(string));
                 dt.Columns.Add("NUMERO_DOCUMENTO", typeof(string));
@@ -148,8 +149,16 @@ namespace PETRO_BOT.Services.Services
                     row["NOMBRE_LOCAL"] = GetStringVal(reader, colMap, "NOMBRE DE LOCAL", primerColumnaDatos + 1);
 
                     var dtTurno = ParseDateTime(GetRawVal(reader, colMap, "FECHA TURNO", primerColumnaDatos + 2));
-                    if (dtTurno.HasValue) row["FECHA_TURNO"] = dtTurno.Value.Date;
-                    else row["FECHA_TURNO"] = DBNull.Value;
+                    if (dtTurno.HasValue)
+                    {
+                        row["FECHA_TURNO"] = dtTurno.Value.Date;
+                        row["FECHA_TURNO_MES"] = dtTurno.Value.ToString("yyyyMM");
+                    }
+                    else
+                    {
+                        row["FECHA_TURNO"] = DBNull.Value;
+                        row["FECHA_TURNO_MES"] = DBNull.Value;
+                    }
 
                     var dtEmision = ParseDateTime(GetRawVal(reader, colMap, "FECHA EMISION", primerColumnaDatos + 3));
                     if (dtEmision.HasValue) row["FECHA_EMISION"] = dtEmision.Value;
@@ -229,6 +238,90 @@ namespace PETRO_BOT.Services.Services
                 sw.Stop();
                 return (false, $"Error al procesar: {ex.Message}", 0, sw.ElapsedMilliseconds);
             }
+        }
+
+        public async Task<(bool Exito, string Mensaje)> TruncarTablaAsync()
+        {
+            try
+            {
+                using var sqlConnection = new SqlConnection(_connectionString);
+                await sqlConnection.OpenAsync();
+                using var cmd = new SqlCommand("TRUNCATE TABLE [PETRO].[REPORTE_PRECIO_LISTA]", sqlConnection);
+                await cmd.ExecuteNonQueryAsync();
+                return (true, "Tabla [PETRO].[REPORTE_PRECIO_LISTA] truncada exitosamente.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error al hacer TRUNCATE: {ex.Message}");
+            }
+        }
+
+        public async Task<bool> ExisteAlgunRegistroAsync()
+        {
+            try
+            {
+                using var conn = new SqlConnection(_connectionString);
+                await conn.OpenAsync();
+                using var cmd = new SqlCommand("SELECT TOP 1 1 FROM [PETRO].[REPORTE_PRECIO_LISTA]", conn);
+                var res = await cmd.ExecuteScalarAsync();
+                return res != null && res != DBNull.Value;
+            }
+            catch { return false; }
+        }
+
+        public async Task<List<string>> ObtenerLocalesDisponiblesAsync()
+        {
+            var lista = new List<string>();
+            try
+            {
+                using var conn = new SqlConnection(_connectionString);
+                await conn.OpenAsync();
+                using var cmd = new SqlCommand("SELECT DISTINCT NOMBRE_LOCAL FROM [PETRO].[REPORTE_PRECIO_LISTA] WHERE NOMBRE_LOCAL IS NOT NULL AND NOMBRE_LOCAL <> '' ORDER BY NOMBRE_LOCAL", conn);
+                using var rdr = await cmd.ExecuteReaderAsync();
+                while (await rdr.ReadAsync())
+                {
+                    lista.Add(rdr.GetString(0));
+                }
+            }
+            catch { }
+            return lista;
+        }
+
+        public async Task<List<string>> ObtenerPeriodosPorLocalAsync(string nombreLocal)
+        {
+            var lista = new List<string>();
+            try
+            {
+                using var conn = new SqlConnection(_connectionString);
+                await conn.OpenAsync();
+                using var cmd = new SqlCommand("SELECT DISTINCT FECHA_TURNO_MES FROM [PETRO].[REPORTE_PRECIO_LISTA] WHERE NOMBRE_LOCAL = @local AND FECHA_TURNO_MES IS NOT NULL AND FECHA_TURNO_MES <> '' ORDER BY FECHA_TURNO_MES DESC", conn);
+                cmd.Parameters.AddWithValue("@local", nombreLocal);
+                using var rdr = await cmd.ExecuteReaderAsync();
+                while (await rdr.ReadAsync())
+                {
+                    lista.Add(rdr.GetString(0));
+                }
+            }
+            catch { }
+            return lista;
+        }
+
+        public async Task<DataTable> EjecutarSPReportePrecioListaAsync(string nombreLocal, string periodo)
+        {
+            var dt = new DataTable();
+            try
+            {
+                using var conn = new SqlConnection(_connectionString);
+                await conn.OpenAsync();
+                using var cmd = new SqlCommand("EXEC [PETRO].[SP_REPORTE_PRECIO_LISTA] @NOMBRE_LOCAL = @local, @FECHA_TURNO_MES = @periodo", conn);
+                cmd.CommandTimeout = 300;
+                cmd.Parameters.AddWithValue("@local", nombreLocal);
+                cmd.Parameters.AddWithValue("@periodo", periodo);
+                using var adapter = new SqlDataAdapter(cmd);
+                await Task.Run(() => adapter.Fill(dt));
+            }
+            catch { }
+            return dt;
         }
 
         private object? GetRawVal(IExcelDataReader reader, Dictionary<string, int> colMap, string headerName, int fallbackIdx)

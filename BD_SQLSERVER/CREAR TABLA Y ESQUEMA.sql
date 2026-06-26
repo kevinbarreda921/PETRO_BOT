@@ -22,6 +22,7 @@ BEGIN
         [CODIGO_LOCAL] [nvarchar](50) NULL,
         [NOMBRE_LOCAL] [nvarchar](150) NULL,
         [FECHA_TURNO] [date] NULL,
+        [FECHA_TURNO_MES] [varchar](6) NULL,
         [FECHA_EMISION] [datetime] NULL,
         [TIPO_DOCUMENTO] [nvarchar](50) NULL,
         [NUMERO_DOCUMENTO] [nvarchar](50) NULL,

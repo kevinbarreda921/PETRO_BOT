@@ -1,0 +1,77 @@
+CREATE PROCEDURE [PETRO].[SP_REPORTE_PRECIO_LISTA]
+    @NOMBRE_LOCAL NVARCHAR(150),
+    @FECHA_TURNO_MES VARCHAR(6)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- 1. Agrupamos cantidades por Día, Producto y Precio (Excluyendo horas en 00:00:00 y GLP)
+    WITH AgrupadoPorPrecio AS (
+        SELECT 
+            @NOMBRE_LOCAL AS NOMBRE_LOCAL,
+            FECHA_TURNO,
+            DESCRIPCION_PRODUCTO,
+            PRECIO_LISTA,
+            SUM(CANTIDAD) AS CANTIDAD_TOTAL
+        FROM [PETRO].[REPORTE_PRECIO_LISTA]
+        WHERE NOMBRE_LOCAL = @NOMBRE_LOCAL
+          AND FECHA_TURNO_MES = @FECHA_TURNO_MES
+          AND ESTADO = 'ACTIVO'
+          AND CAST(FECHA_EMISION AS TIME) <> '00:00:00'
+          -- CAMBIO 1: Excluir Gas Licuado de Petróleo / GLP
+          AND DESCRIPCION_PRODUCTO NOT LIKE '%GAS LICUADO%'
+          AND DESCRIPCION_PRODUCTO NOT LIKE '%GLP%'
+        GROUP BY FECHA_TURNO, DESCRIPCION_PRODUCTO, PRECIO_LISTA
+    ),
+
+    -- 2. Enumeramos los precios de cada producto por día para poder alinearlos horizontalmente
+    SecuenciaPrecios AS (
+        SELECT 
+            NOMBRE_LOCAL,
+            FECHA_TURNO,
+            DESCRIPCION_PRODUCTO,
+            PRECIO_LISTA,
+            CANTIDAD_TOTAL,
+            ROW_NUMBER() OVER (
+                PARTITION BY FECHA_TURNO, DESCRIPCION_PRODUCTO 
+                ORDER BY PRECIO_LISTA ASC
+            ) AS ID_FILA
+        FROM AgrupadoPorPrecio
+    ),
+
+    -- 3. Consolidamos en una lista única de filas por Día y Secuencia
+    UniversoFilas AS (
+        SELECT DISTINCT NOMBRE_LOCAL, FECHA_TURNO, ID_FILA 
+        FROM SecuenciaPrecios
+    )
+
+    -- 4. Hacemos el PIVOT condicional manual aplicando redondeo a 2 decimales
+    SELECT 
+        U.NOMBRE_LOCAL,
+        U.FECHA_TURNO,
+        
+        -- DIESEL DB5 (CAMBIO 2: Casteo a 2 decimales)
+        CAST(ISNULL(MAX(CASE WHEN S.DESCRIPCION_PRODUCTO LIKE '%DIESEL DB5%' THEN S.CANTIDAD_TOTAL END), 0.00) AS DECIMAL(18,2)) AS [DIESEL_DB5_CANTIDAD_TOTAL],
+        CAST(ISNULL(MAX(CASE WHEN S.DESCRIPCION_PRODUCTO LIKE '%DIESEL DB5%' THEN S.PRECIO_LISTA END), 0.00) AS DECIMAL(18,2)) AS [DIESEL_DB5_PRECIO_LISTA],
+        
+        -- GASOHOL REGULAR (CAMBIO 2: Casteo a 2 decimales)
+        CAST(ISNULL(MAX(CASE WHEN S.DESCRIPCION_PRODUCTO LIKE '%REGULAR%' THEN S.CANTIDAD_TOTAL END), 0.00) AS DECIMAL(18,2)) AS [GASOHOL_REGULAR_CANTIDAD_TOTAL],
+        CAST(ISNULL(MAX(CASE WHEN S.DESCRIPCION_PRODUCTO LIKE '%REGULAR%' THEN S.PRECIO_LISTA END), 0.00) AS DECIMAL(18,2)) AS [GASOHOL_REGULAR_PRECIO_LISTA],
+
+        -- GASOHOL PREMIUM (CAMBIO 2: Casteo a 2 decimales)
+        CAST(ISNULL(MAX(CASE WHEN S.DESCRIPCION_PRODUCTO LIKE '%PREMIUM%' THEN S.CANTIDAD_TOTAL END), 0.00) AS DECIMAL(18,2)) AS [GASOHOL_PREMIUM_CANTIDAD_TOTAL],
+        CAST(ISNULL(MAX(CASE WHEN S.DESCRIPCION_PRODUCTO LIKE '%PREMIUM%' THEN S.PRECIO_LISTA END), 0.00) AS DECIMAL(18,2)) AS [GASOHOL_PREMIUM_PRECIO_LISTA]
+
+    FROM UniversoFilas U
+    LEFT JOIN SecuenciaPrecios S 
+        ON U.FECHA_TURNO = S.FECHA_TURNO 
+        AND U.ID_FILA = S.ID_FILA
+    GROUP BY 
+        U.NOMBRE_LOCAL,
+        U.FECHA_TURNO,
+        U.ID_FILA
+    ORDER BY 
+        U.FECHA_TURNO ASC, 
+        U.ID_FILA ASC;
+END;
+GO
