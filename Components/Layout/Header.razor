@@ -58,6 +58,27 @@
 
         </div>
     }
+    else if (EsRutaActiva("/ValidacionPrecioLista") || EsRutaActiva("/ReportePreciosPorDia"))
+    {
+        <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 md:pb-0 shrink-0">
+            <button id="menu-toggle"
+                    class="lg:hidden shrink-0 p-2.5 bg-white border border-slate-200 rounded-xl text-slate-500 hover:text-slate-900 focus:outline-none cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+
+            <button @onclick='() => Navigation.NavigateTo("/ValidacionPrecioLista")'
+                    class="px-4 py-2 text-xs font-black uppercase tracking-wider rounded-full transition-all cursor-pointer @(EsRutaActiva("/ValidacionPrecioLista") ? "bg-[#1e293b] text-white shadow-md shadow-slate-900/10" : "bg-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100")">
+                Importar Venta
+            </button>
+
+            <button @onclick='() => Navigation.NavigateTo("/ReportePreciosPorDia")'
+                    class="px-4 py-2 text-xs font-black uppercase tracking-wider rounded-full transition-all cursor-pointer @(EsRutaActiva("/ReportePreciosPorDia") ? "bg-[#1e293b] text-white shadow-md shadow-slate-900/10" : "bg-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100")">
+                Reporte de Precios por Día
+            </button>
+        </div>
+    }
     else if (!EsRutaActiva("/"))
     {
         <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 md:pb-0 shrink-0">

@@ -165,7 +165,18 @@
             <span class="sidebar-tooltip">Registro de descuentos</span>
         </div>
 
-        <!-- Button 4: Chart -->
+        <!-- Button 4: Validación Precio Lista -->
+        <div class="sidebar-btn-wrap">
+            <button class="sidebar-circle-btn @(EsRutaActiva("/ValidacionPrecioLista") || EsRutaActiva("/ReportePreciosPorDia") ? "active" : "")" 
+                    @onclick='() => Navigation.NavigateTo("/ValidacionPrecioLista")'>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                </svg>
+            </button>
+            <span class="sidebar-tooltip">Validación precio lista</span>
+        </div>
+
+        <!-- Button 5: Chart -->
         <div class="sidebar-btn-wrap">
             <button class="sidebar-circle-btn" 
                     @onclick='() => ToastService.Info("Estadísticas Consolidadas - Simulado")'>

@@ -16,6 +16,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddSingleton<ToastService>();
 builder.Services.AddSingleton<HistorialService>();
+builder.Services.AddSingleton<PETRO_BOT.Services.Services.ValidacionPrecioService>();
 
 var app = builder.Build();
 
