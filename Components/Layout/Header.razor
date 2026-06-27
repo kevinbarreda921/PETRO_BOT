@@ -58,7 +58,7 @@
 
         </div>
     }
-    else if (EsRutaActiva("/ImportarVentaManual") || EsRutaActiva("/ImportarVentaWebActiva") || EsRutaActiva("/ReportePreciosPorDia"))
+    else if (EsRutaActiva("/ImportarVentaManual") || EsRutaActiva("/ImportarVentaWebActiva") || EsRutaActiva("/ReportePreciosPorDia") || EsRutaActiva("/ReportePreciosPorDiaGlp"))
     {
         <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 md:pb-0 shrink-0">
             <button id="menu-toggle"
@@ -81,6 +81,11 @@
             <button @onclick='() => Navigation.NavigateTo("/ReportePreciosPorDia")'
                     class="px-4 py-2 text-xs font-black uppercase tracking-wider rounded-full transition-all cursor-pointer @(EsRutaActiva("/ReportePreciosPorDia") ? "bg-[#1e293b] text-white shadow-md shadow-slate-900/10" : "bg-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100")">
                 Reporte de Precios por Día
+            </button>
+
+            <button @onclick='() => Navigation.NavigateTo("/ReportePreciosPorDiaGlp")'
+                    class="px-4 py-2 text-xs font-black uppercase tracking-wider rounded-full transition-all cursor-pointer @(EsRutaActiva("/ReportePreciosPorDiaGlp") ? "bg-[#1e293b] text-white shadow-md shadow-slate-900/10" : "bg-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100")">
+                REPORTE DE PRECIOS POR DIA GLP
             </button>
         </div>
     }

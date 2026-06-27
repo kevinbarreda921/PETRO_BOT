@@ -1,4 +1,4 @@
-@page "/ReportePreciosPorDia"
+@page "/ReportePreciosPorDiaGlp"
 @using System.Data
 @using System.Globalization
 @using System.IO
@@ -11,7 +11,7 @@
 @inject ToastService ToastService
 @inject IJSRuntime JSRuntime
 
-<PageTitle>Validación precio lista - Reporte de Precios por Día</PageTitle>
+<PageTitle>Validación precio lista - Reporte de Precios por Día GLP</PageTitle>
 
 <div class="w-full flex flex-col gap-6 animate-fade-in-up h-[calc(100vh-135px)] min-h-[600px] overflow-hidden select-none" @onclick="CerrarMenus" @onmouseup="FinalizarSeleccion">
 
@@ -25,7 +25,7 @@
             <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-amber-200 shadow-2xs">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             </div>
-            <h3 class="text-base font-black text-slate-800 uppercase tracking-wider mb-2">Reporte de Precios por Día</h3>
+            <h3 class="text-base font-black text-slate-800 uppercase tracking-wider mb-2">Reporte de Precios por Día GLP</h3>
             <p class="text-xs text-slate-500 font-medium">Importar ventas para poder generar reporte</p>
         </div>
     }
@@ -128,7 +128,7 @@
             <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 shrink-0 select-none">
                 <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
                     <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    <span>Resultados Reporte SP</span>
+                    <span>Resultados Reporte SP GLP</span>
                     @if (dtSP != null && dtSP.Rows.Count > 0)
                     {
                         <span class="ml-2 bg-slate-100 text-slate-700 font-mono text-[10px] px-2.5 py-0.5 rounded-full font-bold">@dtSP.Rows.Count filas</span>
@@ -146,7 +146,7 @@
                     {
                         <span class="text-xs text-blue-500 font-bold animate-pulse flex items-center gap-2 font-mono">
                             <svg class="animate-spin h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                            Consumiendo SP...
+                            Consumiendo SP GLP...
                         </span>
                     }
                 </div>
@@ -157,7 +157,7 @@
                 @if (string.IsNullOrEmpty(localSeleccionado) || string.IsNullOrEmpty(periodoSeleccionado))
                 {
                     <div class="h-full flex items-center justify-center text-slate-400 font-mono text-xs italic">
-                        Seleccione un grifo y un periodo en la parte superior para generar el reporte.
+                        Seleccione un grifo y un periodo en la parte superior para generar el reporte GLP.
                     </div>
                 }
                 else if (dtSP == null || dtSP.Rows.Count == 0)
@@ -170,21 +170,15 @@
                 {
                     <table class="w-full text-left border-collapse font-mono text-xs bg-white select-none">
                         <thead class="sticky top-0 z-20 font-bold tracking-wider text-[11px] shadow-sm select-none text-slate-900 border-b border-slate-300">
-                            @if (dtSP.Columns.Count >= 8 && dtSP.Columns[1].ColumnName.Equals("DIAS", StringComparison.OrdinalIgnoreCase))
+                            @if (dtSP.Columns.Count >= 4 && dtSP.Columns[1].ColumnName.Equals("DIAS", StringComparison.OrdinalIgnoreCase))
                             {
                                 <tr>
                                     <th rowspan="2" class="py-2.5 px-3 border-b border-r border-slate-700 bg-[#0f172a] text-white text-center w-12 shrink-0 align-middle">#</th>
                                     <th rowspan="2" class="py-2.5 px-3 border-b border-r border-slate-300 bg-[#ffff99] text-slate-900 text-center uppercase whitespace-nowrap align-middle font-black">FECHA</th>
                                     <th rowspan="2" class="py-2.5 px-3 border-b border-r border-slate-300 bg-[#ffff99] text-slate-900 text-center uppercase whitespace-nowrap align-middle font-black">DIAS</th>
-                                    <th colspan="2" class="py-2 px-3 border-b border-r border-slate-300 bg-[#d9d9d9] text-slate-900 text-center uppercase whitespace-nowrap font-black">D2</th>
-                                    <th colspan="2" class="py-2 px-3 border-b border-r border-slate-300 bg-[#99ff99] text-slate-900 text-center uppercase whitespace-nowrap font-black">G-REGULAR</th>
-                                    <th colspan="2" class="py-2 px-3 border-b border-r border-slate-300 bg-[#b3d9ff] text-slate-900 text-center uppercase whitespace-nowrap font-black">G-PREMIUM</th>
+                                    <th colspan="2" class="py-2 px-3 border-b border-r border-slate-300 bg-[#d9d9d9] text-slate-900 text-center uppercase whitespace-nowrap font-black">G-84</th>
                                 </tr>
                                 <tr>
-                                    <th class="py-2 px-3 border-b border-r border-slate-300 bg-[#ffff99] text-slate-900 text-center uppercase whitespace-nowrap font-bold">VENTA GALONES</th>
-                                    <th class="py-2 px-3 border-b border-r border-slate-300 bg-[#ffff99] text-slate-900 text-center uppercase whitespace-nowrap font-bold">PRECIO VENTA</th>
-                                    <th class="py-2 px-3 border-b border-r border-slate-300 bg-[#ffff99] text-slate-900 text-center uppercase whitespace-nowrap font-bold">VENTA GALONES</th>
-                                    <th class="py-2 px-3 border-b border-r border-slate-300 bg-[#ffff99] text-slate-900 text-center uppercase whitespace-nowrap font-bold">PRECIO VENTA</th>
                                     <th class="py-2 px-3 border-b border-r border-slate-300 bg-[#ffff99] text-slate-900 text-center uppercase whitespace-nowrap font-bold">VENTA GALONES</th>
                                     <th class="py-2 px-3 border-b border-r border-slate-300 bg-[#ffff99] text-slate-900 text-center uppercase whitespace-nowrap font-bold">PRECIO VENTA</th>
                                 </tr>
@@ -314,11 +308,11 @@
             <div class="flex items-center justify-between border-b border-slate-100 pb-4 shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-inner">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 012-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                     </div>
                     <div>
-                        <h3 class="text-lg font-black text-slate-800 uppercase tracking-wide">Descarga Masiva Consolidada</h3>
-                        <p class="text-xs text-slate-400 font-mono">Seleccione los grifos y periodos a consolidar en un solo Excel multigrifo</p>
+                        <h3 class="text-lg font-black text-slate-800 uppercase tracking-wide">Descarga Masiva Consolidada GLP</h3>
+                        <p class="text-xs text-slate-400 font-mono">Seleccione los grifos y periodos a consolidar en un solo Excel multigrifo GLP</p>
                     </div>
                 </div>
                 <button type="button" @onclick="() => mostrarModalMasivo = false" class="text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-100 transition-all cursor-pointer">
@@ -370,7 +364,7 @@
             <!-- Footer -->
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100 pt-4 shrink-0">
                 <div class="text-xs font-mono text-slate-500">
-                    Total a consultar: <span class="font-bold text-blue-600 text-sm">@(localesSeleccionadosMasivo.Count * periodosSeleccionadosMasivo.Count) reportes SP</span>
+                    Total a consultar: <span class="font-bold text-blue-600 text-sm">@(localesSeleccionadosMasivo.Count * periodosSeleccionadosMasivo.Count) reportes SP GLP</span>
                 </div>
                 <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
                     <button type="button" @onclick="() => mostrarModalMasivo = false" class="px-6 py-3 rounded-2xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-100 transition-all cursor-pointer h-[44px]">
@@ -383,7 +377,7 @@
                         @if (descargandoMasivo)
                         {
                             <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                            <span>Consolidando...</span>
+                            <span>Consolidando GLP...</span>
                         }
                         else
                         {
@@ -494,7 +488,7 @@
         QuitarSeleccion();
         StateHasChanged();
 
-        dtSP = await ValidacionPrecioService.EjecutarSPReportePrecioListaAsync(localSeleccionado, periodoSeleccionado);
+        dtSP = await ValidacionPrecioService.EjecutarSPReportePrecioListaGlpAsync(localSeleccionado, periodoSeleccionado);
         CalcularFechasRepetidas();
 
         cargandoSP = false;
@@ -658,9 +652,7 @@
 
     private bool EsColumnaDeTotal(string colName)
     {
-        return colName.Equals("DIESEL_DB5_CANTIDAD_TOTAL", StringComparison.OrdinalIgnoreCase) ||
-               colName.Equals("GASOHOL_REGULAR_CANTIDAD_TOTAL", StringComparison.OrdinalIgnoreCase) ||
-               colName.Equals("GASOHOL_PREMIUM_CANTIDAD_TOTAL", StringComparison.OrdinalIgnoreCase);
+        return colName.Equals("GLP_CANTIDAD_TOTAL", StringComparison.OrdinalIgnoreCase);
     }
 
     private decimal CalcularTotalTabla(DataTable? dt, string nombreColumna)
@@ -693,30 +685,18 @@
         ws.Cell(1, 2).Value = "DIAS";
         ws.Range(1, 2, 2, 2).Merge();
 
-        ws.Cell(1, 3).Value = "D2";
+        ws.Cell(1, 3).Value = "G-84";
         ws.Range(1, 3, 1, 4).Merge();
         ws.Range(1, 3, 1, 4).Style.Fill.BackgroundColor = XLColor.FromHtml("#D9D9D9");
-
-        ws.Cell(1, 5).Value = "G-REGULAR";
-        ws.Range(1, 5, 1, 6).Merge();
-        ws.Range(1, 5, 1, 6).Style.Fill.BackgroundColor = XLColor.FromHtml("#99FF99");
-
-        ws.Cell(1, 7).Value = "G-PREMIUM";
-        ws.Range(1, 7, 1, 8).Merge();
-        ws.Range(1, 7, 1, 8).Style.Fill.BackgroundColor = XLColor.FromHtml("#B3D9FF");
 
         ws.Range(1, 1, 2, 2).Style.Fill.BackgroundColor = XLColor.FromHtml("#FFFF99");
 
         // Fila 2: Subcabeceras
         ws.Cell(2, 3).Value = "VENTA GALONES";
         ws.Cell(2, 4).Value = "PRECIO VENTA";
-        ws.Cell(2, 5).Value = "VENTA GALONES";
-        ws.Cell(2, 6).Value = "PRECIO VENTA";
-        ws.Cell(2, 7).Value = "VENTA GALONES";
-        ws.Cell(2, 8).Value = "PRECIO VENTA";
-        ws.Range(2, 3, 2, 8).Style.Fill.BackgroundColor = XLColor.FromHtml("#FFFF99");
+        ws.Range(2, 3, 2, 4).Style.Fill.BackgroundColor = XLColor.FromHtml("#FFFF99");
 
-        var headerRange = ws.Range(1, 1, 2, 8);
+        var headerRange = ws.Range(1, 1, 2, 4);
         headerRange.Style.Font.Bold = true;
         headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
         headerRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
@@ -833,17 +813,17 @@
             }
 
             using var wb = new XLWorkbook();
-            var ws = wb.Worksheets.Add("ReporteDia");
+            var ws = wb.Worksheets.Add("ReporteDiaGLP");
             GenerarHojaReporteExcel(ws, dtSP);
 
-            string nombreArchivo = $"Reporte_{localSeleccionado}_{periodoSeleccionado}.xlsx";
+            string nombreArchivo = $"ReporteGLP_{localSeleccionado}_{periodoSeleccionado}.xlsx";
 
             using var ms = new MemoryStream();
             wb.SaveAs(ms);
             string base64 = Convert.ToBase64String(ms.ToArray());
 
             await JSRuntime.InvokeVoidAsync("eval", $"const a = document.createElement('a'); a.href = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{base64}'; a.download = '{nombreArchivo}'; document.body.appendChild(a); a.click(); document.body.removeChild(a);");
-            ToastService.Success($"Reporte {nombreArchivo} descargado.");
+            ToastService.Success($"Reporte GLP {nombreArchivo} descargado.");
         }
         catch (Exception ex)
         {
@@ -921,7 +901,7 @@
             {
                 foreach (var per in periodosMasivo.Where(p => periodosSeleccionadosMasivo.Contains(p)))
                 {
-                    var dt = await ValidacionPrecioService.EjecutarSPReportePrecioListaAsync(loc, per);
+                    var dt = await ValidacionPrecioService.EjecutarSPReportePrecioListaGlpAsync(loc, per);
                     if (dt != null && dt.Rows.Count > 0)
                     {
                         string cleanLoc = loc.Replace("EESS-", "").Replace(" ", "_");
@@ -946,23 +926,23 @@
 
             if (hojasCreadas == 0)
             {
-                ToastService.Warning("No se encontraron datos devueltos por el SP para los grifos y periodos seleccionados.");
+                ToastService.Warning("No se encontraron datos devueltos por el SP GLP para los grifos y periodos seleccionados.");
                 descargandoMasivo = false;
                 return;
             }
 
-            string nombreArchivo = $"Consolidado_PreciosMasivo_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+            string nombreArchivo = $"Consolidado_PreciosMasivoGLP_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
             using var ms = new MemoryStream();
             wb.SaveAs(ms);
             string base64 = Convert.ToBase64String(ms.ToArray());
 
             await JSRuntime.InvokeVoidAsync("eval", $"const a = document.createElement('a'); a.href = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{base64}'; a.download = '{nombreArchivo}'; document.body.appendChild(a); a.click(); document.body.removeChild(a);");
-            ToastService.Success($"Consolidado {nombreArchivo} descargado con {hojasCreadas} pestañas.");
+            ToastService.Success($"Consolidado GLP {nombreArchivo} descargado con {hojasCreadas} pestañas.");
             mostrarModalMasivo = false;
         }
         catch (Exception ex)
         {
-            ToastService.Error($"Error en descarga masiva: {ex.Message}");
+            ToastService.Error($"Error en descarga masiva GLP: {ex.Message}");
         }
         finally
         {

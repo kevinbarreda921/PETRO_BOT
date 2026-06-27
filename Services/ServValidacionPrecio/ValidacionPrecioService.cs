@@ -337,6 +337,80 @@ namespace PETRO_BOT.Services.Services
                 cmd.Parameters.AddWithValue("@periodo", periodo);
                 using var adapter = new SqlDataAdapter(cmd);
                 await Task.Run(() => adapter.Fill(dt));
+
+                if (dt.Columns.Contains("NOMBRE_LOCAL"))
+                {
+                    dt.Columns.Remove("NOMBRE_LOCAL");
+                }
+
+                if (dt.Columns.Contains("FECHA_TURNO") && !dt.Columns.Contains("DIAS"))
+                {
+                    var colDias = dt.Columns.Add("DIAS", typeof(string));
+                    colDias.SetOrdinal(1);
+                    var cultura = new System.Globalization.CultureInfo("es-ES");
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        var val = row["FECHA_TURNO"];
+                        if (val != null && val != DBNull.Value)
+                        {
+                            DateTime fecha;
+                            if (val is DateTime d) fecha = d;
+                            else if (DateTime.TryParse(val.ToString(), out DateTime d2)) fecha = d2;
+                            else continue;
+
+                            string dia = fecha.ToString("dddd", cultura).ToUpper();
+                            if (dia == "MIERCOLES") dia = "MIÉRCOLES";
+                            if (dia == "SABADO") dia = "SÁBADO";
+                            row["DIAS"] = dia;
+                        }
+                    }
+                }
+            }
+            catch { }
+            return dt;
+        }
+
+        public async Task<DataTable> EjecutarSPReportePrecioListaGlpAsync(string nombreLocal, string periodo)
+        {
+            var dt = new DataTable();
+            try
+            {
+                using var conn = new SqlConnection(_connectionString);
+                await conn.OpenAsync();
+                using var cmd = new SqlCommand("EXEC [PETRO].[SP_REPORTE_PRECIO_LISTA_GLP] @NOMBRE_LOCAL = @local, @FECHA_TURNO_MES = @periodo", conn);
+                cmd.CommandTimeout = 300;
+                cmd.Parameters.AddWithValue("@local", nombreLocal);
+                cmd.Parameters.AddWithValue("@periodo", periodo);
+                using var adapter = new SqlDataAdapter(cmd);
+                await Task.Run(() => adapter.Fill(dt));
+
+                if (dt.Columns.Contains("NOMBRE_LOCAL"))
+                {
+                    dt.Columns.Remove("NOMBRE_LOCAL");
+                }
+
+                if (dt.Columns.Contains("FECHA_TURNO") && !dt.Columns.Contains("DIAS"))
+                {
+                    var colDias = dt.Columns.Add("DIAS", typeof(string));
+                    colDias.SetOrdinal(1);
+                    var cultura = new System.Globalization.CultureInfo("es-ES");
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        var val = row["FECHA_TURNO"];
+                        if (val != null && val != DBNull.Value)
+                        {
+                            DateTime fecha;
+                            if (val is DateTime d) fecha = d;
+                            else if (DateTime.TryParse(val.ToString(), out DateTime d2)) fecha = d2;
+                            else continue;
+
+                            string dia = fecha.ToString("dddd", cultura).ToUpper();
+                            if (dia == "MIERCOLES") dia = "MIÉRCOLES";
+                            if (dia == "SABADO") dia = "SÁBADO";
+                            row["DIAS"] = dia;
+                        }
+                    }
+                }
             }
             catch { }
             return dt;
