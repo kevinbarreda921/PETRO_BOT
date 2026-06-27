@@ -1,0 +1,664 @@
+@page "/ImportarVentaWebActiva"
+@using PETRO_BOT.Models.ValidacionPrecio
+@using PETRO_BOT.Models.WebActiva
+@using PETRO_BOT.Services.Services
+@using PETRO_BOT.Services.Toast
+@using PETRO_BOT.Services.WebActiva
+@using PETRO_BOT.Components.Pages.Elementos
+@using System.IO
+@using System.IO.Compression
+@rendermode InteractiveServer
+@inject ValidacionPrecioService ValidacionPrecioService
+@inject WebActivaScraperService ScraperService
+@inject ToastService ToastService
+@inject IJSRuntime JSRuntime
+@inject IConfiguration Configuration
+
+<PageTitle>Validación precio lista - Importar Venta Web Activa</PageTitle>
+
+<div class="w-full flex flex-col gap-6 animate-fade-in-up h-[calc(100vh-135px)] min-h-[600px] overflow-hidden">
+
+    <!-- SECCIÓN SUPERIOR: GRID DE 2 COLUMNAS -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch shrink-0">
+        
+        <!-- IZQUIERDA: CAJA DE IMPORTACIÓN -->
+        <div class="lg:col-span-8 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col relative shadow-xs justify-between">
+            @if (estaProcesando)
+            {
+                <LoadingRayo />
+            }
+            
+            <div class="flex flex-col flex-1">
+                <div class="border-b border-slate-100 pb-4 mb-5">
+                    <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest block">Módulo de Importación Web Activa</h3>
+                    <span class="text-[10px] text-slate-400 font-bold block mt-0.5">Extracción automatizada vía Web Scraping y validación masiva</span>
+                </div>
+
+                <!-- Selector de Fechas y Botón de Scraping -->
+                <div class="flex flex-col gap-4 my-auto w-full py-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[10px] font-black uppercase tracking-wider text-slate-600">Fecha Inicial</label>
+                            <input type="date" value="@fechaInicio" @onchange='(e) => fechaInicio = e.Value?.ToString() ?? "2026-04-01"' class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-slate-800 transition-all" />
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[10px] font-black uppercase tracking-wider text-slate-600">Fecha Final</label>
+                            <input type="date" value="@fechaFin" @onchange='(e) => fechaFin = e.Value?.ToString() ?? "2026-04-30"' class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-slate-800 transition-all" />
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3 mt-1">
+                        <button type="button" @onclick="IniciarScrapingAsync" disabled="@estaProcesando"
+                                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-wider py-3.5 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer disabled:opacity-50">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                            <span>Importar Archivos de Web Activa</span>
+                        </button>
+
+                        <button type="button" @onclick="DescargarTodoZipAsync" disabled="@(estaProcesando || !archivosEnCarpeta.Any())"
+                                class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider py-3.5 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <span>Descargar Todo (.zip)</span>
+                        </button>
+
+                        <button type="button" @onclick="EliminarArchivosWebActiva" disabled="@(estaProcesando || !archivosEnCarpeta.Any())"
+                                title="Eliminar archivos de la carpeta WebActivaExcel"
+                                class="bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 font-black text-xs uppercase tracking-wider py-3.5 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            <span>Eliminar</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-2xl p-3.5 border border-slate-200/80 flex items-center justify-between mt-1">
+                        <span class="text-xs font-black text-slate-700 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full @(archivosEnCarpeta.Any() ? "bg-emerald-500" : "bg-slate-300")"></span>
+                            <span>Archivos Excel en carpeta (uploads/WebActivaExcel):</span>
+                        </span>
+                        <span class="text-xs font-mono font-black bg-white px-3 py-1 rounded-xl border border-slate-200 text-slate-800 shadow-2xs">
+                            @archivosEnCarpeta.Count listos
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ESTOS 4 BOTONES INFERIORES -->
+            <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-100/80 w-full">
+                <button disabled="@(estaProcesando || !archivosEnCarpeta.Any())" 
+                        @onclick="AbrirModalAdjuntos" 
+                        type="button"
+                        class="flex-1 bg-white text-slate-700 border border-slate-200 rounded-xl py-3.5 text-[10px] font-black uppercase tracking-wider hover:bg-slate-50 transition-all active:scale-[0.98] cursor-pointer select-none disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs text-center">
+                    Ver archivos en cola
+                </button>
+                <button @onclick="EjecutarProceso"
+                        type="button"
+                        disabled="@(estaProcesando || !archivosEnCarpeta.Any())"
+                        class="flex-1 bg-[#0f172a] text-white rounded-xl py-3.5 text-[10px] font-black uppercase tracking-wider shadow-md hover:bg-slate-800 hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer select-none disabled:opacity-40 disabled:cursor-not-allowed">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <span>Ejecutar Proceso</span>
+                </button>
+                <button disabled="@estaProcesando" 
+                        @onclick="Limpiar" 
+                        type="button"
+                        class="flex-1 px-4 py-3.5 bg-white border border-slate-200 hover:bg-rose-50 hover:text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all active:scale-[0.98] cursor-pointer select-none disabled:opacity-40 shadow-2xs text-center">
+                    Limpiar Tabla
+                </button>
+                <button disabled="@estaProcesando" 
+                        @onclick="TruncarTablaBD" 
+                        type="button"
+                        title="Vaciar completamente (TRUNCATE) la tabla PETRO.REPORTE_PRECIO_LISTA"
+                        class="flex-1 px-3 py-3.5 bg-rose-50 border border-rose-200 hover:bg-rose-600 hover:text-white text-rose-700 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all active:scale-[0.98] cursor-pointer select-none disabled:opacity-40 shadow-2xs flex items-center justify-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    <span>Truncar BD</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- DERECHA: RESUMEN DE EJECUCIÓN -->
+        <div class="lg:col-span-4 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col relative shadow-xs justify-between">
+            <div class="border-b border-slate-100 pb-4 mb-4">
+                <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    Resumen de Ejecución
+                </h3>
+                <span class="text-[10px] text-slate-400 font-bold block mt-0.5">Indicadores de estado del último proceso</span>
+            </div>
+
+            <div class="flex flex-col gap-3.5 my-auto">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-emerald-50/70 border border-emerald-100 rounded-2xl p-4 flex flex-col justify-center shadow-2xs relative overflow-hidden">
+                        <div class="absolute right-2 top-1/2 -translate-y-1/2 opacity-25 text-emerald-600 pointer-events-none">
+                            <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <span class="text-[9px] font-black text-emerald-700 uppercase tracking-wider block mb-1">Correctos</span>
+                        <span class="text-2xl font-black text-emerald-900 font-mono">
+                            @archivosImportados.Count(a => a.Estado == 1)
+                        </span>
+                    </div>
+
+                    <div class="bg-rose-50/70 border border-rose-100 rounded-2xl p-4 flex flex-col justify-center shadow-2xs relative overflow-hidden">
+                        <div class="absolute right-2 top-1/2 -translate-y-1/2 opacity-25 text-rose-600 pointer-events-none">
+                            <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <span class="text-[9px] font-black text-rose-700 uppercase tracking-wider block mb-1">Con Error</span>
+                        <span class="text-2xl font-black text-rose-900 font-mono">
+                            @archivosImportados.Count(a => a.Estado == 0)
+                        </span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 text-white rounded-2xl p-4 flex items-center justify-between shadow-sm relative overflow-hidden">
+                    <div class="flex flex-col z-10">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Tiempo de Ejecución</span>
+                        <span class="text-xl font-black text-emerald-400 font-mono">
+                            @(tiempoTotalEjecucionMs > 1000 ? $"{(tiempoTotalEjecucionMs / 1000.0):F2} s" : $"{tiempoTotalEjecucionMs} ms")
+                        </span>
+                    </div>
+                    <div class="p-2.5 bg-slate-800 rounded-xl text-slate-300 border border-slate-700 shrink-0 z-10">
+                        <svg class="w-5.5 h-5.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-medium mt-3">
+                <span>Estado en Sistema</span>
+                <span class="flex items-center gap-1.5 font-bold @(estaProcesando ? "text-amber-500" : "text-emerald-600")">
+                    <span class="w-2 h-2 rounded-full @(estaProcesando ? "bg-amber-500 animate-ping" : "bg-emerald-500")"></span>
+                    @(estaProcesando ? "Procesando lote..." : "Listo")
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SEGUNDA CAJA: LISTA DE ARCHIVOS PROCESADOS -->
+    <div class="bg-white border border-slate-200/60 rounded-[30px] p-6 flex-1 flex flex-col min-h-0 overflow-hidden relative shadow-xs">
+        <div class="border-b border-slate-100 pb-4 mb-4 flex items-center justify-between shrink-0">
+            <div>
+                <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest block">Archivos Procesados</h3>
+                <span class="text-[10px] text-slate-400 font-bold block mt-0.5">contador, archivo importado, cantidad de registros importados, estado, descripción de estado</span>
+            </div>
+            @if (archivosImportados.Any())
+            {
+                <span class="text-[10px] font-black bg-slate-100 text-slate-700 px-3 py-1 rounded-full border border-slate-200">
+                    Total procesados: @archivosImportados.Count
+                </span>
+            }
+        </div>
+
+        <div class="flex-1 overflow-y-auto overflow-x-auto rounded-2xl border border-slate-200 custom-scrollbar min-h-0 relative">
+            <table class="w-full text-left border-collapse relative">
+                <thead class="sticky top-0 z-20">
+                    <tr class="border-b border-slate-200 font-black text-[10px] uppercase tracking-wider" style="background-color: #1e293b !important; color: #ffffff !important;">
+                        <th class="py-3.5 px-4 text-center w-16" style="background-color: #1e293b !important; color: #ffffff !important;">#</th>
+                        <th class="py-3.5 px-4" style="background-color: #1e293b !important; color: #ffffff !important;">Archivo Importado</th>
+                        <th class="py-3.5 px-4 text-center w-44" style="background-color: #1e293b !important; color: #ffffff !important;">Registros Importados</th>
+                        <th class="py-3.5 px-4 text-center w-36" style="background-color: #1e293b !important; color: #ffffff !important;">Estado</th>
+                        <th class="py-3.5 px-4" style="background-color: #1e293b !important; color: #ffffff !important;">Descripción de Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="text-xs text-slate-700 divide-y divide-slate-100">
+                    @if (!archivosImportados.Any())
+                    {
+                        @if (!estaProcesando)
+                        {
+                            <tr>
+                                <td colspan="5" class="py-14 text-center text-slate-400 italic font-bold uppercase tracking-widest bg-white text-xs">
+                                    Sin archivos procesados aún
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        @foreach (var archivo in archivosImportados)
+                        {
+                            <tr class="hover:bg-slate-50/60 transition-all duration-150">
+                                <td class="py-3 px-4 bg-white text-center font-black text-slate-400 text-[11px]">
+                                    @archivo.Contador.
+                                </td>
+                                <td class="py-3 px-4 bg-white font-black text-slate-800 text-xs">
+                                    @archivo.ArchivoImportado
+                                </td>
+                                <td class="py-3 px-4 bg-white text-center font-mono font-bold text-slate-700 text-xs">
+                                    @archivo.CantidadRegistros.ToString("N0")
+                                </td>
+                                <td class="py-3 px-4 bg-white text-center">
+                                    @if (archivo.Estado == 1)
+                                    {
+                                        <span class="text-[9px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-md font-black uppercase inline-block shadow-2xs">Success</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-[9px] bg-rose-50 text-rose-700 border border-rose-200 px-2.5 py-1 rounded-md font-black uppercase inline-block shadow-2xs">Error</span>
+                                    }
+                                </td>
+                                <td class="py-3 px-4 bg-white text-xs @(archivo.Estado == 1 ? "text-slate-600 font-medium" : "text-rose-600 font-bold")">
+                                    @archivo.DescripcionEstado
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- MODAL SCRAPING CARGA MINIMALISTA Y MODERNA -->
+@if (mostrarModalScraping)
+{
+    <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999] select-none">
+        <div class="bg-white border border-slate-200 rounded-[32px] shadow-2xl w-full max-w-lg p-8 flex flex-col relative overflow-hidden animate-fade-in-up">
+            
+            <div class="flex items-center justify-between pb-6 border-b border-slate-100 mb-6">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 rounded-2xl bg-[#0f172a] text-white flex items-center justify-center shadow-lg">
+                        @if (!progresoScraping.Finalizado)
+                        {
+                            <svg class="w-6 h-6 animate-spin text-blue-400" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        }
+                        else if (progresoScraping.ConError)
+                        {
+                            <svg class="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        }
+                        else
+                        {
+                            <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        }
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider">Web Activa Scraper</h3>
+                        <span class="text-[10px] font-bold text-slate-400 block mt-0.5">Sincronización automatizada en tiempo real</span>
+                    </div>
+                </div>
+                @if (progresoScraping.Finalizado)
+                {
+                    <button @onclick="() => mostrarModalScraping = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer">
+                        Cerrar
+                    </button>
+                }
+            </div>
+
+            <!-- Pasos en tiempo real -->
+            <div class="flex flex-col gap-3 mb-6 bg-slate-50/80 p-5 rounded-2xl border border-slate-200/80 font-mono text-xs">
+                <div class="flex items-center gap-2.5 @(progresoScraping.PasoActual != "" ? "text-slate-800 font-bold" : "text-slate-400")">
+                    <span class="w-2 h-2 rounded-full @(progresoScraping.PasoActual == "-ingresando a web activa" ? "bg-amber-500 animate-ping" : "bg-emerald-500")"></span>
+                    <span>-ingresando a web activa</span>
+                </div>
+                <div class="flex items-center gap-2.5 @(progresoScraping.PasoActual == "-ingresando credenciales" || progresoScraping.PasoActual == "-ingresando a modulo de reporteria" || progresoScraping.DescargaIniciada ? "text-slate-800 font-bold" : "text-slate-400")">
+                    <span class="w-2 h-2 rounded-full @(progresoScraping.PasoActual == "-ingresando credenciales" ? "bg-amber-500 animate-ping" : (progresoScraping.PasoActual != "-ingresando a web activa" ? "bg-emerald-500" : "bg-slate-300"))"></span>
+                    <span>-ingresando credenciales</span>
+                </div>
+                <div class="flex items-center gap-2.5 @(progresoScraping.PasoActual == "-ingresando a modulo de reporteria" || progresoScraping.DescargaIniciada ? "text-slate-800 font-bold" : "text-slate-400")">
+                    <span class="w-2 h-2 rounded-full @(progresoScraping.PasoActual == "-ingresando a modulo de reporteria" ? "bg-amber-500 animate-ping" : (progresoScraping.DescargaIniciada ? "bg-emerald-500" : "bg-slate-300"))"></span>
+                    <span>-ingresando a modulo de reporteria</span>
+                </div>
+            </div>
+
+            <!-- Contador de descarga -->
+            @if (progresoScraping.DescargaIniciada)
+            {
+                <div class="flex flex-col gap-2 mb-4">
+                    <div class="flex items-center justify-between text-xs font-black uppercase tracking-wider text-slate-700">
+                        <span>Descargando Archivos</span>
+                        <span class="text-blue-600 font-mono font-black bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+                            @progresoScraping.GrifosProcesados grifos de @progresoScraping.TotalGrifos grifos
+                        </span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200">
+                        <div class="bg-blue-600 h-2.5 transition-all duration-300 rounded-full" style="width: @(progresoScraping.TotalGrifos > 0 ? (progresoScraping.GrifosProcesados * 100 / progresoScraping.TotalGrifos) : 0)%"></div>
+                    </div>
+                </div>
+
+                <!-- Log terminal en tiempo real -->
+                <div class="bg-[#0f172a] text-emerald-400 font-mono text-[11px] p-4 rounded-2xl h-44 overflow-y-auto custom-scrollbar flex flex-col gap-2 border border-slate-800 shadow-inner">
+                    @if (!historialLogsScraping.Any())
+                    {
+                        <span class="text-slate-500 italic flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping"></span>
+                            <span>Consultando servidor de Web Activa...</span>
+                        </span>
+                    }
+                    else
+                    {
+                        @foreach (var log in historialLogsScraping)
+                        {
+                            <div class="flex items-start gap-2 animate-fade-in-up">
+                                <span class="text-blue-400 select-none font-bold">❯</span>
+                                <span class="leading-relaxed text-slate-200 font-medium">@log</span>
+                            </div>
+                        }
+                    }
+                </div>
+            }
+
+            @if (progresoScraping.ConError)
+            {
+                <div class="mt-4 p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl text-xs font-bold leading-relaxed">
+                    ❌ Ocurrió un error: @progresoScraping.MensajeError
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- MODAL VER ADJUNTOS EN COLA -->
+@if (mostrarModalAdjuntos)
+{
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[9998] animate-modal-in">
+        <div class="fixed inset-0 z-[-1]" @onclick="CerrarModalAdjuntos"></div>
+        
+        <div class="bg-white border border-slate-200 rounded-[28px] shadow-2xl w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden relative z-10"
+             @onclick:stopPropagation="true">
+            
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div>
+                    <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-0.5">Archivos en Servidor</span>
+                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-wider">Carpeta WebActivaExcel</h3>
+                </div>
+                <button @onclick="CerrarModalAdjuntos" type="button" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-200/60 transition-all cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
+                @if (!archivosEnCarpeta.Any())
+                {
+                    <div class="py-12 text-center text-slate-400 text-xs font-bold uppercase tracking-widest italic">
+                        No hay archivos en la carpeta uploads/WebActivaExcel
+                    </div>
+                }
+                else
+                {
+                    <div class="flex flex-col gap-2.5">
+                        @for (int i = 0; i < archivosEnCarpeta.Count; i++)
+                        {
+                            var index = i;
+                            var nombre = archivosEnCarpeta[i];
+                            <div class="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100/80 rounded-2xl border border-slate-200/60 transition-all group">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="p-2 bg-emerald-50 text-emerald-600 rounded-xl shrink-0">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-700 truncate font-mono">@nombre</span>
+                                </div>
+                                <button type="button" @onclick="() => EliminarArchivoIndividual(nombre)" title="Eliminar este archivo" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all cursor-pointer opacity-0 group-hover:opacity-100">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-3">
+                <button type="button" @onclick="CerrarModalAdjuntos" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-md">
+                    Listo
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- MODAL CONFIRMAR TRUNCAR BD -->
+@if (mostrarModalConfirmarTruncar)
+{
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[9999] animate-modal-in select-none">
+        <div class="fixed inset-0 z-[-1]" @onclick="CancelarTruncarBD"></div>
+        
+        <div class="bg-white border border-slate-200 rounded-[32px] shadow-2xl w-full max-w-md p-8 flex flex-col text-center relative overflow-hidden z-10"
+             @onclick:stopPropagation="true">
+            
+            <div class="w-16 h-16 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-5 border border-rose-200 shadow-inner">
+                <svg class="w-8 h-8 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+
+            <span class="text-[10px] font-black text-rose-500 uppercase tracking-widest block mb-1">Acción Destructiva Irreversible</span>
+            <h3 class="text-base font-black text-slate-800 uppercase tracking-wider mb-3">¿Vaciar Base de Datos?</h3>
+            
+            <p class="text-xs text-slate-500 font-medium leading-relaxed mb-8 font-mono">
+                Está a punto de ejecutar <span class="bg-rose-100 text-rose-800 font-bold px-1.5 py-0.5 rounded">TRUNCATE</span> en la tabla <span class="text-slate-800 font-bold">[PETRO].[REPORTE_PRECIO_LISTA]</span>. Todos los reportes generados se eliminarán permanentemente de SQL Server.
+            </p>
+
+            <div class="flex items-center gap-3 w-full">
+                <button type="button" @onclick="CancelarTruncarBD" disabled="@estaProcesando"
+                        class="flex-1 px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer active:scale-95">
+                    Cancelar
+                </button>
+                <button type="button" @onclick="ConfirmarTruncarBDAsync" disabled="@estaProcesando"
+                        class="flex-1 px-5 py-3.5 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-wider shadow-lg shadow-rose-600/30 transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    <span>Sí, Vaciar BD</span>
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool estaProcesando = false;
+    private bool mostrarModalAdjuntos = false;
+    private bool mostrarModalConfirmarTruncar = false;
+    private bool mostrarModalScraping = false;
+    private long tiempoTotalEjecucionMs = 0;
+    
+    private string fechaInicio = "2026-04-01";
+    private string fechaFin = "2026-04-30";
+
+    private List<string> archivosEnCarpeta = new();
+    private List<ArchivoImportadoVenta> archivosImportados = new();
+
+    private ScraperProgress progresoScraping = new();
+    private List<string> historialLogsScraping = new();
+
+    protected override void OnInitialized()
+    {
+        fechaInicio = Configuration["WebActiva:FechaInicio"] ?? "2026-04-01";
+        fechaFin = Configuration["WebActiva:FechaFin"] ?? "2026-04-30";
+        CargarArchivosEnCarpeta();
+    }
+
+    private void CargarArchivosEnCarpeta()
+    {
+        string carpeta = ScraperService.ObtenerCarpetaDescarga();
+        if (Directory.Exists(carpeta))
+        {
+            archivosEnCarpeta = Directory.GetFiles(carpeta, "*.xlsx").Select(Path.GetFileName).ToList()!;
+        }
+        else
+        {
+            archivosEnCarpeta = new List<string>();
+        }
+    }
+
+    private void AbrirModalAdjuntos() => mostrarModalAdjuntos = true;
+    private void CerrarModalAdjuntos() => mostrarModalAdjuntos = false;
+
+    private async Task IniciarScrapingAsync()
+    {
+        estaProcesando = true;
+        mostrarModalScraping = true;
+        progresoScraping = new ScraperProgress();
+        historialLogsScraping.Clear();
+        StateHasChanged();
+
+        await ScraperService.EjecutarScrapingAsync(fechaInicio, fechaFin, progreso =>
+        {
+            _ = InvokeAsync(() =>
+            {
+                progresoScraping = progreso;
+                if (!string.IsNullOrEmpty(progreso.UltimoMensajeLog) && !historialLogsScraping.Contains(progreso.UltimoMensajeLog))
+                {
+                    historialLogsScraping.Add(progreso.UltimoMensajeLog);
+                }
+                StateHasChanged();
+            });
+        });
+
+        estaProcesando = false;
+        CargarArchivosEnCarpeta();
+        
+        if (progresoScraping.ConError)
+        {
+            ToastService.Error($"Error en scraping: {progresoScraping.MensajeError}");
+        }
+        else
+        {
+            ToastService.Success("Importación de Web Activa completada exitosamente.");
+        }
+    }
+
+    private async Task DescargarTodoZipAsync()
+    {
+        string carpeta = ScraperService.ObtenerCarpetaDescarga();
+        var archivos = Directory.Exists(carpeta) ? Directory.GetFiles(carpeta, "*.xlsx") : Array.Empty<string>();
+        
+        if (archivos.Length == 0)
+        {
+            ToastService.Warning("No hay archivos en la carpeta para descargar.");
+            return;
+        }
+
+        estaProcesando = true;
+        StateHasChanged();
+
+        try
+        {
+            using var ms = new MemoryStream();
+            using (var archive = new ZipArchive(ms, ZipArchiveMode.Create, true))
+            {
+                foreach (var f in archivos)
+                {
+                    var entry = archive.CreateEntry(Path.GetFileName(f));
+                    using var entryStream = entry.Open();
+                    using var fileStream = new FileStream(f, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    await fileStream.CopyToAsync(entryStream);
+                }
+            }
+
+            ms.Position = 0;
+            string base64 = Convert.ToBase64String(ms.ToArray());
+            string nombreZip = $"WebActivaExcel_{DateTime.Now:yyyyMMdd_HHmmss}.zip";
+
+            await JSRuntime.InvokeVoidAsync("eval", $"const a = document.createElement('a'); a.href = 'data:application/zip;base64,{base64}'; a.download = '{nombreZip}'; document.body.appendChild(a); a.click(); document.body.removeChild(a);");
+            ToastService.Success("Archivo ZIP descargado correctamente.");
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"Error al comprimir: {ex.Message}");
+        }
+        finally
+        {
+            estaProcesando = false;
+            StateHasChanged();
+        }
+    }
+
+    private void EliminarArchivosWebActiva()
+    {
+        string carpeta = ScraperService.ObtenerCarpetaDescarga();
+        if (Directory.Exists(carpeta))
+        {
+            foreach (var f in Directory.GetFiles(carpeta))
+            {
+                try { File.Delete(f); } catch { }
+            }
+        }
+        CargarArchivosEnCarpeta();
+        ToastService.Warning("Archivos eliminados de la carpeta WebActivaExcel.");
+    }
+
+    private void EliminarArchivoIndividual(string nombreArchivo)
+    {
+        string carpeta = ScraperService.ObtenerCarpetaDescarga();
+        string ruta = Path.Combine(carpeta, nombreArchivo);
+        if (File.Exists(ruta))
+        {
+            try { File.Delete(ruta); } catch { }
+        }
+        CargarArchivosEnCarpeta();
+        ToastService.Warning($"Archivo {nombreArchivo} eliminado.");
+    }
+
+    private async Task EjecutarProceso()
+    {
+        string carpeta = ScraperService.ObtenerCarpetaDescarga();
+        var archivos = Directory.Exists(carpeta) ? Directory.GetFiles(carpeta, "*.xlsx").ToList() : new List<string>();
+
+        if (!archivos.Any())
+        {
+            ToastService.Warning("No hay archivos Excel en la carpeta WebActivaExcel para procesar.");
+            return;
+        }
+
+        estaProcesando = true;
+        archivosImportados.Clear();
+        tiempoTotalEjecucionMs = 0;
+        StateHasChanged();
+
+        var cronoGeneral = System.Diagnostics.Stopwatch.StartNew();
+
+        for (int i = 0; i < archivos.Count; i++)
+        {
+            string ruta = archivos[i];
+            string nombre = Path.GetFileName(ruta);
+
+            var resultado = await ValidacionPrecioService.ProcesarArchivoVentaAsync(ruta, nombre);
+
+            archivosImportados.Add(new ArchivoImportadoVenta
+            {
+                Contador = archivosImportados.Count + 1,
+                ArchivoImportado = nombre,
+                CantidadRegistros = resultado.RegistrosInsertados,
+                Estado = resultado.Exito ? 1 : 0,
+                DescripcionEstado = resultado.Mensaje,
+                DemoraMs = resultado.DemoraMs,
+                RutaCompleta = ruta
+            });
+            StateHasChanged();
+        }
+
+        cronoGeneral.Stop();
+        tiempoTotalEjecucionMs = cronoGeneral.ElapsedMilliseconds;
+        estaProcesando = false;
+        ToastService.Success("Procesamiento masivo finalizado.");
+    }
+
+    private void Limpiar()
+    {
+        archivosImportados.Clear();
+        tiempoTotalEjecucionMs = 0;
+        ToastService.Info("Tabla limpia.");
+    }
+
+    private void TruncarTablaBD()
+    {
+        mostrarModalConfirmarTruncar = true;
+    }
+
+    private void CancelarTruncarBD()
+    {
+        mostrarModalConfirmarTruncar = false;
+    }
+
+    private async Task ConfirmarTruncarBDAsync()
+    {
+        mostrarModalConfirmarTruncar = false;
+        estaProcesando = true;
+        StateHasChanged();
+
+        var res = await ValidacionPrecioService.TruncarTablaAsync();
+        estaProcesando = false;
+
+        if (res.Exito)
+        {
+            archivosImportados.Clear();
+            tiempoTotalEjecucionMs = 0;
+            ToastService.Success(res.Mensaje);
+        }
+        else
+        {
+            ToastService.Warning(res.Mensaje);
+        }
+    }
+}

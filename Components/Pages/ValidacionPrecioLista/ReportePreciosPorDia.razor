@@ -238,6 +238,32 @@
                                 </tr>
                             }
                         </tbody>
+                        <tfoot class="sticky bottom-0 z-20 bg-[#0f172a] text-white font-bold tracking-wider text-[11px] shadow-lg select-none">
+                            <tr>
+                                <td class="py-2.5 px-3 border-r border-t border-slate-700 text-center bg-[#0f172a] text-amber-400 font-black">∑</td>
+                                @for (int c = 0; c < dtSP.Columns.Count; c++)
+                                {
+                                    string colName = dtSP.Columns[c].ColumnName;
+                                    if (c == 0 && !EsColumnaDeTotal(colName))
+                                    {
+                                        <td class="py-2.5 px-3 border-r border-t border-slate-700 bg-[#0f172a] text-amber-400 font-black uppercase whitespace-nowrap">
+                                            TOTALES
+                                        </td>
+                                    }
+                                    else if (EsColumnaDeTotal(colName))
+                                    {
+                                        decimal total = CalcularTotalTabla(dtSP, colName);
+                                        <td class="py-2.5 px-3 border-r border-t border-slate-700 bg-emerald-950/90 text-emerald-300 font-black text-right whitespace-nowrap shadow-inner">
+                                            @total.ToString("N2")
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td class="py-2.5 px-3 border-r border-t border-slate-700 bg-[#0f172a] whitespace-nowrap"></td>
+                                    }
+                                }
+                            </tr>
+                        </tfoot>
                     </table>
                 }
             </div>
@@ -596,6 +622,55 @@
         return false;
     }
 
+    private bool EsColumnaDeTotal(string colName)
+    {
+        return colName.Equals("DIESEL_DB5_CANTIDAD_TOTAL", StringComparison.OrdinalIgnoreCase) ||
+               colName.Equals("GASOHOL_REGULAR_CANTIDAD_TOTAL", StringComparison.OrdinalIgnoreCase) ||
+               colName.Equals("GASOHOL_PREMIUM_CANTIDAD_TOTAL", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private decimal CalcularTotalTabla(DataTable? dt, string nombreColumna)
+    {
+        if (dt == null) return 0m;
+        decimal suma = 0m;
+        foreach (DataRow row in dt.Rows)
+        {
+            if (dt.Columns.Contains(nombreColumna) && row[nombreColumna] != DBNull.Value)
+            {
+                string valStr = row[nombreColumna]?.ToString() ?? "";
+                if (decimal.TryParse(valStr, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal decInv))
+                {
+                    suma += decInv;
+                }
+                else if (decimal.TryParse(valStr, NumberStyles.Any, CultureInfo.CurrentCulture, out decimal decCur))
+                {
+                    suma += decCur;
+                }
+            }
+        }
+        return suma;
+    }
+
+    private void AgregarFilaTotalesAExcel(IXLWorksheet ws, DataTable dt)
+    {
+        int totalRowIdx = dt.Rows.Count + 2;
+        ws.Cell(totalRowIdx, 1).Value = "TOTALES";
+        ws.Cell(totalRowIdx, 1).Style.Font.Bold = true;
+
+        for (int c = 0; c < dt.Columns.Count; c++)
+        {
+            string colName = dt.Columns[c].ColumnName;
+            if (EsColumnaDeTotal(colName))
+            {
+                decimal tot = CalcularTotalTabla(dt, colName);
+                var celda = ws.Cell(totalRowIdx, c + 1);
+                celda.Value = tot;
+                celda.Style.Font.Bold = true;
+                celda.Style.NumberFormat.Format = "#,##0.00";
+            }
+        }
+    }
+
     private async Task DescargarExcel()
     {
         if (dtSP == null || dtSP.Rows.Count == 0) return;
@@ -614,6 +689,7 @@
             using var wb = new XLWorkbook();
             var ws = wb.Worksheets.Add("ReporteDia");
             ws.Cell(1, 1).InsertTable(dtSP);
+            AgregarFilaTotalesAExcel(ws, dtSP);
             ws.Columns().AdjustToContents();
 
             string nombreArchivo = $"Reporte_{localSeleccionado}_{periodoSeleccionado}.xlsx";
@@ -719,6 +795,7 @@
 
                         var ws = wb.Worksheets.Add(nombreHoja);
                         ws.Cell(1, 1).InsertTable(dt);
+                        AgregarFilaTotalesAExcel(ws, dt);
                         ws.Columns().AdjustToContents();
                         hojasCreadas++;
                     }
