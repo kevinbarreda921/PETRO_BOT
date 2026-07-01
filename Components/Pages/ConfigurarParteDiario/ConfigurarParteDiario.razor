@@ -10,6 +10,7 @@
 @using System.IO
 @using ExcelDataReader
 @using OfficeOpenXml
+@using ClosedXML.Excel
 
 <div class="flex flex-col gap-6 animate-new-row">
 
@@ -62,7 +63,11 @@
         </div>
 
         <!-- Right Column: Form Editor -->
-        <div class="lg:col-span-8 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col hover:border-slate-300 hover:shadow-lg transition-all duration-300 overflow-y-auto custom-scrollbar animate-fade-in-up" style="height: calc(100vh - 160px);">
+        <div class="lg:col-span-8 bg-white border border-slate-200/60 rounded-[30px] p-6 flex flex-col hover:border-slate-300 hover:shadow-lg transition-all duration-300 overflow-y-auto custom-scrollbar animate-fade-in-up relative" style="height: calc(100vh - 160px);">
+            @if (cargandoPlantilla)
+            {
+                <LoadingRayo />
+            }
             <div class="flex flex-col h-full">
                 @if (grifoSeleccionado == null)
                 {
@@ -119,85 +124,97 @@
                                 <!-- 1: NOMBRE GRIFO WEB ACTIVA -->
                                 <div class="flex flex-col gap-1.5">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">1: NOMBRE GRIFO WEB ACTIVA</label>
-                                    <input type="text" @bind="grifoSeleccionado.NombreGrifo" class="w-full rounded-xl px-3 py-2 text-xs font-bold border border-slate-200 bg-white text-slate-800 select-none outline-none min-h-[34px]" placeholder="Escribir nombre..." />
+                                    <input type="text" @bind="grifoSeleccionado.NombreGrifo" class="w-full rounded-xl px-3 py-2 text-xs font-bold border border-slate-200 bg-white text-slate-800 select-none outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-800/10 min-h-[34px]" placeholder="Escribir nombre..." title="Escriba el nombre del grifo web activa" />
                                 </div>
 
                                 <!-- 2: Columna Fecha -->
-                                <div class="flex flex-col gap-1.5 relative">
+                                <div class="flex flex-col gap-1.5">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">2: Columna Fecha</label>
-                                    <button @onclick='() => ActivarSeleccionCelda("CeldaFecha")' type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(string.IsNullOrEmpty(grifoSeleccionado.CeldaFecha) ? "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;" : "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;")">
-                                        <span>@(string.IsNullOrEmpty(grifoSeleccionado.CeldaFecha) ? "Seleccionar celda" : grifoSeleccionado.CeldaFecha)</span>
-                                    </button>
-                                    @if (!string.IsNullOrEmpty(grifoSeleccionado.CeldaFecha))
-                                    {
-                                        <button @onclick="() => grifoSeleccionado.CeldaFecha = null" type="button" class="absolute right-1 bottom-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all font-bold text-[10px]">✕</button>
-                                    }
+                                    <div class="relative flex items-center">
+                                        <button @onclick='() => ActivarSeleccionCelda("CeldaFecha")' type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaFecha) ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaFecha) ? $"Celda asignada: {grifoSeleccionado.CeldaFecha} (Columna Fecha)" : "Sin Asignar - Haz clic para seleccionar en plantilla")">
+                                            <span>@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaFecha) ? grifoSeleccionado.CeldaFecha : "Seleccionar celda")</span>
+                                        </button>
+                                        @if (!string.IsNullOrEmpty(grifoSeleccionado.CeldaFecha))
+                                        {
+                                            <button @onclick="() => grifoSeleccionado.CeldaFecha = null" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold text-[10px]" title="Limpiar valor">✕</button>
+                                        }
+                                    </div>
                                 </div>
 
                                 <!-- 3: EESS -->
-                                <div class="flex flex-col gap-1.5 relative">
+                                <div class="flex flex-col gap-1.5">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">3: EESS</label>
-                                    <button @onclick='() => ActivarSeleccionCelda("CeldaEess")' type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(string.IsNullOrEmpty(grifoSeleccionado.CeldaEess) ? "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;" : "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;")">
-                                        <span>@(string.IsNullOrEmpty(grifoSeleccionado.CeldaEess) ? "Seleccionar celda" : grifoSeleccionado.CeldaEess)</span>
-                                    </button>
-                                    @if (!string.IsNullOrEmpty(grifoSeleccionado.CeldaEess))
-                                    {
-                                        <button @onclick="() => { grifoSeleccionado.CeldaEess = null; grifoSeleccionado.PalabraClaveEess = null; }" type="button" class="absolute right-1 bottom-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all font-bold text-[10px]">✕</button>
-                                    }
+                                    <div class="relative flex items-center">
+                                        <button @onclick='() => ActivarSeleccionCelda("CeldaEess")' type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaEess) ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaEess) ? $"Celda asignada: {grifoSeleccionado.CeldaEess} (EESS)" : "Sin Asignar - Haz clic para seleccionar en plantilla")">
+                                            <span>@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaEess) ? grifoSeleccionado.CeldaEess : "Seleccionar celda")</span>
+                                        </button>
+                                        @if (!string.IsNullOrEmpty(grifoSeleccionado.CeldaEess))
+                                        {
+                                            <button @onclick="() => { grifoSeleccionado.CeldaEess = null; grifoSeleccionado.PalabraClaveEess = null; }" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold text-[10px]" title="Limpiar valor">✕</button>
+                                        }
+                                    </div>
                                 </div>
 
                                 <!-- 4: Palabra Clave EESS -->
                                 <div class="flex flex-col gap-1.5">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">4: Palabra Clave EESS</label>
-                                    <input type="text" readonly class="w-full rounded-xl px-3 py-2 text-xs font-bold border border-slate-200 bg-slate-100 text-slate-600 select-none outline-none min-h-[34px]" value="@grifoSeleccionado.PalabraClaveEess" title="Réplica automática del valor en la celda EESS" />
+                                    <input type="text" readonly class="w-full rounded-xl px-3 py-2 text-xs font-bold border border-slate-200 bg-slate-100 text-slate-600 select-none outline-none min-h-[34px]" value="@grifoSeleccionado.PalabraClaveEess" title="Réplica automática del valor contenido en la celda EESS (no editable)" />
                                 </div>
 
                                 <!-- 5: TOTAL SALIDA DB5 -->
-                                <div class="flex flex-col gap-1.5 relative">
+                                <div class="flex flex-col gap-1.5">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">5: TOTAL SALIDA DB5</label>
-                                    <button @onclick='() => ActivarSeleccionCelda("CeldaTotalDb5")' type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalDb5) ? "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;" : "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;")">
-                                        <span>@(string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalDb5) ? "Seleccionar celda" : grifoSeleccionado.CeldaTotalDb5)</span>
-                                    </button>
-                                    @if (!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalDb5))
-                                    {
-                                        <button @onclick="() => grifoSeleccionado.CeldaTotalDb5 = null" type="button" class="absolute right-1 bottom-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all font-bold text-[10px]">✕</button>
-                                    }
+                                    <div class="relative flex items-center">
+                                        <button @onclick='() => ActivarSeleccionCelda("CeldaTotalDb5")' type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalDb5) ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalDb5) ? $"Celda asignada: {grifoSeleccionado.CeldaTotalDb5} (TOTAL SALIDA DB5)" : "Sin Asignar - Haz clic para seleccionar en plantilla")">
+                                            <span>@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalDb5) ? grifoSeleccionado.CeldaTotalDb5 : "Seleccionar celda")</span>
+                                        </button>
+                                        @if (!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalDb5))
+                                        {
+                                            <button @onclick="() => grifoSeleccionado.CeldaTotalDb5 = null" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold text-[10px]" title="Limpiar valor">✕</button>
+                                        }
+                                    </div>
                                 </div>
 
                                 <!-- 6: TOTAL SALIDA GLP -->
-                                <div class="flex flex-col gap-1.5 relative">
+                                <div class="flex flex-col gap-1.5">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">6: TOTAL SALIDA GLP</label>
-                                    <button @onclick='() => ActivarSeleccionCelda("CeldaTotalGlp")' type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGlp) ? "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;" : "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;")">
-                                        <span>@(string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGlp) ? "Seleccionar celda" : grifoSeleccionado.CeldaTotalGlp)</span>
-                                    </button>
-                                    @if (!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGlp))
-                                    {
-                                        <button @onclick="() => grifoSeleccionado.CeldaTotalGlp = null" type="button" class="absolute right-1 bottom-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all font-bold text-[10px]">✕</button>
-                                    }
+                                    <div class="relative flex items-center">
+                                        <button @onclick='() => ActivarSeleccionCelda("CeldaTotalGlp")' type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGlp) ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGlp) ? $"Celda asignada: {grifoSeleccionado.CeldaTotalGlp} (TOTAL SALIDA GLP)" : "Sin Asignar - Haz clic para seleccionar en plantilla")">
+                                            <span>@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGlp) ? grifoSeleccionado.CeldaTotalGlp : "Seleccionar celda")</span>
+                                        </button>
+                                        @if (!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGlp))
+                                        {
+                                            <button @onclick="() => grifoSeleccionado.CeldaTotalGlp = null" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold text-[10px]" title="Limpiar valor">✕</button>
+                                        }
+                                    </div>
                                 </div>
 
                                 <!-- 7: TOTAL SALIDA GASOHOL PREMIUM -->
-                                <div class="flex flex-col gap-1.5 relative">
+                                <div class="flex flex-col gap-1.5">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">7: TOTAL SALIDA GASOHOL PREMIUM</label>
-                                    <button @onclick='() => ActivarSeleccionCelda("CeldaTotalGasoholPremium")' type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGasoholPremium) ? "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;" : "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;")">
-                                        <span>@(string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGasoholPremium) ? "Seleccionar celda" : grifoSeleccionado.CeldaTotalGasoholPremium)</span>
-                                    </button>
-                                    @if (!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGasoholPremium))
-                                    {
-                                        <button @onclick="() => grifoSeleccionado.CeldaTotalGasoholPremium = null" type="button" class="absolute right-1 bottom-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all font-bold text-[10px]">✕</button>
-                                    }
+                                    <div class="relative flex items-center">
+                                        <button @onclick='() => ActivarSeleccionCelda("CeldaTotalGasoholPremium")' type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGasoholPremium) ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGasoholPremium) ? $"Celda asignada: {grifoSeleccionado.CeldaTotalGasoholPremium} (TOTAL GASOHOL PREMIUM)" : "Sin Asignar - Haz clic para seleccionar en plantilla")">
+                                            <span>@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGasoholPremium) ? grifoSeleccionado.CeldaTotalGasoholPremium : "Seleccionar celda")</span>
+                                        </button>
+                                        @if (!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGasoholPremium))
+                                        {
+                                            <button @onclick="() => grifoSeleccionado.CeldaTotalGasoholPremium = null" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold text-[10px]" title="Limpiar valor">✕</button>
+                                        }
+                                    </div>
                                 </div>
 
                                 <!-- 8: TOTAL SALIDA GASOHOL REGULAR -->
-                                <div class="flex flex-col gap-1.5 relative">
+                                <div class="flex flex-col gap-1.5">
                                     <label class="text-[8px] font-black text-slate-500 uppercase">8: TOTAL SALIDA GASOHOL REGULAR</label>
-                                    <button @onclick='() => ActivarSeleccionCelda("CeldaTotalGasoholRegular")' type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGasoholRegular) ? "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;" : "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;")">
-                                        <span>@(string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGasoholRegular) ? "Seleccionar celda" : grifoSeleccionado.CeldaTotalGasoholRegular)</span>
-                                    </button>
-                                    @if (!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGasoholRegular))
-                                    {
-                                        <button @onclick="() => grifoSeleccionado.CeldaTotalGasoholRegular = null" type="button" class="absolute right-1 bottom-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all font-bold text-[10px]">✕</button>
-                                    }
+                                    <div class="relative flex items-center">
+                                        <button @onclick='() => ActivarSeleccionCelda("CeldaTotalGasoholRegular")' type="button" class="w-full rounded-xl px-3 py-2 text-xs font-bold outline-none transition-all duration-300 border text-center select-none cursor-pointer flex items-center justify-center gap-1 min-h-[34px]" style="@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGasoholRegular) ? "background-color: #0f172a !important; border-color: #0f172a !important; color: #ffffff !important;" : "background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important;")" title="@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGasoholRegular) ? $"Celda asignada: {grifoSeleccionado.CeldaTotalGasoholRegular} (TOTAL GASOHOL REGULAR)" : "Sin Asignar - Haz clic para seleccionar en plantilla")">
+                                            <span>@(!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGasoholRegular) ? grifoSeleccionado.CeldaTotalGasoholRegular : "Seleccionar celda")</span>
+                                        </button>
+                                        @if (!string.IsNullOrEmpty(grifoSeleccionado.CeldaTotalGasoholRegular))
+                                        {
+                                            <button @onclick="() => grifoSeleccionado.CeldaTotalGasoholRegular = null" type="button" class="absolute right-1 p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-slate-450 hover:text-rose-600 transition-all cursor-pointer shadow-sm select-none font-bold text-[10px]" title="Limpiar valor">✕</button>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -226,61 +243,109 @@
 <!-- MODAL: Ver Plantilla Excel -->
 @if (mostrarModalVerPlantilla)
 {
-    <div class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-6xl w-full p-6 shadow-2xl border border-slate-100 flex flex-col gap-4 animate-scale-up" style="max-height: 85vh;">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div>
-                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider">Visor de Plantilla: @grifoSeleccionado?.Plantilla</h3>
-                    <span class="text-[10px] font-bold text-slate-400">Haz clic en cualquier celda para asignarla al campo activo (@campoSeleccionadoModal)</span>
+    <div class="fixed inset-0 z-[9999] bg-slate-950/85 backdrop-blur-md flex flex-col p-2 sm:p-4 animate-modal-in">
+        <div class="bg-white rounded-[24px] shadow-2xl border border-slate-200 w-full h-full flex flex-col overflow-hidden">
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-slate-200 bg-[#0f172a] text-white flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-black text-xs shrink-0">
+                        XLSX
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-xs font-black uppercase tracking-wider text-white truncate">Visor Completo de Plantilla Excel: @grifoSeleccionado?.Plantilla</h3>
+                            <span class="px-2 py-0.5 rounded bg-emerald-500 text-white text-[9px] font-black uppercase shrink-0">100% Fullscreen</span>
+                        </div>
+                        <span class="text-[11px] font-medium text-slate-300 block mt-0.5 truncate">Haz clic en cualquier celda para capturar su posición y asignarla al campo activo (<strong class="text-amber-400 underline font-black">@campoSeleccionadoModal</strong>).</span>
+                    </div>
                 </div>
-                <button @onclick="() => mostrarModalVerPlantilla = false" class="p-2 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-600 font-bold">✕</button>
+                <button @onclick="() => mostrarModalVerPlantilla = false" class="px-4 py-2 bg-slate-800 hover:bg-rose-600 text-slate-200 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0 shadow-md">
+                    <span>✕ Cerrar Visor</span>
+                </button>
             </div>
 
-            <div class="overflow-auto custom-scrollbar flex-1 border border-slate-200 rounded-2xl">
-                <table class="w-full text-left border-collapse text-[10px] font-mono">
-                    <thead class="bg-slate-800 text-white sticky top-0 z-10">
-                        <tr>
-                            <th class="p-2 border border-slate-700 w-12 text-center">#</th>
-                            @for (int c = 0; c < maxColumnasPlantilla; c++)
-                            {
-                                <th class="p-2 border border-slate-700 text-center">@PETRO_BOT.Services.Services.ParteDiarioTotalService.ObtenerNombreCelda(c, 1).TrimEnd('1')</th>
-                            }
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for (int r = 0; r < filasPlantilla.Count; r++)
-                        {
-                            int rowNum = r + 1;
-                            var fila = filasPlantilla[r];
-                            <tr class="hover:bg-amber-50/50">
-                                <td class="p-2 border border-slate-200 bg-slate-100 font-bold text-center">@rowNum</td>
+            <!-- Body (Excel Grid con formato y colores reales) -->
+            <div class="overflow-auto custom-scrollbar flex-1 bg-slate-100 p-4">
+                <div class="inline-block min-w-full bg-white shadow-xl border border-slate-300 rounded-xl overflow-hidden">
+                    <table class="border-collapse text-[11px] font-sans">
+                        <thead class="sticky top-0 z-20 bg-[#1e293b] text-white shadow-md">
+                            <tr>
+                                <th class="p-2.5 border border-slate-600 w-12 text-center bg-slate-900 font-mono text-[10px] select-none sticky left-0 z-30">#</th>
                                 @for (int c = 0; c < maxColumnasPlantilla; c++)
                                 {
-                                    int colIdx = c;
-                                    string val = colIdx < fila.Count ? fila[colIdx] : "";
-                                    string celdaNombre = PETRO_BOT.Services.Services.ParteDiarioTotalService.ObtenerNombreCelda(colIdx, rowNum);
-                                    <td @onclick="() => SeleccionarCeldaDesdePlantilla(celdaNombre, val)" class="p-2 border border-slate-200 cursor-pointer hover:bg-amber-200 truncate max-w-[120px]" title="Celda @celdaNombre: @val">
-                                        @val
-                                    </td>
+                                    <th class="p-2.5 border border-slate-600 text-center font-mono text-[10px] select-none min-w-[90px] font-black tracking-wider">@PETRO_BOT.Services.Services.ParteDiarioTotalService.ObtenerNombreCelda(c, 1).TrimEnd('1')</th>
                                 }
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @for (int r = 0; r < filasPlantilla.Count; r++)
+                            {
+                                int rowNum = r + 1;
+                                var fila = filasPlantilla[r];
+                                <tr>
+                                    <td class="p-2 border border-slate-300 bg-slate-200 font-mono font-bold text-center text-slate-700 select-none sticky left-0 z-10 shadow-sm text-xs">@rowNum</td>
+                                    @for (int c = 0; c < maxColumnasPlantilla; c++)
+                                    {
+                                        int colIdx = c;
+                                        var celdaInfo = colIdx < fila.Count ? fila[colIdx] : new CeldaPlantillaInfo();
+                                        string celdaNombre = PETRO_BOT.Services.Services.ParteDiarioTotalService.ObtenerNombreCelda(colIdx, rowNum);
+                                        
+                                        string mappedLabel = ObtenerMapeoCelda(celdaNombre);
+                                        bool esElMismo = (!string.IsNullOrEmpty(campoSeleccionadoModal) && ObtenerEtiquetaCampo(campoSeleccionadoModal) == mappedLabel);
+                                        bool tieneMapeo = !string.IsNullOrEmpty(mappedLabel);
+
+                                        <td @onclick="() => SeleccionarCeldaDesdePlantilla(celdaNombre, celdaInfo.Valor)" 
+                                            class="p-2 border border-slate-300 cursor-pointer transition-all relative overflow-visible hover:ring-2 hover:ring-amber-500 hover:z-20 select-none @(esElMismo ? "ring-2 ring-emerald-500 shadow-lg scale-[1.02] z-10" : tieneMapeo ? "ring-1 ring-slate-400 opacity-85" : "")"
+                                            style="background-color: @celdaInfo.BgColor; color: @celdaInfo.TextColor; font-weight: @(celdaInfo.EsBold || tieneMapeo ? "800" : "400"); text-align: @celdaInfo.Align;"
+                                            title="@(tieneMapeo ? $"Celda {celdaNombre} asignada a: {mappedLabel}" : $"Haga clic para seleccionar {celdaNombre} para {ObtenerEtiquetaCampo(campoSeleccionadoModal)}")">
+                                            <div class="relative w-full h-full flex items-center justify-center overflow-visible">
+                                                <span class="truncate max-w-[200px]">@celdaInfo.Valor</span>
+                                                @if (esElMismo)
+                                                {
+                                                    <div class="absolute bottom-full left-1/2 mb-1 px-2.5 py-1 bg-[#0f172a] text-white text-[9px] font-black uppercase tracking-wider rounded-lg shadow-xl z-[9999] whitespace-nowrap pointer-events-none select-none flex items-center gap-1 border border-slate-700 premium-tooltip-breath">
+                                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                                        <span>@mappedLabel (@celdaNombre)</span>
+                                                    </div>
+                                                }
+                                                else if (tieneMapeo)
+                                                {
+                                                    <div class="absolute bottom-full left-1/2 mb-1 px-2.5 py-1 bg-[#7f8c8d] text-white text-[9px] font-black uppercase tracking-wider rounded-lg shadow-xl z-[9999] whitespace-nowrap pointer-events-none select-none flex items-center gap-1 border border-slate-400 premium-tooltip-breath-gray">
+                                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-350 animate-pulse"></span>
+                                                        <span>En Uso: @mappedLabel</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 }
 
 @code {
+    public class CeldaPlantillaInfo
+    {
+        public string Valor { get; set; } = "";
+        public string BgColor { get; set; } = "#ffffff";
+        public string TextColor { get; set; } = "#1e293b";
+        public bool EsBold { get; set; } = false;
+        public string Align { get; set; } = "left";
+    }
+
     private List<ConfiguracionParteDiarioTotalModel> grifosList = new();
     private ConfiguracionParteDiarioTotalModel? grifoSeleccionado;
     private bool mostrarModalNuevoGrifo = false;
     private string nuevoGrifoNombre = "";
 
     private bool mostrarModalVerPlantilla = false;
+    private bool cargandoPlantilla = false;
     private string campoSeleccionadoModal = "";
-    private List<List<string>> filasPlantilla = new();
+    private List<List<CeldaPlantillaInfo>> filasPlantilla = new();
     private int maxColumnasPlantilla = 0;
 
     protected override async Task OnInitializedAsync()
@@ -357,23 +422,35 @@
         var archivo = e.File;
         if (archivo == null) return;
 
-        string carpeta = Path.Combine(env.WebRootPath, "bd", "ParteDiarioTotales");
-        if (!Directory.Exists(carpeta)) Directory.CreateDirectory(carpeta);
+        cargandoPlantilla = true;
+        StateHasChanged();
+        await Task.Delay(30);
 
-        string nombreGuardar = $"{grifoSeleccionado.NombreGrifo.Replace(" ", "_")}_{archivo.Name}";
-        string rutaCompleta = Path.Combine(carpeta, nombreGuardar);
-
-        using (var fs = new FileStream(rutaCompleta, FileMode.Create))
+        try
         {
-            await archivo.OpenReadStream(20 * 1024 * 1024).CopyToAsync(fs);
-        }
+            string carpeta = Path.Combine(env.WebRootPath, "bd", "ParteDiarioTotales");
+            if (!Directory.Exists(carpeta)) Directory.CreateDirectory(carpeta);
 
-        grifoSeleccionado.Plantilla = nombreGuardar;
-        await ParteDiarioService.GuardarConfiguracionAsync(grifoSeleccionado);
-        ToastService.Success("Plantilla subida y vinculada al grifo.");
+            string nombreGuardar = $"{grifoSeleccionado.NombreGrifo.Replace(" ", "_")}_{archivo.Name}";
+            string rutaCompleta = Path.Combine(carpeta, nombreGuardar);
+
+            using (var fs = new FileStream(rutaCompleta, FileMode.Create))
+            {
+                await archivo.OpenReadStream(20 * 1024 * 1024).CopyToAsync(fs);
+            }
+
+            grifoSeleccionado.Plantilla = nombreGuardar;
+            await ParteDiarioService.GuardarConfiguracionAsync(grifoSeleccionado);
+            ToastService.Success("Plantilla subida y vinculada al grifo.");
+        }
+        finally
+        {
+            cargandoPlantilla = false;
+            StateHasChanged();
+        }
     }
 
-    private void ActivarSeleccionCelda(string campo)
+    private async Task ActivarSeleccionCelda(string campo)
     {
         if (grifoSeleccionado == null) return;
         if (string.IsNullOrWhiteSpace(grifoSeleccionado.Plantilla))
@@ -382,10 +459,10 @@
             return;
         }
         campoSeleccionadoModal = campo;
-        AbrirModalVerPlantilla();
+        await AbrirModalVerPlantilla();
     }
 
-    private void AbrirModalVerPlantilla()
+    private async Task AbrirModalVerPlantilla()
     {
         if (grifoSeleccionado == null || string.IsNullOrWhiteSpace(grifoSeleccionado.Plantilla)) return;
         string ruta = Path.Combine(env.WebRootPath, "bd", "ParteDiarioTotales", grifoSeleccionado.Plantilla);
@@ -395,24 +472,98 @@
             return;
         }
 
-        filasPlantilla.Clear();
-        maxColumnasPlantilla = 0;
+        cargandoPlantilla = true;
+        StateHasChanged();
+        await Task.Delay(30);
 
-        using var stream = new FileStream(ruta, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-        using var reader = ExcelReaderFactory.CreateReader(stream);
-
-        while (reader.Read())
+        try
         {
-            var fila = new List<string>();
-            for (int i = 0; i < reader.FieldCount; i++)
-            {
-                fila.Add(reader.GetValue(i)?.ToString()?.Trim() ?? "");
-            }
-            if (fila.Count > maxColumnasPlantilla) maxColumnasPlantilla = fila.Count;
-            filasPlantilla.Add(fila);
-        }
+            var tempFilas = new List<List<CeldaPlantillaInfo>>();
+            int tempMaxCol = 0;
 
-        mostrarModalVerPlantilla = true;
+            await Task.Run(() =>
+            {
+                try
+                {
+                    ExcelPackage.License.SetNonCommercialPersonal("PETROBOT");
+                    using var stream = new FileStream(ruta, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    using var package = new ExcelPackage(stream);
+                    var ws = package.Workbook.Worksheets.FirstOrDefault();
+                    if (ws != null)
+                    {
+                        int maxRows = Math.Min(ws.Dimension?.End.Row ?? 50, 100);
+                        int maxCols = Math.Min(ws.Dimension?.End.Column ?? 20, 50);
+                        tempMaxCol = maxCols;
+
+                        for (int r = 1; r <= maxRows; r++)
+                        {
+                            var fila = new List<CeldaPlantillaInfo>();
+                            for (int c = 1; c <= maxCols; c++)
+                            {
+                                var cell = ws.Cells[r, c];
+                                string val = cell.Text ?? "";
+                                if (string.IsNullOrEmpty(val)) val = cell.Value?.ToString()?.Trim() ?? "";
+
+                                string bg = "#ffffff";
+                                if (cell.Style.Fill.PatternType != OfficeOpenXml.Style.ExcelFillStyle.None)
+                                {
+                                    bg = GetHexColor(cell.Style.Fill.BackgroundColor);
+                                    if (string.IsNullOrEmpty(bg)) bg = "#ffffff";
+                                }
+
+                                string fg = "#1e293b";
+                                var fontHex = GetHexColor(cell.Style.Font.Color);
+                                if (!string.IsNullOrEmpty(fontHex)) fg = fontHex;
+
+                                bool bold = cell.Style.Font.Bold;
+                                string align = cell.Style.HorizontalAlignment switch
+                                {
+                                    OfficeOpenXml.Style.ExcelHorizontalAlignment.Center => "center",
+                                    OfficeOpenXml.Style.ExcelHorizontalAlignment.Right => "right",
+                                    _ => "left"
+                                };
+
+                                fila.Add(new CeldaPlantillaInfo
+                                {
+                                    Valor = val,
+                                    BgColor = bg,
+                                    TextColor = fg,
+                                    EsBold = bold,
+                                    Align = align
+                                });
+                            }
+                            tempFilas.Add(fila);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    // Fallback con ExcelDataReader
+                    using var stream = new FileStream(ruta, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    using var reader = ExcelReaderFactory.CreateReader(stream);
+
+                    while (reader.Read() && tempFilas.Count < 100)
+                    {
+                        var fila = new List<CeldaPlantillaInfo>();
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            fila.Add(new CeldaPlantillaInfo { Valor = reader.GetValue(i)?.ToString()?.Trim() ?? "" });
+                        }
+                        if (fila.Count > tempMaxCol) tempMaxCol = fila.Count;
+                        tempFilas.Add(fila);
+                    }
+                }
+            });
+
+            filasPlantilla = tempFilas;
+            maxColumnasPlantilla = tempMaxCol;
+            mostrarModalVerPlantilla = true;
+        }
+        finally
+        {
+            cargandoPlantilla = false;
+            StateHasChanged();
+        }
     }
 
     private void SeleccionarCeldaDesdePlantilla(string nombreCelda, string valorCelda)
@@ -433,4 +584,77 @@
         mostrarModalVerPlantilla = false;
         ToastService.Success($"Celda {nombreCelda} asignada correctamente. Recuerda Guardar.");
     }
+
+    private string GetHexColor(OfficeOpenXml.Style.ExcelColor color)
+    {
+        if (color == null) return "";
+        try
+        {
+            string hex = color.LookupColor() ?? "";
+            if (hex.StartsWith("#")) hex = hex.Substring(1);
+            if (!string.IsNullOrEmpty(hex))
+            {
+                if (hex.Length == 8) hex = hex.Substring(2);
+                return "#" + hex;
+            }
+        }
+        catch
+        {
+            try
+            {
+                string hex = color.Rgb ?? "";
+                if (hex.StartsWith("#")) hex = hex.Substring(1);
+                if (!string.IsNullOrEmpty(hex))
+                {
+                    if (hex.Length == 8) hex = hex.Substring(2);
+                    return "#" + hex;
+                }
+            }
+            catch {}
+        }
+        return "";
+    }
+
+    private string ObtenerMapeoCelda(string celdaNombre)
+    {
+        if (grifoSeleccionado == null) return "";
+        if (celdaNombre == grifoSeleccionado.CeldaFecha) return "Columna Fecha";
+        if (celdaNombre == grifoSeleccionado.CeldaEess) return "EESS";
+        if (celdaNombre == grifoSeleccionado.CeldaTotalDb5) return "TOTAL SALIDA DB5";
+        if (celdaNombre == grifoSeleccionado.CeldaTotalGlp) return "TOTAL SALIDA GLP";
+        if (celdaNombre == grifoSeleccionado.CeldaTotalGasoholPremium) return "TOTAL GASOHOL PREMIUM";
+        if (celdaNombre == grifoSeleccionado.CeldaTotalGasoholRegular) return "TOTAL GASOHOL REGULAR";
+        return "";
+    }
+
+    private string ObtenerEtiquetaCampo(string campo)
+    {
+        return campo switch
+        {
+            "CeldaFecha" => "Columna Fecha",
+            "CeldaEess" => "EESS",
+            "CeldaTotalDb5" => "TOTAL SALIDA DB5",
+            "CeldaTotalGlp" => "TOTAL SALIDA GLP",
+            "CeldaTotalGasoholPremium" => "TOTAL GASOHOL PREMIUM",
+            "CeldaTotalGasoholRegular" => "TOTAL GASOHOL REGULAR",
+            _ => campo
+        };
+    }
 }
+
+<style>
+    @@keyframes pulse-breath {
+        0%, 100% { transform: translate(-50%, 0) scale(1); }
+        50% { transform: translate(-50%, -4px) scale(1.03); }
+    }
+    @@keyframes pulse-breath-gray {
+        0%, 100% { transform: translate(-50%, 0) scale(1); }
+        50% { transform: translate(-50%, -3px) scale(1.02); }
+    }
+    .premium-tooltip-breath {
+        animation: pulse-breath 2.5s ease-in-out infinite !important;
+    }
+    .premium-tooltip-breath-gray {
+        animation: pulse-breath-gray 2.5s ease-in-out infinite !important;
+    }
+</style>
