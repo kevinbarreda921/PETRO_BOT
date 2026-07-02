@@ -18,6 +18,7 @@ builder.Services.AddSingleton<ToastService>();
 builder.Services.AddSingleton<HistorialService>();
 builder.Services.AddSingleton<PETRO_BOT.Services.Services.ValidacionPrecioService>();
 builder.Services.AddSingleton<PETRO_BOT.Services.Services.ParteDiarioTotalService>();
+builder.Services.AddSingleton<PETRO_BOT.Services.Services.ImportarPrecioCompraService>();
 builder.Services.AddSingleton<PETRO_BOT.Services.WebActiva.WebActivaScraperService>();
 
 var app = builder.Build();
